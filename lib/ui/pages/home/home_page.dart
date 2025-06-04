@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:your_write/ui/pages/home/widgets/home_post_widget.dart';
 
 class HomePage extends StatelessWidget {
