@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:your_write/ui/pages/random_post/widgets/random_post_list.dart';
 
 class RandomPage extends StatelessWidget {
   const RandomPage({super.key});
@@ -14,7 +15,7 @@ class RandomPage extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [],
+              children: [RandomPostList()],
             ),
           ),
         ],
