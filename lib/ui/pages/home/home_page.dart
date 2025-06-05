@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/home/widgets/home_post_widget.dart';
+import 'package:your_write/ui/pages/home/widgets/home_post_list.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,24 +15,7 @@ class HomePage extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [
-                Column(
-                  children: [
-                    HomePostWidget(),
-                    SizedBox(height: 30),
-                    HomePostWidget(),
-                    SizedBox(height: 30),
-                    HomePostWidget(),
-                    SizedBox(height: 30),
-                    HomePostWidget(),
-                    SizedBox(height: 30),
-                    HomePostWidget(),
-                    SizedBox(height: 30),
-                    HomePostWidget(),
-                    SizedBox(height: 30),
-                  ],
-                ),
-              ],
+              children: [HomePostList()],
             ),
           ),
         ],
