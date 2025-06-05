@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:your_write/ui/pages/ai_post/widgets/ai_post_list.dart';
 
 class AiPage extends StatelessWidget {
   const AiPage({super.key});
@@ -14,7 +15,7 @@ class AiPage extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [],
+              children: [AiPostList()],
             ),
           ),
         ],
