@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class WritePage extends StatefulWidget {
-  const WritePage({super.key});
+class MainWritePage extends StatefulWidget {
+  const MainWritePage({super.key});
 
   @override
-  State<WritePage> createState() => _WritePageState();
+  State<MainWritePage> createState() => _WritePageState();
 }
 
-class _WritePageState extends State<WritePage> {
+class _WritePageState extends State<MainWritePage> {
   final _titleController = TextEditingController();
   final _keywordController = TextEditingController();
   final _authorController = TextEditingController();
