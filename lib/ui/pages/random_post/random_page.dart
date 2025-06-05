@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/home/widgets/home_post_list.dart';
+import 'package:your_write/ui/pages/random_post/widgets/random_post_list.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class RandomPage extends StatelessWidget {
+  const RandomPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [HomePostList()],
+              children: [RandomPostList()],
             ),
           ),
         ],
