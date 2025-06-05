@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:your_write/ui/pages/detail/widgets/detail_write.dart';
 
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key});
@@ -14,34 +15,15 @@ class DetailPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               children: [
-                Text(
-                  '나의 여름',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                DetailTitle(),
                 const SizedBox(height: 8),
-                Text(
-                  'by 수줍은',
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                ),
+                DetailWriter(),
                 const SizedBox(height: 12),
-                Text(
-                  '#계절 #봄',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                DetailKeyword(),
                 const Divider(height: 32, thickness: 2),
-                Text(
-                  '나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n ',
-                  style: const TextStyle(fontSize: 18, height: 1.5),
-                  textAlign: TextAlign.center,
-                ),
+                DetailContent(),
                 Divider(height: 32, thickness: 2),
-                const SizedBox(height: 24),
+                const SizedBox(height: 5),
                 TextField(
                   decoration: InputDecoration(
                     hintText: '댓글을 입력하세요',
