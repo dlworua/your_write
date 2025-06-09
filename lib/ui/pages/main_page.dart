@@ -4,7 +4,7 @@ import 'package:your_write/ui/pages/home/home_page.dart';
 import 'package:your_write/ui/pages/random_post/random_page.dart';
 import 'package:your_write/ui/pages/write/main_write_page.dart';
 import 'package:your_write/ui/pages/write/random_write_page.dart';
-import 'package:your_write/ui/widgets/bottom_navigation_bar.dart';
+import 'package:your_write/ui/widgets/bottom_navigation_bar/bottom_nav_bar.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
