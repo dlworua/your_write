@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:your_write/ui/pages/ai_post/ai_page.dart';
 import 'package:your_write/ui/pages/home/home_page.dart';
 import 'package:your_write/ui/pages/random_post/random_page.dart';
+import 'package:your_write/ui/pages/write/main_write_page.dart';
+import 'package:your_write/ui/pages/write/random_write_page.dart';
 import 'package:your_write/ui/widgets/bottom_navigation_bar.dart';
 
 class MainPage extends StatefulWidget {
@@ -15,15 +17,23 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 1;
   final PageController _pageController = PageController(initialPage: 1);
 
-  final List<Widget> _pages = const [AiPage(), HomePage(), RandomPage()];
+  final List<Widget> _pages = const [
+    AiPage(),
+    HomePage(),
+    RandomPage(),
+    MainWritePage(),
+    RandomWritePage(),
+  ];
 
   void _onTabTapped(int index) {
+    if (index <= 2) {
+      setState(() => _currentIndex = index);
+    }
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      curve: Curves.bounceInOut,
     );
-    setState(() => _currentIndex = index);
   }
 
   @override
