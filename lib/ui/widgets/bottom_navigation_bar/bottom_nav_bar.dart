@@ -122,18 +122,6 @@ class _PopupMenu extends StatelessWidget {
                   title: Text('랜덤 키워드'),
                   onTap: () => onItemSelected(2),
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.shuffle, color: Colors.orange),
-                  title: Text('상세페이지'),
-                  onTap: () => onItemSelected(3),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.shuffle, color: Colors.orange),
-                  title: Text('상세페이지'),
-                  onTap: () => onItemSelected(4),
-                ),
               ],
             ),
           ),
