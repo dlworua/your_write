@@ -12,18 +12,17 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: currentIndex, // 현재 선택된 탭 표시
       backgroundColor: const Color(0xFFFFF3C3),
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
-      onTap: onTap,
+      selectedItemColor: Colors.grey, // 선택된 버튼
+      unselectedItemColor: Colors.black, // 선택되지 않은 버튼
+      onTap: onTap, // 탭을 클릭 시 실행할 함수 (mainPage에서 처리)
+      showSelectedLabels: false, // 선택된 라벨 숨기기
+      showUnselectedLabels: false, // 선택되지 않은 라벨 숨기기
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list_rounded),
-          label: '페이지 목록',
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '홈'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이'),
+        BottomNavigationBarItem(icon: Icon(Icons.list_rounded), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
       ],
     );
   }
