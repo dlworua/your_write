@@ -7,11 +7,12 @@ class HomePostTop extends StatelessWidget {
     final List<String> reportReasons = [
       '욕설/비방',
       '음란성 내용',
-      '도배/광고',
+      '광고성 게시글',
       '개인정보 노출',
       '기타',
     ];
     String? selectedReason;
+    final TextEditingController etcController = TextEditingController();
 
     showDialog(
       context: context,
@@ -22,19 +23,31 @@ class HomePostTop extends StatelessWidget {
                 title: const Text('게시글 신고'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children:
-                      reportReasons
-                          .map(
-                            (reason) => RadioListTile<String>(
-                              title: Text(reason),
-                              value: reason,
-                              groupValue: selectedReason,
-                              onChanged: (value) {
-                                setState(() => selectedReason = value);
-                              },
-                            ),
-                          )
-                          .toList(),
+                  children: [
+                    ...reportReasons.map(
+                      (reason) => RadioListTile<String>(
+                        title: Text(reason),
+                        value: reason,
+                        groupValue: selectedReason,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedReason = value;
+                          });
+                        },
+                      ),
+                    ),
+                    if (selectedReason == '기타') ...[
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: etcController,
+                        decoration: const InputDecoration(
+                          labelText: '신고 사유를 입력하세요',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 2,
+                      ),
+                    ],
+                  ],
                 ),
                 actions: [
                   TextButton(
@@ -50,11 +63,22 @@ class HomePostTop extends StatelessWidget {
                         return;
                       }
 
+                      if (selectedReason == '기타' &&
+                          etcController.text.trim().isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('기타 사유를 입력해주세요.')),
+                        );
+                        return;
+                      }
+
+                      final reason =
+                          selectedReason == '기타'
+                              ? '기타 - ${etcController.text.trim()}'
+                              : selectedReason;
+
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('신고가 접수되었습니다. ($selectedReason)'),
-                        ),
+                        SnackBar(content: Text('신고가 접수되었습니다. ($reason)')),
                       );
 
                       // TODO: 여기에 서버로 신고 전송 또는 저장 처리 추가
