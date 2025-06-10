@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/ui/pages/ai_post/ai_page.dart';
-import 'package:your_write/ui/pages/detail/detail_page.dart';
 import 'package:your_write/ui/pages/home/home_page.dart';
+import 'package:your_write/ui/pages/my_profile/my_profile_page.dart';
 import 'package:your_write/ui/pages/random_post/random_page.dart';
-import 'package:your_write/ui/pages/write/main_write_page.dart';
-import 'package:your_write/ui/pages/write/random_write_page.dart';
-import 'package:your_write/ui/pages/write/widgets/ai_write_page.dart';
 import 'package:your_write/ui/widgets/bottom_navigation_bar/bottom_nav_bar.dart';
 
 class MainPage extends StatefulWidget {
@@ -19,7 +16,12 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 1;
   final PageController _pageController = PageController(initialPage: 1);
 
-  final List<Widget> _pages = const [AiPage(), HomePage(), RandomPage()];
+  final List<Widget> _pages = const [
+    AiPage(),
+    HomePage(),
+    MyProfilePage(),
+    RandomPage(),
+  ];
 
   void _onTabTapped(int index) {
     if (index <= 2) {
