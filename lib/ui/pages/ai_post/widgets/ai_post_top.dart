@@ -1,8 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class AiPostTop extends StatelessWidget {
   const AiPostTop({super.key});
+
+  void _onReportPressed(BuildContext context) {
+    showDialog(context: context, builder: (context) => const ReportDialog());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +32,10 @@ class AiPostTop extends StatelessWidget {
             SizedBox(width: 10),
             Text('닉네임'),
             Spacer(),
-            IconButton(onPressed: () {}, icon: Icon(Icons.flag)),
+            IconButton(
+              onPressed: () => _onReportPressed(context),
+              icon: Icon(Icons.flag),
+            ),
           ],
         ),
       ),

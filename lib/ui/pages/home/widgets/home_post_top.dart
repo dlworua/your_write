@@ -1,95 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class HomePostTop extends StatelessWidget {
   const HomePostTop({super.key});
 
-  void _showReportDialog(BuildContext context) {
-    final List<String> reportReasons = [
-      '욕설/비방',
-      '음란성 내용',
-      '광고성 게시글',
-      '개인정보 노출',
-      '기타',
-    ];
-    String? selectedReason;
-    final TextEditingController etcController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder:
-              (context, setState) => AlertDialog(
-                title: const Text('게시글 신고'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ...reportReasons.map(
-                      (reason) => RadioListTile<String>(
-                        title: Text(reason),
-                        value: reason,
-                        groupValue: selectedReason,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedReason = value;
-                          });
-                        },
-                      ),
-                    ),
-                    if (selectedReason == '기타') ...[
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: etcController,
-                        decoration: const InputDecoration(
-                          labelText: '신고 사유를 입력하세요',
-                          border: OutlineInputBorder(),
-                        ),
-                        maxLines: 2,
-                      ),
-                    ],
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('취소'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (selectedReason == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('신고 사유를 선택하세요.')),
-                        );
-                        return;
-                      }
-
-                      if (selectedReason == '기타' &&
-                          etcController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('기타 사유를 입력해주세요.')),
-                        );
-                        return;
-                      }
-
-                      final reason =
-                          selectedReason == '기타'
-                              ? '기타 - ${etcController.text.trim()}'
-                              : selectedReason;
-
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('신고가 접수되었습니다. ($reason)')),
-                      );
-
-                      // TODO: 여기에 서버로 신고 전송 또는 저장 처리 추가
-                    },
-                    child: const Text('신고'),
-                  ),
-                ],
-              ),
-        );
-      },
-    );
+  void _onReportPressed(BuildContext context) {
+    showDialog(context: context, builder: (context) => const ReportDialog());
   }
 
   @override
@@ -117,7 +33,7 @@ class HomePostTop extends StatelessWidget {
             Text('닉네임'),
             Spacer(),
             IconButton(
-              onPressed: () => _showReportDialog(context),
+              onPressed: () => _onReportPressed(context),
               icon: Icon(Icons.flag),
             ),
           ],
