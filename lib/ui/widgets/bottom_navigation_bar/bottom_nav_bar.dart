@@ -120,7 +120,7 @@ class _PopupMenu extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.shuffle, color: Colors.orange),
                   title: Text('랜덤 키워드'),
-                  onTap: () => onItemSelected(2),
+                  onTap: () => onItemSelected(3),
                 ),
               ],
             ),
