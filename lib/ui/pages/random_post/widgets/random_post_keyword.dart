@@ -19,7 +19,7 @@ class RandomPostKeyword extends StatelessWidget {
             padding: const EdgeInsets.all(4.0),
             child: Text(
               '사랑해요',
-              style: TextStyle(fontSize: 10),
+              style: TextStyle(fontSize: 9.5),
               textAlign: TextAlign.center,
             ),
           ),
