@@ -8,17 +8,17 @@ class HomePostList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        RandomPostWidget(),
+        HomePostWidget(),
         SizedBox(height: 30),
-        RandomPostWidget(),
+        HomePostWidget(),
         SizedBox(height: 30),
-        RandomPostWidget(),
+        HomePostWidget(),
         SizedBox(height: 30),
-        RandomPostWidget(),
+        HomePostWidget(),
         SizedBox(height: 30),
-        RandomPostWidget(),
+        HomePostWidget(),
         SizedBox(height: 30),
-        RandomPostWidget(),
+        HomePostWidget(),
         SizedBox(height: 30),
       ],
     );
