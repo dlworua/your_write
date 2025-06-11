@@ -38,7 +38,6 @@ class PostGrid extends StatelessWidget {
         crossAxisCount: 2,
         childAspectRatio: 0.75,
         crossAxisSpacing: 16,
-        // mainAxisSpacing: 40,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
