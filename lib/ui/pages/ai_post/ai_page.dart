@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/ui/pages/ai_post/widgets/ai_post_list.dart';
-import 'package:your_write/ui/pages/write/widgets/ai_write_page.dart';
+import 'package:your_write/ui/pages/write/ai_write_page.dart';
 
 class AiPage extends StatelessWidget {
   const AiPage({super.key});
