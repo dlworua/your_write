@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/ai_write.dart';
-import 'package:your_write/ui/pages/ai_write/ai_write_viewmodel.dart';
+import 'package:your_write/ui/pages/ai/ai_write/ai_write_viewmodel.dart';
+import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
 class AiWritePage extends ConsumerStatefulWidget {
   const AiWritePage({super.key});
@@ -74,8 +75,19 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         ).showSnackBar(const SnackBar(content: Text('제목과 본문은 필수입니다.')));
         return;
       }
-      // 저장 로직 넣기 (서버 or 로컬)
-      Navigator.pop(context); // 저장 후 페이지 종료
+
+      final newPost = AiWrite(
+        title: titleController.text.trim(),
+        keyWord: keywordController.text.trim(),
+        author: authorController.text.trim(),
+        content: contentController.text.trim(),
+      );
+
+      // 글 저장 (Riverpod 상태에 추가)
+      ref.read(savedAiWritesProvider.notifier).publish(newPost);
+
+      // 저장 후 이전 화면으로 돌아감
+      Navigator.pop(context);
     }
 
     return Scaffold(
