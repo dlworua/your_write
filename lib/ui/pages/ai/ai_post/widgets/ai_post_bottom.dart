@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/ai_post/widgets/ai_post_keyword.dart';
+import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_keyword.dart';
 
 class AiPostBottom extends StatelessWidget {
-  const AiPostBottom({super.key});
+  final List<String> keywords;
+
+  const AiPostBottom({super.key, required this.keywords});
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +24,14 @@ class AiPostBottom extends StatelessWidget {
           Row(
             children: [
               SizedBox(width: 10),
-              Text('AI 인용구 : ', style: TextStyle(fontSize: 12)),
-              Row(
-                children: [
-                  AiPostKeyword(),
-                  Text(','),
-                  AiPostKeyword(),
-                  Text(','),
-                  AiPostKeyword(),
-                  Text(','),
-                  AiPostKeyword(),
-                  Text(','),
-                  AiPostKeyword(),
-                ],
+
+              const Text('AI 인용구 : ', style: TextStyle(fontSize: 12)),
+              Expanded(
+                child: Wrap(
+                  spacing: 6,
+                  children:
+                      keywords.map((k) => AiPostKeyword(keyword: k)).toList(),
+                ),
               ),
             ],
           ),
