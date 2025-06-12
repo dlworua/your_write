@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AiPostKeyword extends StatelessWidget {
-  const AiPostKeyword({super.key});
+  final String keyword;
+
+  const AiPostKeyword({super.key, required this.keyword});
 
   @override
   Widget build(BuildContext context) {
@@ -13,16 +15,9 @@ class AiPostKeyword extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: Colors.black, width: 0.3),
         ),
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              '사랑해요',
-              style: TextStyle(fontSize: 10),
-              textAlign: TextAlign.center,
-            ),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Text(keyword, style: const TextStyle(fontSize: 10)),
         ),
       ),
     );
