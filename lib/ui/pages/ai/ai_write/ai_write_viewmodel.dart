@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/ai_write.dart';
-import 'package:your_write/ui/pages/ai_write/ai_write_service.dart';
+import 'package:your_write/ui/pages/ai/ai_write/ai_write_service.dart';
 
 // ViewModel을 상태로 관리하는 Riverpod Provider
 // 상태 타입은 [AsyncValue<AiWrite>], 비동기 작업 처리와 에러 핸들링을 위해 사용
