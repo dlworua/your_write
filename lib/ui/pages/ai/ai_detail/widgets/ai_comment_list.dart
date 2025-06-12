@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment.dart';
 
-class CommentList extends StatelessWidget {
+class AiCommentList extends StatelessWidget {
   final List<Comment> comments;
 
-  const CommentList({super.key, required this.comments});
+  const AiCommentList({super.key, required this.comments});
 
   String _formatTimeAgo(DateTime dateTime) {
     final Duration diff = DateTime.now().difference(dateTime);
@@ -37,7 +37,6 @@ class CommentList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    // ignore: deprecated_member_use
                     color: Colors.grey.withOpacity(0.3),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
