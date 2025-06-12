@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AiPostMiddle extends StatelessWidget {
-  const AiPostMiddle({super.key});
+  final String title;
+  final String content;
+
+  const AiPostMiddle({super.key, required this.title, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +19,14 @@ class AiPostMiddle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(padding: EdgeInsets.only(top: 10)),
-          Text('제목', style: TextStyle(fontSize: 40)),
+          Text(title, style: TextStyle(fontSize: 40)),
           SizedBox(height: 30),
-          Text('''이것은 본문입니다.
-                \n본문을 읽어주세요이것은 본문입니다.
-                \n본문을 읽어주세요''', style: TextStyle(fontSize: 20)),
+          Text(
+            content,
+            style: TextStyle(fontSize: 20),
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
