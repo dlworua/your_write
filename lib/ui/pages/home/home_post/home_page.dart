@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/home/widgets/home_post_list.dart';
+import 'package:your_write/ui/pages/home/home_post/widgets/home_post_list.dart';
 import 'package:your_write/ui/pages/write/main_write_page.dart';
 
 class HomePage extends StatelessWidget {
