@@ -24,8 +24,8 @@ class _WritePageState extends State<HomeWritePage> {
 
   void _submitPost() {
     final title = _titleController.text;
-    final keyword = _keywordController.text;
-    final author = _authorController.text;
+    // final keyword = _keywordController.text;
+    // final author = _authorController.text;
     final content = _contentController.text;
 
     if (title.isEmpty || content.isEmpty) {
