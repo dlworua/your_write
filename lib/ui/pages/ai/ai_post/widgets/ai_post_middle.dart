@@ -26,6 +26,7 @@ class AiPostMiddle extends StatelessWidget {
             style: TextStyle(fontSize: 20),
             maxLines: 5,
             overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),

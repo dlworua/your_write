@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment.dart';
 import 'package:your_write/ui/pages/ai/ai_detail/widgets/ai_comment_input.dart';
 import 'package:your_write/ui/pages/ai/ai_detail/widgets/ai_comment_list.dart';
-import 'package:your_write/ui/pages/ai/ai_detail/widgets/ai_detail_writer.dart';
-import 'package:your_write/ui/pages/ai/ai_post/ai_page.dart';
 
 class AiDetailPage extends StatefulWidget {
   final String title;
   final String content;
+  final String author;
+  final String keyword;
+  final DateTime date;
 
-  const AiDetailPage({super.key, required this.title, required this.content});
+  const AiDetailPage({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.author,
+    required this.keyword,
+    required this.date,
+  });
 
   @override
   State<AiDetailPage> createState() => _AiDetailPageState();
@@ -42,24 +50,11 @@ class _AiDetailPageState extends State<AiDetailPage> {
             Stack(
               children: [
                 Image.asset('assets/appbar_logo.png'),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return AiPage();
-                        },
-                      ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 85, left: 30),
-                        child: Icon(Icons.keyboard_return_sharp, size: 30),
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 85, left: 30),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.keyboard_return_sharp, size: 30),
                   ),
                 ),
               ],
@@ -71,15 +66,42 @@ class _AiDetailPageState extends State<AiDetailPage> {
                   vertical: 8,
                 ),
                 children: [
-                  AiDetailTitle(title: widget.title),
+                  Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 8),
-                  AiDetailWriter(),
-                  const SizedBox(height: 12),
-                  AiDetailKeyword(),
+                  Text(
+                    'by ${widget.author}',
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '#${widget.keyword}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}',
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
                   const Divider(height: 32, thickness: 2),
-                  AiDetailContent(content: widget.content),
-                  Divider(height: 32, thickness: 2),
-                  const SizedBox(height: 5),
+                  Text(
+                    widget.content,
+                    style: const TextStyle(fontSize: 18, height: 1.5),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Divider(height: 32, thickness: 2),
                   AiCommentInput(
                     controller: _controller,
                     onSubmitted: _addComment,

@@ -1,14 +1,16 @@
 class AiWrite {
   final String title;
   final String keyWord;
-  final String author;
+  final String nickname;
   final String content;
+  final DateTime date;
 
   AiWrite({
     required this.title,
     required this.keyWord,
-    required this.author,
+    required this.nickname,
     required this.content,
+    required this.date,
   });
 
   AiWrite copyWith({
@@ -16,12 +18,14 @@ class AiWrite {
     String? keyWord,
     String? author,
     String? content,
+    DateTime? date,
   }) {
     return AiWrite(
       title: title ?? this.title,
       keyWord: keyWord ?? this.keyWord,
-      author: author ?? this.author,
+      nickname: author ?? this.nickname,
       content: content ?? this.content,
+      date: date ?? this.date,
     );
   }
 }

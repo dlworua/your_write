@@ -21,10 +21,11 @@ class AiPostList extends ConsumerWidget {
                 (post) => Column(
                   children: [
                     AiPostWidget(
-                      nickname: post.author,
+                      nickname: post.nickname,
                       title: post.title,
                       content: post.content,
                       keywords: post.keyWord.split(','),
+                      date: post.date,
                     ),
                     const SizedBox(height: 30),
                   ],

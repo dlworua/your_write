@@ -73,8 +73,9 @@ class AiWriterService {
       return AiWrite(
         title: title,
         keyWord: keyword,
-        author: '', // 작성자는 ViewModel에서 따로 설정함
+        nickname: '', // 작성자는 ViewModel에서 따로 설정함
         content: content,
+        date: DateTime.now(),
       );
     } catch (e) {
       // 예외 발생 시 에러 던지기

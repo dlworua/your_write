@@ -9,6 +9,7 @@ class AiPostWidget extends StatelessWidget {
   final String title;
   final String content;
   final List<String> keywords;
+  final DateTime date;
 
   const AiPostWidget({
     super.key,
@@ -16,6 +17,7 @@ class AiPostWidget extends StatelessWidget {
     required this.title,
     required this.content,
     required this.keywords,
+    required this.date,
   });
 
   @override
@@ -32,6 +34,9 @@ class AiPostWidget extends StatelessWidget {
                     (_) => AiDetailPage(
                       title: title,
                       content: content,
+                      author: nickname,
+                      keyword: keywords.join(', '),
+                      date: date,
                     ), // post를 전달
               ),
             );

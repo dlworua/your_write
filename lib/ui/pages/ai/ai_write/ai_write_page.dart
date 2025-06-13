@@ -79,8 +79,9 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
       final newPost = AiWrite(
         title: titleController.text.trim(),
         keyWord: keywordController.text.trim(),
-        author: authorController.text.trim(),
+        nickname: authorController.text.trim(),
         content: contentController.text.trim(),
+        date: DateTime.now(),
       );
 
       // 글 저장 (Riverpod 상태에 추가)

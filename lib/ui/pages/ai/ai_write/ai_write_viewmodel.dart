@@ -17,7 +17,13 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
   AiWriteViewModel(this.ref)
     : super(
         AsyncValue.data(
-          AiWrite(title: '', keyWord: '', author: '', content: ''),
+          AiWrite(
+            title: '',
+            keyWord: '',
+            nickname: '',
+            content: '',
+            date: DateTime.now(),
+          ),
         ),
       );
 
@@ -36,10 +42,16 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
       // 현재 상태에서 author(작가명)는 유지
       final current =
           state.value ??
-          AiWrite(title: '', keyWord: '', author: '', content: '');
+          AiWrite(
+            title: '',
+            keyWord: '',
+            nickname: '',
+            content: '',
+            date: DateTime.now(),
+          );
 
       // AI가 생성한 데이터에 기존 author를 유지한 새 객체 생성
-      final updated = aiWrite.copyWith(author: current.author);
+      final updated = aiWrite.copyWith(author: current.nickname);
 
       // 새로운 상태를 반영
       state = AsyncValue.data(updated);
@@ -57,7 +69,14 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
     String? content,
   }) {
     final current =
-        state.value ?? AiWrite(title: '', keyWord: '', author: '', content: '');
+        state.value ??
+        AiWrite(
+          title: '',
+          keyWord: '',
+          nickname: '',
+          content: '',
+          date: DateTime.now(),
+        );
 
     // 전달된 필드 값만 변경하여 새로운 AiWrite 객체 생성
     state = AsyncValue.data(
