@@ -6,7 +6,10 @@ import 'package:your_write/ui/pages/ai/ai_detail/widgets/ai_detail_writer.dart';
 import 'package:your_write/ui/pages/ai/ai_post/ai_page.dart';
 
 class AiDetailPage extends StatefulWidget {
-  const AiDetailPage({super.key});
+  final String title;
+  final String content;
+
+  const AiDetailPage({super.key, required this.title, required this.content});
 
   @override
   State<AiDetailPage> createState() => _AiDetailPageState();
@@ -68,13 +71,13 @@ class _AiDetailPageState extends State<AiDetailPage> {
                   vertical: 8,
                 ),
                 children: [
-                  AiDetailTitle(),
+                  AiDetailTitle(title: widget.title),
                   const SizedBox(height: 8),
                   AiDetailWriter(),
                   const SizedBox(height: 12),
                   AiDetailKeyword(),
                   const Divider(height: 32, thickness: 2),
-                  AiDetailContent(),
+                  AiDetailContent(content: widget.content),
                   Divider(height: 32, thickness: 2),
                   const SizedBox(height: 5),
                   AiCommentInput(
