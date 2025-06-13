@@ -33,12 +33,11 @@ class PostGrid extends StatelessWidget {
     ];
 
     return GridView.builder(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(5),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.75,
         crossAxisSpacing: 16,
-        // mainAxisSpacing: 40,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -97,7 +96,7 @@ class _PostCard extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 6),
         // 아이콘
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -110,7 +109,7 @@ class _PostCard extends StatelessWidget {
         const SizedBox(height: 4),
         //  작성날짜
         Padding(
-          padding: const EdgeInsets.only(top: 6),
+          padding: const EdgeInsets.only(top: 5, bottom: 1.6),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

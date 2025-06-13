@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/ai_post/ai_page.dart';
-import 'package:your_write/ui/pages/home/home_page.dart';
+import 'package:your_write/ui/pages/ai/ai_post/ai_page.dart';
+import 'package:your_write/ui/pages/home/home_post/home_page.dart';
 import 'package:your_write/ui/pages/my_profile/my_profile_page.dart';
 import 'package:your_write/ui/pages/random_post/random_page.dart';
 import 'package:your_write/ui/widgets/bottom_navigation_bar/bottom_nav_bar.dart';
