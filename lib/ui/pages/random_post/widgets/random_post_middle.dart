@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/detail/detail_page.dart';
+import 'package:your_write/ui/pages/home/home_detail/detail_page.dart';
 
 class RandomPostMiddle extends StatelessWidget {
   const RandomPostMiddle({super.key});
