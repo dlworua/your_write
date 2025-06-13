@@ -7,10 +7,6 @@ void main() {
   runApp(ProviderScope(child: MyApp()));
 }
 
-// 뷰모델에 ai로직 하나 만들어서 확인해보기 완
-// 로직 작성 완
-// 테스트 완
-// 뷰모델 작성 완
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
