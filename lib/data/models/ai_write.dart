@@ -23,7 +23,7 @@ class AiWrite {
     return AiWrite(
       title: title ?? this.title,
       keyWord: keyWord ?? this.keyWord,
-      nickname: author ?? this.nickname,
+      nickname: author ?? nickname,
       content: content ?? this.content,
       date: date ?? this.date,
     );
