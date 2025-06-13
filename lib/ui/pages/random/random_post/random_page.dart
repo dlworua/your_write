@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/random_post/widgets/random_post_list.dart';
-import 'package:your_write/ui/pages/write/random_write_page.dart';
+import 'package:your_write/ui/pages/random/random_post/widgets/random_post_list.dart';
+import 'package:your_write/ui/pages/random/random_write/random_write_page.dart';
 
 class RandomPage extends StatelessWidget {
   const RandomPage({super.key});
