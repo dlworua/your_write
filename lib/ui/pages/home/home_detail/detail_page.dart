@@ -3,7 +3,7 @@ import 'package:your_write/data/models/comment.dart';
 import 'package:your_write/ui/pages/home/home_detail/widgets/comment_input.dart';
 import 'package:your_write/ui/pages/home/home_detail/widgets/comment_list.dart';
 import 'package:your_write/ui/pages/home/home_detail/widgets/detail_writer.dart';
-import 'package:your_write/ui/pages/random_post/random_page.dart';
+import 'package:your_write/ui/pages/random/random_post/random_page.dart';
 
 class DetailPage extends StatefulWidget {
   const DetailPage({super.key});
