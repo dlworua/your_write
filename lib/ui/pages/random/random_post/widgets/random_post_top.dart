@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class RandomPostTop extends StatelessWidget {
-  const RandomPostTop({super.key});
+  final String nickname;
+  const RandomPostTop({super.key, required this.nickname});
 
   void _onReportPressed(BuildContext context) {
     showDialog(context: context, builder: (context) => const ReportDialog());
@@ -30,7 +31,7 @@ class RandomPostTop extends StatelessWidget {
               child: Image.asset('assets/app_logo.png', fit: BoxFit.cover),
             ),
             SizedBox(width: 10),
-            Text('닉네임'),
+            Text(nickname),
             Spacer(),
             IconButton(
               onPressed: () => _onReportPressed(context),
