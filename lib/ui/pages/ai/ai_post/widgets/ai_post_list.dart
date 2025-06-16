@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/models/write.dart';
 import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_widget.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
@@ -8,7 +9,11 @@ class AiPostList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(savedAiWritesProvider);
+    final posts =
+        ref
+            .watch(savedAiWritesProvider)
+            .where((post) => post.type == PostType.ai)
+            .toList();
 
     if (posts.isEmpty) {
       return const Center(child: Text("출간된 글이 없습니다."));
