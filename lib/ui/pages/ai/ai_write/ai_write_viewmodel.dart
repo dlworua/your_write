@@ -1,28 +1,29 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/ai_write.dart';
+import 'package:your_write/data/models/write.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_service.dart';
 
 // ViewModel을 상태로 관리하는 Riverpod Provider
 // 상태 타입은 [AsyncValue<AiWrite>], 비동기 작업 처리와 에러 핸들링을 위해 사용
 final aiWriteViewModelProvider =
-    StateNotifierProvider<AiWriteViewModel, AsyncValue<AiWrite>>(
+    StateNotifierProvider<AiWriteViewModel, AsyncValue<Write>>(
       (ref) => AiWriteViewModel(ref),
     );
 
 // AI 글쓰기 기능을 담당하는 ViewModel
 // 상태는 AiWrite 모델을 감싸는 AsyncValue
-class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
+class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
   final Ref ref;
 
   AiWriteViewModel(this.ref)
     : super(
         AsyncValue.data(
-          AiWrite(
+          Write(
             title: '',
             keyWord: '',
             nickname: '',
             content: '',
             date: DateTime.now(),
+            type: PostType.ai,
           ),
         ),
       );
@@ -42,16 +43,17 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
       // 현재 상태에서 author(작가명)는 유지
       final current =
           state.value ??
-          AiWrite(
+          Write(
             title: '',
             keyWord: '',
             nickname: '',
             content: '',
             date: DateTime.now(),
+            type: PostType.ai,
           );
 
       // AI가 생성한 데이터에 기존 author를 유지한 새 객체 생성
-      final updated = aiWrite.copyWith(author: current.nickname);
+      final updated = aiWrite.copyWith(nickname: current.nickname);
 
       // 새로운 상태를 반영
       state = AsyncValue.data(updated);
@@ -70,12 +72,13 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
   }) {
     final current =
         state.value ??
-        AiWrite(
+        Write(
           title: '',
           keyWord: '',
           nickname: '',
           content: '',
           date: DateTime.now(),
+          type: PostType.ai,
         );
 
     // 전달된 필드 값만 변경하여 새로운 AiWrite 객체 생성
@@ -83,7 +86,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<AiWrite>> {
       current.copyWith(
         title: title,
         keyWord: keyWord,
-        author: author,
+        nickname: author,
         content: content,
       ),
     );
