@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/models/home_post.dart';
+import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
 
-class HomeWritePage extends StatefulWidget {
+class HomeWritePage extends ConsumerStatefulWidget {
   const HomeWritePage({super.key});
 
   @override
-  State<HomeWritePage> createState() => _WritePageState();
+  ConsumerState<HomeWritePage> createState() => _HomeWritePageState();
 }
 
-class _WritePageState extends State<HomeWritePage> {
+class _HomeWritePageState extends ConsumerState<HomeWritePage> {
   final _titleController = TextEditingController();
   final _keywordController = TextEditingController();
   final _authorController = TextEditingController();
   final _contentController = TextEditingController();
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _keywordController.dispose();
-    _authorController.dispose();
-    _contentController.dispose();
-    super.dispose();
-  }
-
   void _submitPost() {
-    final title = _titleController.text;
-    // final keyword = _keywordController.text;
-    // final author = _authorController.text;
-    final content = _contentController.text;
+    final title = _titleController.text.trim();
+    final content = _contentController.text.trim();
+    final keyword = _keywordController.text.trim();
+    final author =
+        _authorController.text.trim().isEmpty ? '익명' : _authorController.text;
 
     if (title.isEmpty || content.isEmpty) {
       ScaffoldMessenger.of(
@@ -35,9 +30,27 @@ class _WritePageState extends State<HomeWritePage> {
       return;
     }
 
-    // TODO: 저장 또는 게시 처리 (MVVM 연결 가능)
+    ref
+        .read(homePostListProvider.notifier)
+        .addPost(
+          HomePost(
+            title: title,
+            content: content,
+            keyword: keyword,
+            author: author,
+          ),
+        );
 
-    Navigator.pop(context); // 저장 후 이전 화면으로
+    Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _keywordController.dispose();
+    _authorController.dispose();
+    _contentController.dispose();
+    super.dispose();
   }
 
   @override

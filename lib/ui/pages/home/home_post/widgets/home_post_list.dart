@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
 import 'package:your_write/ui/pages/home/home_post/widgets/home_post_widget.dart';
 
-class HomePostList extends StatelessWidget {
+class HomePostList extends ConsumerWidget {
   const HomePostList({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(homePostListProvider);
+
+    if (posts.isEmpty) {
+      return const Center(child: Text("메인 게시판에 출간된 글이 없습니다."));
+    }
     return Column(
-      children: [
-        HomePostWidget(),
-        SizedBox(height: 30),
-        HomePostWidget(),
-        SizedBox(height: 30),
-        HomePostWidget(),
-        SizedBox(height: 30),
-        HomePostWidget(),
-        SizedBox(height: 30),
-        HomePostWidget(),
-        SizedBox(height: 30),
-        HomePostWidget(),
-        SizedBox(height: 30),
-      ],
+      children:
+          posts.map((post) {
+            return Column(
+              children: [
+                HomePostWidget(
+                  content: post.content,
+                  title: post.title,
+                  nickname: post.author,
+                  keywords: [post.keyword],
+                  date: DateTime.now(),
+                ),
+                SizedBox(height: 30),
+              ],
+            );
+          }).toList(),
     );
   }
 }

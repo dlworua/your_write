@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 // 제목
 class DetailTitle extends StatelessWidget {
-  const DetailTitle({super.key});
+  final String title;
+  const DetailTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      '나의 여름',
+      title,
       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
     );
   }
@@ -41,12 +42,14 @@ class DetailKeyword extends StatelessWidget {
 
 // 본문
 class DetailContent extends StatelessWidget {
-  const DetailContent({super.key});
+  final String content;
+
+  const DetailContent({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      '나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n나의 여름은 어디에 갔나\n 나의 여름은 떠나고\n 가을의 쓸쓸함이 날 기다리네\n ',
+      content,
       style: const TextStyle(fontSize: 18, height: 1.5),
       textAlign: TextAlign.center,
     );

@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment.dart';
 import 'package:your_write/ui/pages/home/home_detail/widgets/comment_input.dart';
 import 'package:your_write/ui/pages/home/home_detail/widgets/comment_list.dart';
-import 'package:your_write/ui/pages/home/home_detail/widgets/detail_writer.dart';
-import 'package:your_write/ui/pages/random/random_post/random_page.dart';
 
-class DetailPage extends StatefulWidget {
-  const DetailPage({super.key});
+class HomeDetailPage extends StatefulWidget {
+  final String title;
+  final String content;
+  final String author;
+  final String keyword;
+  final DateTime date;
+
+  const HomeDetailPage({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.author,
+    required this.keyword,
+    required this.date,
+  });
 
   @override
-  State<DetailPage> createState() => _DetailPageState();
+  State<HomeDetailPage> createState() => HomeDetailPageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class HomeDetailPageState extends State<HomeDetailPage> {
   final TextEditingController _controller = TextEditingController();
   final List<Comment> _comments = [];
 
@@ -39,24 +50,11 @@ class _DetailPageState extends State<DetailPage> {
             Stack(
               children: [
                 Image.asset('assets/appbar_logo.png'),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return RandomPage();
-                        },
-                      ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 85, left: 30),
-                        child: Icon(Icons.keyboard_return_sharp, size: 30),
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 85, left: 30),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.keyboard_return_sharp, size: 30),
                   ),
                 ),
               ],
@@ -68,15 +66,42 @@ class _DetailPageState extends State<DetailPage> {
                   vertical: 8,
                 ),
                 children: [
-                  DetailTitle(),
+                  Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 8),
-                  DetailWriter(),
-                  const SizedBox(height: 12),
-                  DetailKeyword(),
+                  Text(
+                    'by ${widget.author}',
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '#${widget.keyword}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}',
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
                   const Divider(height: 32, thickness: 2),
-                  DetailContent(),
-                  Divider(height: 32, thickness: 2),
-                  const SizedBox(height: 5),
+                  Text(
+                    widget.content,
+                    style: const TextStyle(fontSize: 18, height: 1.5),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Divider(height: 32, thickness: 2),
                   CommentInput(
                     controller: _controller,
                     onSubmitted: _addComment,
