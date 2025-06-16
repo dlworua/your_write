@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment.dart';
-import 'package:your_write/ui/pages/home/home_detail/widgets/comment_input.dart';
-import 'package:your_write/ui/pages/home/home_detail/widgets/comment_list.dart';
+import 'package:your_write/ui/pages/random/random_detail/widgets/random_comment_input.dart';
+import 'package:your_write/ui/pages/random/random_detail/widgets/random_comment_list.dart';
 
-class HomeDetailPage extends StatefulWidget {
+class RandomDetailPage extends StatefulWidget {
   final String title;
   final String content;
   final String author;
   final String keyword;
   final DateTime date;
 
-  const HomeDetailPage({
+  const RandomDetailPage({
     super.key,
     required this.title,
     required this.content,
@@ -20,10 +20,10 @@ class HomeDetailPage extends StatefulWidget {
   });
 
   @override
-  State<HomeDetailPage> createState() => HomeDetailPageState();
+  State<RandomDetailPage> createState() => _RandomDetailPageState();
 }
 
-class HomeDetailPageState extends State<HomeDetailPage> {
+class _RandomDetailPageState extends State<RandomDetailPage> {
   final TextEditingController _controller = TextEditingController();
   final List<Comment> _comments = [];
 
@@ -102,12 +102,12 @@ class HomeDetailPageState extends State<HomeDetailPage> {
                     textAlign: TextAlign.center,
                   ),
                   const Divider(height: 32, thickness: 2),
-                  CommentInput(
+                  RandomCommentInput(
                     controller: _controller,
                     onSubmitted: _addComment,
                   ),
                   const SizedBox(height: 16),
-                  CommentList(comments: _comments),
+                  RandomCommentList(comments: _comments),
                   const SizedBox(height: 16),
                 ],
               ),

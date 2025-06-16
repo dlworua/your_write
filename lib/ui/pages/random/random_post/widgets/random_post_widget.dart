@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/home/home_detail/detail_page.dart';
-import 'package:your_write/ui/pages/home/home_post/widgets/home_post_bottom.dart';
-import 'package:your_write/ui/pages/home/home_post/widgets/home_post_middle.dart';
-import 'package:your_write/ui/pages/home/home_post/widgets/home_post_top.dart';
+import 'package:your_write/ui/pages/random/random_detail/random_detail.dart';
+import 'package:your_write/ui/pages/random/random_post/widgets/random_post_bottom.dart';
+import 'package:your_write/ui/pages/random/random_post/widgets/random_post_middle.dart';
+import 'package:your_write/ui/pages/random/random_post/widgets/random_post_top.dart';
 
-class HomePostWidget extends StatelessWidget {
+class RandomPostWidget extends StatelessWidget {
   final String nickname;
   final String title;
   final String content;
   final List<String> keywords;
   final DateTime date;
 
-  const HomePostWidget({
+  const RandomPostWidget({
     super.key,
     required this.nickname,
     required this.title,
@@ -24,26 +24,26 @@ class HomePostWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        HomePostTop(nickname: nickname),
+        RandomPostTop(nickname: nickname),
         GestureDetector(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (_) => HomeDetailPage(
+                    (_) => RandomDetailPage(
                       title: title,
                       content: content,
                       author: nickname,
-                      keyword: keywords.join(', '),
+                      keyword: keywords.join(','),
                       date: date,
                     ), // post를 전달
               ),
             );
           },
-          child: HomePostMiddle(title: title, content: content),
+          child: RandomPostMiddle(title: title, content: content),
         ),
-        HomePostBottom(),
+        RandomPostBottom(keywords: keywords),
       ],
     );
   }

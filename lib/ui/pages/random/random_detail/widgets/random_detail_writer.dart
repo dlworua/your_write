@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 // 제목
-class DetailTitle extends StatelessWidget {
+class RandomDetailTitle extends StatelessWidget {
   final String title;
-  const DetailTitle({super.key, required this.title});
+
+  const RandomDetailTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +16,8 @@ class DetailTitle extends StatelessWidget {
 }
 
 // 작성자
-class DetailWriter extends StatelessWidget {
-  const DetailWriter({super.key});
+class RandomDetailWriter extends StatelessWidget {
+  const RandomDetailWriter({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +29,8 @@ class DetailWriter extends StatelessWidget {
 }
 
 // 키워드
-class DetailKeyword extends StatelessWidget {
-  const DetailKeyword({super.key});
+class RandomDetailKeyword extends StatelessWidget {
+  const RandomDetailKeyword({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +42,9 @@ class DetailKeyword extends StatelessWidget {
 }
 
 // 본문
-class DetailContent extends StatelessWidget {
+class RandomDetailContent extends StatelessWidget {
   final String content;
-
-  const DetailContent({super.key, required this.content});
+  const RandomDetailContent({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {

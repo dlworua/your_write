@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-class HomePostMiddle extends StatelessWidget {
+class RandomPostMiddle extends StatelessWidget {
   final String title;
   final String content;
 
-  const HomePostMiddle({super.key, required this.title, required this.content});
+  const RandomPostMiddle({
+    super.key,
+    required this.title,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/ai_write.dart';
+import 'package:your_write/data/models/write.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_viewmodel.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
@@ -46,7 +46,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
     final viewModel = ref.read(aiWriteViewModelProvider.notifier);
 
     // ViewModel의 상태가 변경될 때, 텍스트 필드에 값을 자동으로 업데이트
-    ref.listen<AsyncValue<AiWrite>>(aiWriteViewModelProvider, (previous, next) {
+    ref.listen<AsyncValue<Write>>(aiWriteViewModelProvider, (previous, next) {
       next.when(
         data: (data) {
           if (titleController.text != data.title) {
@@ -76,12 +76,13 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         return;
       }
 
-      final newPost = AiWrite(
+      final newPost = Write(
         title: titleController.text.trim(),
         keyWord: keywordController.text.trim(),
         nickname: authorController.text.trim(),
         content: contentController.text.trim(),
         date: DateTime.now(),
+        type: PostType.ai,
       );
 
       // 글 저장 (Riverpod 상태에 추가)

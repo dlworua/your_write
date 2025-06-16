@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/ai_write.dart';
+import 'package:your_write/data/models/write.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 /// Provider로 AiWriterService를 앱 전체에서 사용할 수 있게 등록
@@ -16,7 +16,7 @@ class AiWriterService {
   );
 
   /// 사용자로부터 전달받은 프롬프트로부터 AiWrite 객체 생성
-  Future<AiWrite> generateStructuredText(String prompt) async {
+  Future<Write> generateStructuredText(String prompt) async {
     print('✍️ Gemini 요청: $prompt');
 
     try {
@@ -70,12 +70,13 @@ class AiWriterService {
       final content = contentLines.join('\n').trim();
 
       // AiWrite 모델로 묶어서 반환
-      return AiWrite(
+      return Write(
         title: title,
         keyWord: keyword,
         nickname: '', // 작성자는 ViewModel에서 따로 설정함
         content: content,
         date: DateTime.now(),
+        type: PostType.ai,
       );
     } catch (e) {
       // 예외 발생 시 에러 던지기

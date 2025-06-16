@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/random_post/widgets/random_post_keyword.dart';
+import 'package:your_write/ui/pages/random/random_post/widgets/random_post_keyword.dart';
 
 class RandomPostBottom extends StatelessWidget {
-  const RandomPostBottom({super.key});
+  final List<String> keywords;
+
+  const RandomPostBottom({super.key, required this.keywords});
 
   @override
   Widget build(BuildContext context) {
+    // 쉼표로 나눈 리스트로 변환
     return Container(
       height: 80,
       width: 400,
@@ -22,19 +25,18 @@ class RandomPostBottom extends StatelessWidget {
           Row(
             children: [
               SizedBox(width: 10),
-              Text('랜덤 인용구 : ', style: TextStyle(fontSize: 12)),
-              Row(
-                children: [
-                  RandomPostKeyword(),
-                  Text(','),
-                  RandomPostKeyword(),
-                  Text(','),
-                  RandomPostKeyword(),
-                  Text(','),
-                  RandomPostKeyword(),
-                  Text(','),
-                  RandomPostKeyword(),
-                ],
+
+              const Text('랜덤 인용구 : ', style: TextStyle(fontSize: 12)),
+              Expanded(
+                child: Wrap(
+                  spacing: 6,
+                  children:
+                      keywords.map((k) {
+                        // ignore: avoid_print
+                        print('[랜덤포스트 키워드 리스트] "$k"');
+                        return RandomPostKeyword(keyword: k);
+                      }).toList(),
+                ),
               ),
             ],
           ),
