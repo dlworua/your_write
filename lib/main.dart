@@ -7,6 +7,7 @@ import 'package:your_write/ui/pages/main_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // ignore: avoid_print
   print(const String.fromEnvironment('GEMINI_API_KEY'));
   runApp(ProviderScope(child: MyApp()));
 }
