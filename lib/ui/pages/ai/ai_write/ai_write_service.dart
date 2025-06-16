@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:your_write/data/models/write.dart';
 
 /// Provider로 AiWriterService를 앱 전체에서 사용할 수 있게 등록
 final aiWriterServiceProvider = Provider<AiWriterService>((ref) {

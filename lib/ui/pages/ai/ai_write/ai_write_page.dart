@@ -173,7 +173,13 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: submitPost,
+                      onPressed: () async {
+                        await ref
+                            .read(aiWriteViewModelProvider.notifier)
+                            .publishWrite();
+                        // 출간 후 페이지 이동, 팝업 등 처리
+                        return submitPost();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.lightGreen[200],
                         foregroundColor: Colors.blueGrey[700],
