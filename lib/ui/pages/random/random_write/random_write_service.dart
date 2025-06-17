@@ -26,4 +26,19 @@ class RandomWriteService {
       print('❌ 랜덤 글 저장 실패: $e');
     }
   }
+
+  Future<List<Write>> fetchRandomPostsFromFirestore() async {
+    try {
+      final snapshot =
+          await _firestore
+              .collection('random_writes')
+              .orderBy('date', descending: true)
+              .get();
+
+      return snapshot.docs.map((doc) => Write.fromMap(doc.data())).toList();
+    } catch (e) {
+      print('❌ 랜덤 글 불러오기 실패: $e');
+      return [];
+    }
+  }
 }
