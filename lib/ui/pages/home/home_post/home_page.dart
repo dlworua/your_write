@@ -51,7 +51,7 @@ class HomePage extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [HomePostList()],
+              children: [const HomePostList()],
             ),
           ),
         ],

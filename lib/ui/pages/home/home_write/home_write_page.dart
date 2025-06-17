@@ -16,7 +16,7 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
   final _authorController = TextEditingController();
   final _contentController = TextEditingController();
 
-  void _submitPost() {
+  void _submitPost() async {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
     final keyword = _keywordController.text.trim();
@@ -30,16 +30,14 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
       return;
     }
 
-    ref
-        .read(homePostListProvider.notifier)
-        .addPost(
-          HomePost(
-            title: title,
-            content: content,
-            keyword: keyword,
-            author: author,
-          ),
-        );
+    final newPost = HomePost(
+      title: title,
+      content: content,
+      keyword: keyword,
+      author: author,
+    );
+
+    await ref.read(homePostListProvider.notifier).addPost(newPost);
 
     Navigator.pop(context);
   }
