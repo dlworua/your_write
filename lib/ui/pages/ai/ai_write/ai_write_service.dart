@@ -1,14 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:your_write/data/models/write.dart';
 
 /// Provider로 AiWriterService를 앱 전체에서 사용할 수 있게 등록
-final aiWriterServiceProvider = Provider<AiWriterService>((ref) {
-  return AiWriterService();
+final aiWriterServiceProvider = Provider<AiWriteService>((ref) {
+  return AiWriteService();
 });
 
 /// 실제 Gemini API를 통해 글 생성 작업을 처리하는 서비스 클래스
-class AiWriterService {
+class AiWriteService {
+  final _firestore = FirebaseFirestore.instance;
+
+  Future<List<Write>> fetchAiPosts() async {
+    final snapshot =
+        await _firestore
+            .collection('writes')
+            .where('type', isEqualTo: 'ai')
+            .orderBy('date', descending: true)
+            .get();
+
+    return snapshot.docs.map((doc) => Write.fromMap(doc.data())).toList();
+  }
+
   // Gemini 모델 인스턴스 생성 (Flash 모델 사용)
   final _model = GenerativeModel(
     model: 'gemini-2.0-flash',

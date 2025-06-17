@@ -68,7 +68,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
     });
 
     // 글 출간 버튼 클릭 시 호출되는 함수
-    void submitPost() {
+    void submitPost() async {
       if (titleController.text.isEmpty || contentController.text.isEmpty) {
         ScaffoldMessenger.of(
           context,
@@ -85,11 +85,16 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         type: PostType.ai,
       );
 
-      // 글 저장 (Riverpod 상태에 추가)
-      ref.read(savedAiWritesProvider.notifier).publish(newPost);
+      // 로컬 상태 추가
+      await ref.read(savedAiWritesProvider.notifier).publish(newPost);
 
-      // 저장 후 이전 화면으로 돌아감
-      Navigator.pop(context);
+      // Firestore 저장
+      await viewModel.publishWrite();
+
+      // 이전 화면으로 이동
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     }
 
     return Scaffold(
@@ -174,12 +179,11 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () async {
-                        await ref
-                            .read(aiWriteViewModelProvider.notifier)
-                            .publishWrite();
-                        // 출간 후 페이지 이동, 팝업 등 처리
-                        return submitPost();
+                        // ignore: await_only_futures
+                        await ref.read(savedAiWritesProvider.notifier);
+                        submitPost();
                       },
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.lightGreen[200],
                         foregroundColor: Colors.blueGrey[700],

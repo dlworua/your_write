@@ -95,11 +95,27 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
             'type': current.type.name, // enum → string 저장
           });
       // ignore: avoid_print
-      print('✅ Firestore 저장 완료');
+      print('✅ Ai 글 Firestore 저장 완료');
     } catch (e, st) {
       // ignore: avoid_print
       print('❌ Firestore 저장 실패: $e');
       state = AsyncValue.error(e, st);
     }
+  }
+}
+
+final aiWriteListProvider =
+    StateNotifierProvider<AiWriteListViewModel, List<Write>>(
+      (ref) => AiWriteListViewModel(AiWriteService()),
+    );
+
+class AiWriteListViewModel extends StateNotifier<List<Write>> {
+  final AiWriteService _service;
+
+  AiWriteListViewModel(this._service) : super([]);
+
+  Future<void> fetchPosts() async {
+    final posts = await _service.fetchAiPosts();
+    state = posts;
   }
 }

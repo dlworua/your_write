@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// 글 타입 구분용 enum
 enum PostType { ai, random }
 
@@ -13,7 +15,8 @@ PostType postTypeFromString(String value) {
 }
 
 String postTypeToString(PostType type) {
-  return type.toString().split('.').last;
+  return type.name;
+  //   return type.toString().split('.').last;
 }
 
 /// 글 모델
@@ -69,7 +72,7 @@ class Write {
       keyWord: map['keyWord'],
       nickname: map['nickname'],
       content: map['content'],
-      date: DateTime.parse(map['date']),
+      date: (map['date'] as Timestamp).toDate(),
       type: postTypeFromString(map['type']),
     );
   }
