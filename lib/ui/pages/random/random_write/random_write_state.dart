@@ -1,24 +1,36 @@
-// Riverpod 상태 클래스와 Provider 정의
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/ui/pages/random/random_write/random_write_viewmodel.dart';
-
-// 상태 클래스: 키워드 리스트를 관리
 class RandomWriteState {
+  final String title;
+  final String author;
+  final String content;
   final List<String> keywords;
 
-  RandomWriteState({required this.keywords});
+  const RandomWriteState({
+    required this.title,
+    required this.author,
+    required this.content,
+    required this.keywords,
+  });
 
-  // 초기 상태: 키워드 없음
-  factory RandomWriteState.initial() => RandomWriteState(keywords: []);
+  factory RandomWriteState.initial() {
+    return const RandomWriteState(
+      title: '',
+      author: '',
+      content: '',
+      keywords: [],
+    );
+  }
 
-  // 새로운 키워드로 상태를 갱신
-  RandomWriteState copyWith({List<String>? keywords}) {
-    return RandomWriteState(keywords: keywords ?? this.keywords);
+  RandomWriteState copyWith({
+    String? title,
+    String? author,
+    String? content,
+    List<String>? keywords,
+  }) {
+    return RandomWriteState(
+      title: title ?? this.title,
+      author: author ?? this.author,
+      content: content ?? this.content,
+      keywords: keywords ?? this.keywords,
+    );
   }
 }
-
-// 상태 관리를 위한 ViewModel Provider
-final randomWriteViewModelProvider =
-    StateNotifierProvider<RandomWriteViewModel, RandomWriteState>(
-      (ref) => RandomWriteViewModel(),
-    );

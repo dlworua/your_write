@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
-import 'package:your_write/ui/pages/random/random_write/random_write_state.dart';
+import 'package:your_write/ui/pages/random/random_write/random_write_viewmodel.dart';
 
 class RandomWritePage extends ConsumerStatefulWidget {
   const RandomWritePage({super.key});
@@ -32,7 +32,7 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
   }
 
   // 출간하기 버튼 클릭 시 실행되는 함수
-  void _submitPost() {
+  void _submitPost() async {
     final title = _titleController.text.trim();
     final author = _authorController.text.trim();
     final content = _contentController.text.trim();
@@ -44,20 +44,26 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     );
 
     if (!allIncluded) {
-      // 포함되지 않으면 경고 표시
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('모든 키워드를 본문에 포함해주세요.')));
       return;
     }
 
-    // 저장 및 화면 닫기
+    // 상태 업데이트
+    final viewModel = ref.read(randomWriteViewModelProvider.notifier);
+    viewModel.updateFields(title: title, author: author, content: content);
+
+    // Firestore 저장
+    await viewModel.saveRandomPostToFirestore();
+
+    // 로컬 상태에도 저장 (필요 시 제거 가능)
     ref
         .read(savedAiWritesProvider.notifier)
         .publish(
           Write(
             title: title,
-            keyWord: keywords.join(','), // 키워드는 콤마로 구분 필수!
+            keyWord: keywords.join(','),
             nickname: author,
             content: content,
             date: DateTime.now(),
@@ -65,6 +71,7 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
           ),
         );
 
+    // 화면 닫기
     Navigator.pop(context);
   }
 
@@ -142,7 +149,15 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
             ),
             SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _submitPost,
+              onPressed: () async {
+                await ref
+                    .read(randomWriteViewModelProvider.notifier)
+                    .saveRandomPostToFirestore();
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('랜덤 글 저장 완료!')));
+                _submitPost();
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.lightGreen[200],
                 foregroundColor: Colors.black87,

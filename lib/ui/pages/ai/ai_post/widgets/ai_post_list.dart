@@ -16,7 +16,7 @@ class AiPostList extends ConsumerWidget {
             .toList();
 
     if (posts.isEmpty) {
-      return const Center(child: Text("AI 게시판에 출간된 글이 없습니다."));
+      return const Center(child: Text("AI 에 출간된 글이 없습니다."));
     }
 
     return Column(
