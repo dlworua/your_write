@@ -18,7 +18,8 @@ class AiWriteListNotifier extends StateNotifier<List<Write>> {
   }
 
   /// 모든 글을 교체 (Firestore에서 불러온 글 목록 반영용)
-  void setAll(List<Write> posts) {
+  /// ✅ 불러온 글 목록 전체 반영
+  void setPosts(List<Write> posts) {
     state = posts;
   }
 
@@ -38,15 +39,16 @@ Future<void> loadAiPostsFromFirestore(WidgetRef ref) async {
 
   final posts =
       snapshot.docs.map((doc) {
+        final data = doc.data();
         return Write(
-          title: doc['title'] ?? '',
-          keyWord: doc['keyWord'] ?? '',
-          nickname: doc['nickname'] ?? '',
-          content: doc['content'] ?? '',
-          date: DateTime.parse(doc['date']),
+          title: data['title'] ?? '',
+          keyWord: data['keyWord'] ?? '',
+          nickname: data['nickname'] ?? '',
+          content: data['content'] ?? '',
+          date: DateTime.parse(data['date']),
           type: PostType.ai,
         );
       }).toList();
 
-  ref.read(savedAiWritesProvider.notifier).setAll(posts);
+  ref.read(savedAiWritesProvider.notifier).setPosts(posts);
 }
