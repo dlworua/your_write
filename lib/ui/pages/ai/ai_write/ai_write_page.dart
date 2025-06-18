@@ -127,6 +127,12 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                     const SizedBox(height: 12),
                     // 프롬프트를 기반으로 AI 글을 생성하는 버튼
                     ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          Colors.lightGreen[100],
+                        ),
+                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                      ),
                       onPressed: () {
                         if (promptController.text.trim().isEmpty) {
                           // 프롬프트가 비어있으면 알림

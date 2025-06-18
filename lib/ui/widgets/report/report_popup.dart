@@ -23,6 +23,7 @@ class _ReportDialogState extends State<ReportDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('게시글 신고'),
+      backgroundColor: Color(0XDFFFF8E1),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -55,7 +56,7 @@ class _ReportDialogState extends State<ReportDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('취소'),
+          child: Text('취소', style: TextStyle(color: Colors.blue[800])),
         ),
         TextButton(
           onPressed: () {
@@ -78,13 +79,19 @@ class _ReportDialogState extends State<ReportDialog> {
                     : _selectedReason;
 
             Navigator.pop(context);
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('신고가 접수되었습니다. ($result)')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '신고가 접수되었습니다. ($result)',
+                  style: TextStyle(color: Colors.black),
+                ),
+                backgroundColor: Colors.teal[50],
+              ),
+            );
 
             // TODO: 신고 데이터 처리 로직
           },
-          child: const Text('신고'),
+          child: Text('신고', style: TextStyle(color: Colors.red[600])),
         ),
       ],
     );
