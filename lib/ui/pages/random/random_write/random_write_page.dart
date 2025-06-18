@@ -83,7 +83,11 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     _keywordController.text = keywords.join(', ');
 
     return Scaffold(
-      appBar: AppBar(title: Text('랜덤 키워드 글쓰기')),
+      backgroundColor: Color(0XFFFFFDF4),
+      appBar: AppBar(
+        title: Text('랜덤 키워드 글쓰기'),
+        backgroundColor: Color(0XFFFFFDF4),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
