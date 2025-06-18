@@ -98,10 +98,10 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFDF4),
+      backgroundColor: const Color(0XFFFFFDF4),
       appBar: AppBar(
         title: const Text('AI 글쓰기'),
-        backgroundColor: const Color(0xFFFFFDF4),
+        backgroundColor: const Color(0XFFFFFDF4),
         foregroundColor: Colors.black,
         elevation: 0,
       ),
