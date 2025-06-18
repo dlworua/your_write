@@ -151,7 +151,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                           (value) => viewModel.updateFields(title: value),
                     ),
                     const SizedBox(height: 12),
-                    // 제목 필드 (직접 입력, ai생성 가능하나 아직 구현 못함..)
+                    // 키워드 필드 (직접 입력, ai생성 가능하나 아직 구현 못함..)
                     TextField(
                       controller: keywordController,
                       decoration: const InputDecoration(
