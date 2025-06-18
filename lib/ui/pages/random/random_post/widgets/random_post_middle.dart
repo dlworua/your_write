@@ -16,7 +16,7 @@ class RandomPostMiddle extends StatelessWidget {
       height: 320,
       width: 400,
       decoration: BoxDecoration(
-        color: Colors.amber,
+        color: Colors.lightGreen[200],
         border: Border.all(color: Colors.grey, width: 0.5),
       ),
       child: Column(

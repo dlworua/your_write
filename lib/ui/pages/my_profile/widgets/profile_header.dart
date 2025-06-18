@@ -14,9 +14,24 @@ class ProfileHeader extends StatelessWidget {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          const CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.grey,
+          Container(
+            padding: EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.bottomRight,
+                end: Alignment.topLeft,
+                colors: [
+                  Color(0xff4dabf7),
+                  Color(0xffda77f2),
+                  Color(0xfff783ac),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(500),
+            ),
+            child: const CircleAvatar(
+              backgroundImage: AssetImage('assets/app_logo.png'),
+              radius: 40,
+            ),
           ), // 프로필 사진
           const SizedBox(height: 8),
           const Text(

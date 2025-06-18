@@ -24,12 +24,15 @@ class RandomPostBottom extends StatelessWidget {
         children: [
           Row(
             children: [
-              SizedBox(width: 10),
+              SizedBox(width: 12),
 
-              const Text('랜덤 인용구 : ', style: TextStyle(fontSize: 12)),
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: const Text('랜덤 인용구 : ', style: TextStyle(fontSize: 12)),
+              ),
               Expanded(
                 child: Wrap(
-                  spacing: 6,
+                  spacing: 5,
                   children:
                       keywords.map((k) {
                         // ignore: avoid_print

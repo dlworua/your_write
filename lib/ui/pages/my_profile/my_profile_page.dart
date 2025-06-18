@@ -9,7 +9,7 @@ class MyProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF3C3),
+      backgroundColor: const Color(0XFFFFFDF4),
       body: SafeArea(
         child: Column(
           children: [

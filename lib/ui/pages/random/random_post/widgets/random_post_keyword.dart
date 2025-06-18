@@ -7,14 +7,13 @@ class RandomPostKeyword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: avoid_print
     print('[랜덤포스트 키워드] "$keyword"');
     return Padding(
-      padding: const EdgeInsets.all(3.0),
+      padding: const EdgeInsets.only(top: 7, left: 4),
       child: Container(
         decoration: BoxDecoration(
           color: Color(0XFFFFF3C3),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.black, width: 0.3),
         ),
         child: Padding(

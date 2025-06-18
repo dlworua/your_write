@@ -23,12 +23,15 @@ class AiPostBottom extends StatelessWidget {
         children: [
           Row(
             children: [
-              SizedBox(width: 10),
+              SizedBox(width: 12),
 
-              const Text('AI 인용구 : ', style: TextStyle(fontSize: 12)),
+              Padding(
+                padding: const EdgeInsets.only(top: 6.0),
+                child: const Text('AI 인용구 : ', style: TextStyle(fontSize: 12)),
+              ),
               Expanded(
                 child: Wrap(
-                  spacing: 6,
+                  spacing: 5,
                   children:
                       keywords.map((k) => AiPostKeyword(keyword: k)).toList(),
                 ),
