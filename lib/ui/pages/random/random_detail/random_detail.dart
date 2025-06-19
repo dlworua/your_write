@@ -32,7 +32,12 @@ class _RandomDetailPageState extends State<RandomDetailPage> {
     setState(() {
       _comments.insert(
         0,
-        Comment(writer: '익명', content: content, createdAt: DateTime.now()),
+        Comment(
+          id: '',
+          author: '익명',
+          content: content,
+          createdAt: DateTime.now(),
+        ),
       );
       _controller.clear();
     });

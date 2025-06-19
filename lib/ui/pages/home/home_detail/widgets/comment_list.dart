@@ -48,7 +48,7 @@ class CommentList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${comment.writer} · ${_formatTimeAgo(comment.createdAt)}',
+                    '${comment.author} · ${_formatTimeAgo(comment.createdAt)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
