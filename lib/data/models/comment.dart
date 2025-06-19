@@ -1,29 +1,30 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Comment {
-  final String writer;
+  final String id; // Firestore 문서 ID
   final String content;
+  final String author;
   final DateTime createdAt;
 
   Comment({
-    required this.writer,
+    required this.id,
     required this.content,
+    required this.author,
     required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'writer': writer,
       'content': content,
-      'createdAt': createdAt.toUtc(),
+      'author': author,
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
-  factory Comment.fromMap(Map<String, dynamic> map) {
+  factory Comment.fromMap(Map<String, dynamic> map, String id) {
     return Comment(
-      writer: map['writer'] ?? '익명',
+      id: id,
       content: map['content'] ?? '',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      author: map['author'] ?? '',
+      createdAt: DateTime.tryParse(map['date'] ?? '') ?? DateTime.now(),
     );
   }
 }
