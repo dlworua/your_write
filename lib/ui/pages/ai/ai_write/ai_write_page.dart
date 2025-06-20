@@ -45,7 +45,6 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
     final asyncValue = ref.watch(aiWriteViewModelProvider);
     final viewModel = ref.read(aiWriteViewModelProvider.notifier);
 
-    // ViewModel의 상태가 변경될 때, 텍스트 필드에 값을 자동으로 업데이트
     ref.listen<AsyncValue<Write>>(aiWriteViewModelProvider, (previous, next) {
       next.when(
         data: (data) {
@@ -58,16 +57,14 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
           if (contentController.text != data.content) {
             contentController.text = data.content;
           }
-          // 작가명은 유저가 직접 입력하기 때문에 자동 설정 X
         },
-        loading: () {}, // 로딩 중일 때는 별도 처리 없음
+        loading: () {},
         error: (e, st) {
-          print('❌ 에러: $e'); // 에러 발생 시 콘솔에 메세지 출력
+          print('❌ 에러: $e');
         },
       );
     });
 
-    // 글 출간 버튼 클릭 시 호출되는 함수
     void submitPost() async {
       if (titleController.text.isEmpty || contentController.text.isEmpty) {
         ScaffoldMessenger.of(
@@ -85,127 +82,349 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         type: PostType.ai,
       );
 
-      // 로컬 상태 추가
       await ref.read(savedAiWritesProvider.notifier).publish(newPost);
-
-      // Firestore 저장
       await viewModel.publishWrite();
 
-      // 이전 화면으로 이동
       if (context.mounted) {
         Navigator.pop(context);
       }
     }
 
     return Scaffold(
-      backgroundColor: const Color(0XFFFFFDF4),
+      backgroundColor: const Color(0xFFFFFDF4), // 원래 밝은 배경
       appBar: AppBar(
-        title: const Text('AI 글쓰기'),
-        backgroundColor: const Color(0XFFFFFDF4),
+        title: const Text(
+          'AI 글쓰기',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            letterSpacing: -0.5,
+          ),
+        ),
+        backgroundColor: const Color(0xFFFFFDF4),
         foregroundColor: Colors.black,
         elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.black.withOpacity(0.1)),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
       ),
       body:
           asyncValue.isLoading
-              // 로딩 중에 로딩 인디케이터 표시
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.all(16),
-                child: ListView(
-                  children: [
-                    // 사용자가 AI에게 요청을 입력하는 프롬프트 필드
-                    TextField(
-                      controller: promptController,
-                      decoration: const InputDecoration(
-                        labelText: '프롬프트',
-                        hintText:
-                            'AI에게 글쓰기 요청을 해보세요!\n(예: “자연과 사랑에 대한 시 한 편 써줘”)',
+              ? Center(
+                child: Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.green.withOpacity(0.2)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 12),
-                    // 프롬프트를 기반으로 AI 글을 생성하는 버튼
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                          Colors.lightGreen[100],
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.lightGreen[300]!,
+                              Colors.lightGreen[400]!,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
                       ),
-                      onPressed: () {
-                        if (promptController.text.trim().isEmpty) {
-                          // 프롬프트가 비어있으면 알림
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('프롬프트를 입력하세요')),
-                          );
-                          return;
-                        }
-                        // 프롬프트를 넘겨주어 AI 글 생성
-                        viewModel.generateContentFromPrompt(
-                          promptController.text,
-                        );
-                      },
-                      child: const Text('AI 글 생성'),
-                    ),
-                    const SizedBox(height: 24),
-                    // 제목 필드 (AI가 생성, 수정 가능)
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(hintText: '제목'),
-                      onChanged:
-                          (value) => viewModel.updateFields(title: value),
-                    ),
-                    const SizedBox(height: 12),
-                    // 키워드 필드 (직접 입력, ai생성 가능하나 아직 구현 못함..)
-                    TextField(
-                      controller: keywordController,
-                      decoration: const InputDecoration(
-                        hintText: '키워드 (예: 자연, 사랑 등)',
-                      ),
-                      onChanged:
-                          (value) => viewModel.updateFields(keyWord: value),
-                    ),
-                    const SizedBox(height: 12),
-                    // 작가명은 사용자가 직접 입력
-                    TextField(
-                      controller: authorController,
-                      decoration: const InputDecoration(hintText: '작가명'),
-                      onChanged:
-                          (value) => viewModel.updateFields(author: value),
-                    ),
-                    const SizedBox(height: 12),
-                    // 본문 내용 표시 필드 (AI가 생성, 수정 불가)
-                    TextField(
-                      controller: contentController,
-                      readOnly: true,
-                      maxLines: 8,
-                      decoration: const InputDecoration(hintText: '본문 내용'),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // ignore: await_only_futures
-                        await ref.read(savedAiWritesProvider.notifier);
-                        submitPost();
-                      },
-
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightGreen[200],
-                        foregroundColor: Colors.blueGrey[700],
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text(
-                        '출간 하기',
+                      const SizedBox(height: 16),
+                      Text(
+                        'AI가 열심히 작업 중...',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              )
+              : Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFFDF4), // 원래 배경색
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: ListView(
+                    children: [
+                      // AI 프롬프트 섹션
+                      _buildSectionHeader('✨ AI에게 요청하기', Icons.auto_awesome),
+                      const SizedBox(height: 12),
+                      _buildTextField(
+                        controller: promptController,
+                        label: '프롬프트',
+                        hint: 'AI에게 글쓰기 요청을 해보세요!\n(예: "자연과 사랑에 대한 시 한 편 써줘")',
+                        maxLines: 3,
+                        icon: Icons.chat_bubble_outline,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildButton(
+                        text: 'AI 글 생성',
+                        onPressed: () {
+                          if (promptController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('프롬프트를 입력하세요')),
+                            );
+                            return;
+                          }
+                          viewModel.generateContentFromPrompt(
+                            promptController.text,
+                          );
+                        },
+                        icon: Icons.auto_awesome,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 글 정보 섹션
+                      _buildSectionHeader('📝 글 정보', Icons.edit_note),
+                      const SizedBox(height: 12),
+                      _buildTextField(
+                        controller: titleController,
+                        label: '제목',
+                        onChanged: (v) => viewModel.updateFields(title: v),
+                        icon: Icons.title,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: keywordController,
+                        label: '키워드 (예: 자연, 사랑 등)',
+                        onChanged: (v) => viewModel.updateFields(keyWord: v),
+                        icon: Icons.tag,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: authorController,
+                        label: '작가명',
+                        onChanged: (v) => viewModel.updateFields(author: v),
+                        icon: Icons.person_outline,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 본문 섹션
+                      _buildSectionHeader('📖 생성된 본문', Icons.article),
+                      const SizedBox(height: 12),
+                      _buildTextField(
+                        controller: contentController,
+                        label: '본문 내용',
+                        readOnly: true,
+                        maxLines: 8,
+                        icon: Icons.description,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      _buildButton(
+                        text: '출간 하기',
+                        onPressed: () async {
+                          await ref.read(savedAiWritesProvider.notifier);
+                          submitPost();
+                        },
+                        isPrimary: true,
+                        icon: Icons.publish,
+                      ),
+                    ],
+                  ),
                 ),
               ),
+    );
+  }
+
+  // 섹션 헤더
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            Colors.lightGreen[50]!,
+            Colors.lightGreen[100]!.withOpacity(0.3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.lightGreen[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.lightGreen[600], size: 20),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey[800],
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 트렌디한 TextField
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    String? hint,
+    int maxLines = 1,
+    bool readOnly = false,
+    void Function(String)? onChanged,
+    IconData? icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        border: Border.all(color: Colors.grey[300]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        onChanged: onChanged,
+        maxLines: maxLines,
+        style: TextStyle(
+          color: readOnly ? Colors.grey[600] : Colors.grey[800],
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          height: 1.4,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          labelStyle: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          hintStyle: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+            height: 1.4,
+          ),
+          prefixIcon:
+              icon != null
+                  ? Icon(icon, color: Colors.lightGreen[600], size: 20)
+                  : null,
+          filled: false,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.lightGreen[400]!, width: 2),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: icon != null ? 16 : 20,
+            vertical: maxLines > 1 ? 20 : 18,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 트렌디한 Button
+  Widget _buildButton({
+    required String text,
+    required VoidCallback onPressed,
+    bool isPrimary = false,
+    IconData? icon,
+  }) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors:
+              isPrimary
+                  ? [Colors.lightGreen[300]!, Colors.lightGreen[400]!]
+                  : [Colors.lightGreen[100]!, Colors.lightGreen[200]!],
+        ),
+        boxShadow: [
+          if (isPrimary)
+            BoxShadow(
+              color: Colors.lightGreen[300]!.withOpacity(0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+        ],
+        border: isPrimary ? null : Border.all(color: Colors.lightGreen[300]!),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onPressed,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    color: isPrimary ? Colors.white : Colors.grey[700],
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: isPrimary ? Colors.white : Colors.grey[700],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

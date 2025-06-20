@@ -12,6 +12,7 @@ final aiWriterServiceProvider = Provider<AiWriteService>((ref) {
 class AiWriteService {
   final _firestore = FirebaseFirestore.instance;
 
+  /// 🔄 Firestore에서 ai 타입 게시글을 가져오는 메서드
   Future<List<Write>> fetchAiPosts() async {
     final snapshot =
         await _firestore
@@ -23,24 +24,21 @@ class AiWriteService {
     return snapshot.docs.map((doc) => Write.fromMap(doc.data())).toList();
   }
 
-  // Gemini 모델 인스턴스 생성 (Flash 모델 사용)
+  /// 🤖 Gemini 모델 인스턴스 (Flash 모델 사용)
   final _model = GenerativeModel(
     model: 'gemini-2.0-flash',
     apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
   );
 
-  /// 사용자로부터 전달받은 프롬프트로부터 AiWrite 객체 생성
+  /// 📝 프롬프트로부터 제목, 키워드, 본문을 생성하고 Write 객체로 반환
   Future<Write> generateStructuredText(String prompt) async {
     print('✍️ Gemini 요청: $prompt');
 
     try {
-      // emini API에 텍스트 프롬프트 전송
       final response = await _model.generateContent([Content.text(prompt)]);
-      // 응답 본문 (텍스트) 가져오기
       final text = response.text ?? '응답이 비어 있습니다.';
       print('✅ Gemini 응답: $text');
 
-      // 응답 텍스트를 줄 단위로 분리하고, 공백 제거
       final lines =
           text
               .split('\n')
@@ -48,52 +46,69 @@ class AiWriteService {
               .where((e) => e.isNotEmpty)
               .toList();
 
-      // 제목과 키워드 추출을 위한 변수 초기화
       String title = '';
       String keyword = '';
-      int startIndex = 0; // 본문 시작 위치를 추적
+      final contentBuffer = <String>[];
 
-      for (int i = 0; i < lines.length; i++) {
-        final line = lines[i];
-        if (line.toLowerCase().startsWith('제목:')) {
-          // '제목:' 형식일 경우 추출
-          title =
-              line
-                  .replaceFirst(RegExp(r'제목:\s*', caseSensitive: false), '')
-                  .trim();
-          startIndex = i + 1;
-        } else if (line.toLowerCase().startsWith('키워드:')) {
-          // '키워드:' 형식일 경우 추출
-          keyword =
-              line
-                  .replaceFirst(RegExp(r'키워드:\s*', caseSensitive: false), '')
-                  .trim();
-          startIndex = i + 1;
-        } else if (line.startsWith('## ') || line.startsWith('# ')) {
-          // 제목이 Markdown 스타일로 왔을 경우
-          title = line.replaceFirst(RegExp(r'^#+\s*'), '').trim();
-          startIndex = i + 1;
+      for (final line in lines) {
+        final lower = line.toLowerCase();
+
+        if (lower.startsWith('제목:') || lower.startsWith('title:')) {
+          title = line.split(':').sublist(1).join(':').trim();
+        } else if (lower.startsWith('제목 -')) {
+          title = line.split('-').sublist(1).join('-').trim();
+        } else if (RegExp(r'^#{1,3}\s*').hasMatch(line)) {
+          // Markdown 형식 제목: # 제목, ## 제목
+          title = line.replaceFirst(RegExp(r'^#{1,3}\s*'), '').trim();
+        } else if (lower.startsWith('키워드:') || lower.startsWith('keywords:')) {
+          keyword = line.split(':').sublist(1).join(':').trim();
         } else {
-          // 위 조건에 해당하지 않을 시 루프 종료
-          break;
+          contentBuffer.add(line);
         }
       }
 
-      // 본문 줄 추출 (제목/키워드 이후)
-      final contentLines = lines.sublist(startIndex);
-      final content = contentLines.join('\n').trim();
+      final content = contentBuffer.join('\n').trim();
 
-      // AiWrite 모델로 묶어서 반환
+      // 키워드 자동 생성
+      if (keyword.isEmpty && content.isNotEmpty) {
+        final words =
+            content
+                .replaceAll(RegExp(r'[^\uAC00-\uD7A3a-zA-Z\s]'), '')
+                .split(' ')
+                .where((w) => w.length > 1)
+                .toList();
+
+        final wordFrequency = <String, int>{};
+        for (var word in words) {
+          wordFrequency[word] = (wordFrequency[word] ?? 0) + 1;
+        }
+
+        final sorted =
+            wordFrequency.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value));
+
+        final topKeywords = sorted.take(3).map((e) => e.key).toList();
+        keyword = topKeywords.join(', ');
+      }
+
+      // 제목 없을 경우 첫 줄로 대체
+      if (title.isEmpty && contentBuffer.isNotEmpty) {
+        title = contentBuffer.first.split(' ').take(5).join(' ').trim();
+      }
+
+      print('📄 제목: $title');
+      print('🔑 키워드: $keyword');
+      print('📝 본문:\n$content');
+
       return Write(
         title: title,
         keyWord: keyword,
-        nickname: '', // 작성자는 ViewModel에서 따로 설정함
+        nickname: '',
         content: content,
         date: DateTime.now(),
         type: PostType.ai,
       );
     } catch (e) {
-      // 예외 발생 시 에러 던지기
       throw Exception('Gemini API 에러: $e');
     }
   }
