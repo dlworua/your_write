@@ -45,7 +45,7 @@ class RandomPostBottom extends StatelessWidget {
                   ],
                 ),
                 child: const Text(
-                  '🍂 랜덤 인용구',
+                  ' 🎲 랜덤 인용구',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
