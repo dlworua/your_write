@@ -13,25 +13,77 @@ class RandomPostMiddle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 320,
-      width: 400,
+      width: double.infinity,
+      padding: EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.lightGreen[200],
-        border: Border.all(color: Colors.grey, width: 0.5),
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 1.2,
+          colors: [
+            Color(0xFFF5F1EB).withOpacity(0.6), // 베이지
+            Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
+            Color(0xFFF5F1EB).withOpacity(0.3), // 연한 베이지
+          ],
+        ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(padding: EdgeInsets.only(top: 10)),
-          Text(title, style: TextStyle(fontSize: 40)),
-          SizedBox(height: 30),
-          Text(
-            content,
-            style: TextStyle(fontSize: 20),
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF8B4513), // 따뜻한 브라운
+                letterSpacing: -0.8,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.left,
+            ),
           ),
+          SizedBox(height: 24),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.9),
+                  Color(0xFFFAF6F0).withOpacity(0.4), // 크림
+                  Colors.white.withOpacity(0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Color(0xFFDDBEA9).withOpacity(0.3), // 베이지 테두리
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.brown.withOpacity(0.1),
+                  blurRadius: 15,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Text(
+              content,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF5D4037), // 따뜻한 브라운 텍스트
+                height: 1.7,
+                letterSpacing: 0.3,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(height: 8),
         ],
       ),
     );
