@@ -1,5 +1,5 @@
 class Comment {
-  final String id; // Firestore 문서 ID
+  final String id;
   final String content;
   final String author;
   final DateTime createdAt;
@@ -11,20 +11,18 @@ class Comment {
     required this.createdAt,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'content': content,
-      'author': author,
-      'createdAt': createdAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toMap() => {
+    'content': content,
+    'author': author,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory Comment.fromMap(Map<String, dynamic> map, String id) {
     return Comment(
       id: id,
       content: map['content'] ?? '',
       author: map['author'] ?? '',
-      createdAt: DateTime.tryParse(map['date'] ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
     );
   }
 }
