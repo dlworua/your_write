@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment.dart';
-import 'package:your_write/ui/pages/home/home_detail/widgets/comment_input.dart';
-import 'package:your_write/ui/pages/home/home_detail/widgets/comment_list.dart';
+import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
+import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 
 class HomeDetailPage extends StatefulWidget {
   final String title;
@@ -107,12 +107,12 @@ class HomeDetailPageState extends State<HomeDetailPage> {
                     textAlign: TextAlign.center,
                   ),
                   const Divider(height: 32, thickness: 2),
-                  CommentInput(
+                  SharedCommentInput(
                     controller: _controller,
                     onSubmitted: _addComment,
                   ),
                   const SizedBox(height: 16),
-                  CommentList(comments: _comments),
+                  SharedCommentList(comments: _comments),
                   const SizedBox(height: 16),
                 ],
               ),
