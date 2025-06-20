@@ -14,7 +14,7 @@ class RandomPostMiddle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(28),
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         gradient: RadialGradient(
           center: Alignment.center,
@@ -30,7 +30,7 @@ class RandomPostMiddle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 4),
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 8),
             child: Text(
               title,
               style: TextStyle(
@@ -43,7 +43,7 @@ class RandomPostMiddle extends StatelessWidget {
               textAlign: TextAlign.left,
             ),
           ),
-          SizedBox(height: 24),
+          SizedBox(height: 10),
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(20),
@@ -83,7 +83,6 @@ class RandomPostMiddle extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(height: 8),
         ],
       ),
     );
