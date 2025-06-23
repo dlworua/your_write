@@ -1,10 +1,10 @@
-class Comment {
+class CommentModel {
   final String id;
   final String content;
   final String author;
   final DateTime createdAt;
 
-  Comment({
+  CommentModel({
     required this.id,
     required this.content,
     required this.author,
@@ -17,8 +17,8 @@ class Comment {
     'createdAt': createdAt.toIso8601String(),
   };
 
-  factory Comment.fromMap(Map<String, dynamic> map, String id) {
-    return Comment(
+  factory CommentModel.fromMap(Map<String, dynamic> map, String id) {
+    return CommentModel(
       id: id,
       content: map['content'] ?? '',
       author: map['author'] ?? '',

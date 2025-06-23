@@ -1,25 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// 글 목록을 관리하는 상태 저장용 Provider
 final savedAiWritesProvider =
-    StateNotifierProvider<AiWriteListNotifier, List<Write>>(
+    StateNotifierProvider<AiWriteListNotifier, List<WriteModel>>(
       (ref) => AiWriteListNotifier(),
     );
 
 /// 내부에서 글 목록을 상태로 가지고 있음
-class AiWriteListNotifier extends StateNotifier<List<Write>> {
+class AiWriteListNotifier extends StateNotifier<List<WriteModel>> {
   AiWriteListNotifier() : super([]);
 
   /// 새로운 글을 목록에 추가
-  Future<void> publish(Write post) async {
+  Future<void> publish(WriteModel post) async {
     state = [...state, post];
   }
 
   /// 모든 글을 교체 (Firestore에서 불러온 글 목록 반영용)
   /// ✅ 불러온 글 목록 전체 반영
-  void setPosts(List<Write> posts) {
+  void setPosts(List<WriteModel> posts) {
     state = posts;
   }
 
@@ -40,7 +40,7 @@ Future<void> loadAiPostsFromFirestore(WidgetRef ref) async {
   final posts =
       snapshot.docs.map((doc) {
         final data = doc.data();
-        return Write(
+        return WriteModel(
           title: data['title'] ?? '',
           keyWord: data['keyWord'] ?? '',
           nickname: data['nickname'] ?? '',

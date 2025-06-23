@@ -1,20 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final aiWriteViewModelProvider =
-    StateNotifierProvider<AiWriteViewModel, AsyncValue<Write>>(
+    StateNotifierProvider<AiWriteViewModel, AsyncValue<WriteModel>>(
       (ref) => AiWriteViewModel(ref),
     );
 
-class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
+class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
   final Ref ref;
 
   AiWriteViewModel(this.ref)
     : super(
         AsyncValue.data(
-          Write(
+          WriteModel(
             title: '',
             keyWord: '',
             nickname: '',
@@ -35,7 +35,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
 
       final current =
           state.value ??
-          Write(
+          WriteModel(
             title: '',
             keyWord: '',
             nickname: '',
@@ -59,7 +59,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
   }) {
     final current =
         state.value ??
-        Write(
+        WriteModel(
           title: '',
           keyWord: '',
           nickname: '',
@@ -105,11 +105,11 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
 }
 
 final aiWriteListProvider =
-    StateNotifierProvider<AiWriteListViewModel, List<Write>>(
+    StateNotifierProvider<AiWriteListViewModel, List<WriteModel>>(
       (ref) => AiWriteListViewModel(AiWriteService()),
     );
 
-class AiWriteListViewModel extends StateNotifier<List<Write>> {
+class AiWriteListViewModel extends StateNotifier<List<WriteModel>> {
   final AiWriteService _service;
 
   AiWriteListViewModel(this._service) : super([]);

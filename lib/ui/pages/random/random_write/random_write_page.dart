@@ -1,7 +1,7 @@
 // ui/pages/random/random_write/random_write_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_viewmodel.dart';
 
@@ -55,7 +55,7 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     ref
         .read(savedAiWritesProvider.notifier)
         .publish(
-          Write(
+          WriteModel(
             title: title,
             keyWord: keywords.join(','),
             nickname: author,

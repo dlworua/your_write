@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/data/models/comment.dart';
+import 'package:your_write/data/models/comment_model.dart';
 
 class SharedCommentList extends StatelessWidget {
-  final List<Comment> comments;
+  final List<CommentModel> comments;
 
   const SharedCommentList({super.key, required this.comments});
 

@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:your_write/data/models/comment.dart';
+import 'package:your_write/data/models/comment_model.dart';
 
 class CommentService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Stream<List<Comment>> getComments(String boardType, String postId) {
+  Stream<List<CommentModel>> getComments(String boardType, String postId) {
     return _firestore
         .collection(boardType)
         .doc(postId)
@@ -14,7 +14,7 @@ class CommentService {
         .map(
           (snapshot) =>
               snapshot.docs
-                  .map((doc) => Comment.fromMap(doc.data(), doc.id))
+                  .map((doc) => CommentModel.fromMap(doc.data(), doc.id))
                   .toList(),
         );
   }
@@ -22,7 +22,7 @@ class CommentService {
   Future<void> addComment({
     required String boardType,
     required String postId,
-    required Comment comment,
+    required CommentModel comment,
   }) async {
     await _firestore
         .collection(boardType)

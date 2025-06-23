@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 
 /// Provider로 AiWriterService를 앱 전체에서 사용할 수 있게 등록
 final aiWriterServiceProvider = Provider<AiWriteService>((ref) {
@@ -13,7 +13,7 @@ class AiWriteService {
   final _firestore = FirebaseFirestore.instance;
 
   /// 🔄 Firestore에서 ai 타입 게시글을 가져오는 메서드
-  Future<List<Write>> fetchAiPosts() async {
+  Future<List<WriteModel>> fetchAiPosts() async {
     final snapshot =
         await _firestore
             .collection('writes')
@@ -21,7 +21,7 @@ class AiWriteService {
             .orderBy('date', descending: true)
             .get();
 
-    return snapshot.docs.map((doc) => Write.fromMap(doc.data())).toList();
+    return snapshot.docs.map((doc) => WriteModel.fromMap(doc.data())).toList();
   }
 
   /// 🤖 Gemini 모델 인스턴스 (Flash 모델 사용)
@@ -31,7 +31,7 @@ class AiWriteService {
   );
 
   /// 📝 프롬프트로부터 제목, 키워드, 본문을 생성하고 Write 객체로 반환
-  Future<Write> generateStructuredText(String prompt) async {
+  Future<WriteModel> generateStructuredText(String prompt) async {
     print('✍️ Gemini 요청: $prompt');
 
     try {
@@ -100,7 +100,7 @@ class AiWriteService {
       print('🔑 키워드: $keyword');
       print('📝 본문:\n$content');
 
-      return Write(
+      return WriteModel(
         title: title,
         keyWord: keyword,
         nickname: '',

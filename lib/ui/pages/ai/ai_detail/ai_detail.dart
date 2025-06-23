@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/data/models/comment.dart';
+import 'package:your_write/data/models/comment_model.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 
@@ -25,14 +25,14 @@ class AiDetailPage extends StatefulWidget {
 
 class _AiDetailPageState extends State<AiDetailPage> {
   final TextEditingController _controller = TextEditingController();
-  final List<Comment> _comments = [];
+  final List<CommentModel> _comments = [];
 
   void _addComment(String content) {
     if (content.trim().isEmpty) return;
     setState(() {
       _comments.insert(
         0,
-        Comment(
+        CommentModel(
           id: '',
           author: '익명',
           content: content,

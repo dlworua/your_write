@@ -1,7 +1,7 @@
 // ui/pages/home/home_write/home_write_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/home_post.dart';
+import 'package:your_write/data/models/home_post_model.dart';
 import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
 
 class HomeWritePage extends ConsumerStatefulWidget {
@@ -33,7 +33,7 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
       return;
     }
 
-    final newPost = HomePost(
+    final newPost = HomePostModel(
       title: title,
       content: content,
       keyword: keyword,

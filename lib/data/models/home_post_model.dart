@@ -1,11 +1,11 @@
-class HomePost {
+class HomePostModel {
   final String title;
   final String content;
   final String keyword;
   final String author;
   final DateTime date;
 
-  HomePost({
+  HomePostModel({
     required this.title,
     required this.content,
     required this.keyword,
@@ -23,8 +23,8 @@ class HomePost {
     };
   }
 
-  factory HomePost.fromMap(Map<String, dynamic> map) {
-    return HomePost(
+  factory HomePostModel.fromMap(Map<String, dynamic> map) {
+    return HomePostModel(
       title: map['title'] ?? '',
       content: map['content'] ?? '',
       keyword: map['keyword'] ?? '',

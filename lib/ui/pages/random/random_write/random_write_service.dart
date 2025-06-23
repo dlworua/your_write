@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 
 final randomWriteServiceProvider = Provider<RandomWriteService>((ref) {
   return RandomWriteService();
@@ -11,7 +11,7 @@ final randomWriteServiceProvider = Provider<RandomWriteService>((ref) {
 class RandomWriteService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> saveWriteToFirestore(Write write) async {
+  Future<void> saveWriteToFirestore(WriteModel write) async {
     try {
       await _firestore.collection('random_writes').add({
         'title': write.title,
@@ -27,7 +27,7 @@ class RandomWriteService {
     }
   }
 
-  Future<List<Write>> fetchRandomPostsFromFirestore() async {
+  Future<List<WriteModel>> fetchRandomPostsFromFirestore() async {
     try {
       final snapshot =
           await _firestore
@@ -35,7 +35,9 @@ class RandomWriteService {
               .orderBy('date', descending: true)
               .get();
 
-      return snapshot.docs.map((doc) => Write.fromMap(doc.data())).toList();
+      return snapshot.docs
+          .map((doc) => WriteModel.fromMap(doc.data()))
+          .toList();
     } catch (e) {
       print('❌ 랜덤 글 불러오기 실패: $e');
       return [];

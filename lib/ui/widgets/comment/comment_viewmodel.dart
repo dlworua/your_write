@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/comment.dart';
+import 'package:your_write/data/models/comment_model.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
 import 'package:your_write/ui/widgets/comment/comment_service.dart';
 
@@ -8,7 +8,7 @@ final commentServiceProvider = Provider((ref) => CommentService());
 
 final commentViewModelProvider = StateNotifierProvider.family<
   CommentViewModel,
-  List<Comment>,
+  List<CommentModel>,
   CommentParams
 >(
   (ref, params) => CommentViewModel(
@@ -17,7 +17,7 @@ final commentViewModelProvider = StateNotifierProvider.family<
   ),
 );
 
-class CommentViewModel extends StateNotifier<List<Comment>> {
+class CommentViewModel extends StateNotifier<List<CommentModel>> {
   final CommentService service;
   final CommentParams params;
   StreamSubscription? _subscription;
@@ -35,7 +35,7 @@ class CommentViewModel extends StateNotifier<List<Comment>> {
   }
 
   Future<void> addComment(String content, String author) async {
-    final comment = Comment(
+    final comment = CommentModel(
       id: '',
       content: content,
       author: author,
