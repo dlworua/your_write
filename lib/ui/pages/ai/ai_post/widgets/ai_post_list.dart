@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_widget.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
