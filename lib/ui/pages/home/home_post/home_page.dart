@@ -8,43 +8,42 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0XFFFFFDF4),
+      backgroundColor: const Color(0XFFFFFDF4),
       body: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.5,
             colors: [
-              Color(0XFFFFFDF4),
-              Color(0xFFF5F1EB).withOpacity(0.6), // 따뜻한 베이지
-              Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
+              const Color(0XFFFFFDF4),
+              const Color(0xFFF5F1EB).withOpacity(0.6),
+              const Color(0xFFFAF6F0).withOpacity(0.4),
             ],
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // 앱바 영역
             Container(
-              padding: EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0XFFFFFDF4),
+                    const Color(0XFFFFFDF4),
                     Colors.brown[50]!.withOpacity(0.8),
-                    Color(0xFFF5F1EB).withOpacity(0.3),
+                    const Color(0xFFF5F1EB).withOpacity(0.3),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(30),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.brown.withOpacity(0.1),
                     blurRadius: 20,
-                    offset: Offset(0, 10),
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
@@ -59,36 +58,34 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HomeWritePage(),
+                            builder: (_) => const HomeWritePage(),
                           ),
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFD2B48C).withOpacity(0.9), // 따뜻한 탄 색
-                              Color(0xFFDDBEA9).withOpacity(0.8), // 연한 베이지
+                              const Color(0xFFD2B48C).withOpacity(0.9),
+                              const Color(0xFFDDBEA9).withOpacity(0.8),
                             ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.brown.withOpacity(0.25),
                               blurRadius: 15,
-                              offset: Offset(0, 6),
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
+                          children: const [
                             Icon(
                               Icons.create_outlined,
                               size: 18,
@@ -112,13 +109,11 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                children: [HomePostList()],
+            // 글 목록
+            const Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                child: HomePostList(),
               ),
             ),
           ],
