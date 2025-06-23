@@ -22,29 +22,61 @@ class AiPostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AiPostTop(nickname: nickname),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => AiDetailPage(
-                      title: title,
-                      content: content,
-                      author: nickname,
-                      keyword: keywords.join(', '),
-                      date: date,
-                    ), // post를 전달
-              ),
-            );
-          },
-          child: AiPostMiddle(title: title, content: content),
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white,
+            Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
+            Colors.white,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        AiPostBottom(keywords: keywords),
-      ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 25,
+            offset: Offset(0, 12),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.brown.withOpacity(0.08),
+            blurRadius: 40,
+            offset: Offset(0, 8),
+            spreadRadius: -8,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: Column(
+          children: [
+            AiPostTop(nickname: nickname),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => AiDetailPage(
+                          title: title,
+                          content: content,
+                          author: nickname,
+                          keyword: keywords.join(', '),
+                          date: date,
+                        ),
+                  ),
+                );
+              },
+              child: AiPostMiddle(title: title, content: content),
+            ),
+            AiPostBottom(keywords: keywords),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -3,13 +3,7 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class HomePostTop extends StatelessWidget {
   final String nickname;
-  // final String imageAssetPath;
-
-  const HomePostTop({
-    super.key,
-    required this.nickname,
-    // this.imageAssetPath = 'assets/app_logo.png',
-  });
+  const HomePostTop({super.key, required this.nickname});
 
   void _onReportPressed(BuildContext context) {
     showDialog(context: context, builder: (context) => const ReportDialog());
@@ -18,32 +12,51 @@ class HomePostTop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
-      width: double.infinity,
+      height: 85,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(50)),
-        border: Border.all(color: Colors.grey, width: 0.5),
+        gradient: const LinearGradient(
+          colors: [Colors.white, Color(0xFFF5F1EB)],
+        ),
+        border: Border(
+          bottom: BorderSide(color: Colors.brown.withOpacity(0.1), width: 1),
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: Image.asset(
-                'assets/app_logo.png',
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
+            Container(
+              width: 55,
+              height: 55,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFDDBEA9), Color(0xFFE6CCB2)],
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset('assets/app_logo.png', fit: BoxFit.cover),
               ),
             ),
-            const SizedBox(width: 10),
-            Text(nickname, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const Spacer(),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(
+                nickname,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
+                  color: Color(0xFF8B4513),
+                ),
+              ),
+            ),
             IconButton(
               onPressed: () => _onReportPressed(context),
-              icon: const Icon(Icons.flag),
+              icon: Icon(
+                Icons.report,
+                color: Color(0xFFCD853F), // 따뜻한 브라운
+                size: 22,
+              ),
             ),
           ],
         ),

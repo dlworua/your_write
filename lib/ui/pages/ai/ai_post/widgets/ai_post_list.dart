@@ -4,11 +4,27 @@ import 'package:your_write/data/models/write.dart';
 import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_widget.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
-class AiPostList extends ConsumerWidget {
+class AiPostList extends ConsumerStatefulWidget {
   const AiPostList({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AiPostList> createState() => _AiPostListState();
+}
+
+class _AiPostListState extends ConsumerState<AiPostList> {
+  bool _isLoaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isLoaded) {
+      loadAiPostsFromFirestore(ref);
+      _isLoaded = true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final posts =
         ref
             .watch(savedAiWritesProvider)
@@ -16,7 +32,7 @@ class AiPostList extends ConsumerWidget {
             .toList();
 
     if (posts.isEmpty) {
-      return const Center(child: Text("AI 게시판에 출간된 글이 없습니다."));
+      return const Center(child: Text("AI에 출간된 글이 없습니다."));
     }
 
     return Column(

@@ -1,14 +1,24 @@
-// ViewModel: 키워드를 생성하고 저장하는 로직 담당
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/models/write.dart';
+import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 import 'package:your_write/ui/pages/random/random_write/random_keyword_list.dart';
+import 'package:your_write/ui/pages/random/random_write/random_write_service.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_state.dart';
 
-class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
-  RandomWriteViewModel() : super(RandomWriteState.initial());
+final randomWriteViewModelProvider =
+    StateNotifierProvider<RandomWriteViewModel, RandomWriteState>(
+      (ref) => RandomWriteViewModel(ref.read(randomWriteServiceProvider), ref),
+    );
 
-  // 키워드 갯수만큼 무작위 키워드를 생성
+class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
+  final RandomWriteService _service;
+  final Ref ref;
+
+  RandomWriteViewModel(this._service, this.ref)
+    : super(RandomWriteState.initial());
+
   void generateKeywords(int count) {
     final random = Random();
     final Set<String> newKeywords = {};
@@ -18,29 +28,54 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
         randomkeywordList[random.nextInt(randomkeywordList.length)],
       );
     }
-    // 새로운 키워드를 상태에 반영
+
     state = state.copyWith(keywords: newKeywords.toList());
   }
 
-  // 저장용 함수 (현재는 print로 출력만 함)
-  Future<void> saveRandomPost({
-    required String title,
-    required String author,
-    required String content,
-    required List<String> keywords,
-  }) async {
-    // 실제 저장 전 키워드 정리 예시 (사용하지 않으면 제거 가능)
-    // final cleanedKeywords = keywords.map((e) => e.trim()).toList();
-    // 실제 저장 로직 (예: Firestore) 구현 예정
-    // ignore: avoid_print
-    print('[랜덤 저장됨] 제목: $title, 작가: $author, 키워드: $keywords, 내용: $content');
+  void updateFields({String? title, String? author, String? content}) {
+    state = state.copyWith(
+      title: title ?? state.title,
+      author: author ?? state.author,
+      content: content ?? state.content,
+    );
   }
 
-  // 예시 - Firestore 저장 (리스트 형태 권장)
-  // await FirebaseFirestore.instance.collection('randomPosts').add({
-  //   'title': title,
-  //   'author': author,
-  //   'content': content,
-  //   'keywords': cleanedKeywords,
-  // });
+  /// Service를 통해 저장 요청
+  Future<void> saveRandomPostToFirestore() async {
+    final title = state.title.trim();
+    final content = state.content.trim();
+    final nickname = state.author.trim();
+    final keyword = state.keywords.join(', ').trim();
+
+    // ✅ 저장 조건 검사
+    if (title.isEmpty ||
+        content.isEmpty ||
+        nickname.isEmpty ||
+        keyword.isEmpty) {
+      print("❌ Firestore 저장 실패: 입력값이 비어 있음");
+      return;
+    }
+
+    final write = Write(
+      title: title,
+      keyWord: keyword,
+      nickname: nickname,
+      content: content,
+      date: DateTime.now(),
+      type: PostType.random,
+    );
+    await _service.saveWriteToFirestore(write);
+  }
+
+  Future<void> loadRandomPosts() async {
+    final posts = await _service.fetchRandomPostsFromFirestore();
+
+    // savedAiWritesProvider에 저장
+    for (final post in posts) {
+      if (post.type == PostType.random) {
+        // 이미 있는 글이 중복 저장되지 않도록 체크하거나 무조건 저장
+        ref.read(savedAiWritesProvider.notifier).publish(post);
+      }
+    }
+  }
 }

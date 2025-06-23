@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment.dart';
-import 'package:your_write/ui/pages/random/random_detail/widgets/random_comment_input.dart';
-import 'package:your_write/ui/pages/random/random_detail/widgets/random_comment_list.dart';
+import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
+import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 
 class RandomDetailPage extends StatefulWidget {
   final String title;
@@ -32,7 +32,12 @@ class _RandomDetailPageState extends State<RandomDetailPage> {
     setState(() {
       _comments.insert(
         0,
-        Comment(writer: '익명', content: content, createdAt: DateTime.now()),
+        Comment(
+          id: '',
+          author: '익명',
+          content: content,
+          createdAt: DateTime.now(),
+        ),
       );
       _controller.clear();
     });
@@ -102,12 +107,12 @@ class _RandomDetailPageState extends State<RandomDetailPage> {
                     textAlign: TextAlign.center,
                   ),
                   const Divider(height: 32, thickness: 2),
-                  RandomCommentInput(
+                  SharedCommentInput(
                     controller: _controller,
                     onSubmitted: _addComment,
                   ),
                   const SizedBox(height: 16),
-                  RandomCommentList(comments: _comments),
+                  SharedCommentList(comments: _comments),
                   const SizedBox(height: 16),
                 ],
               ),

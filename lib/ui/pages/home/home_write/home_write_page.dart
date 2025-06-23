@@ -1,3 +1,4 @@
+// ui/pages/home/home_write/home_write_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/home_post.dart';
@@ -16,31 +17,30 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
   final _authorController = TextEditingController();
   final _contentController = TextEditingController();
 
-  void _submitPost() {
+  void _submitPost() async {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
     final keyword = _keywordController.text.trim();
     final author =
-        _authorController.text.trim().isEmpty ? '익명' : _authorController.text;
+        _authorController.text.trim().isEmpty
+            ? '익명'
+            : _authorController.text.trim();
 
     if (title.isEmpty || content.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('제목과 본문은 필수입니다.')));
+      ).showSnackBar(const SnackBar(content: Text('제목과 본문은 필수입니다.')));
       return;
     }
 
-    ref
-        .read(homePostListProvider.notifier)
-        .addPost(
-          HomePost(
-            title: title,
-            content: content,
-            keyword: keyword,
-            author: author,
-          ),
-        );
+    final newPost = HomePost(
+      title: title,
+      content: content,
+      keyword: keyword,
+      author: author,
+    );
 
+    await ref.read(homePostListProvider.notifier).addPost(newPost);
     Navigator.pop(context);
   }
 
@@ -59,50 +59,97 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
       backgroundColor: const Color(0xFFFFFDF4),
       appBar: AppBar(
         title: const Text('자유 글쓰기'),
-        backgroundColor: Color(0xFFFFFDF4),
+        backgroundColor: const Color(0xFFFFFDF4),
         foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: ListView(
           children: [
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(hintText: '제목'),
+            _buildSectionHeader('📝 글 정보', Icons.edit_note),
+            const SizedBox(height: 12),
+            _buildTextField(_titleController, '제목'),
+            const SizedBox(height: 16),
+            _buildTextField(_keywordController, '키워드 (예: 사랑, 자유 등)'),
+            const SizedBox(height: 16),
+            _buildTextField(_authorController, '작가명'),
+            const SizedBox(height: 32),
+            _buildSectionHeader('📖 본문', Icons.article),
+            const SizedBox(height: 12),
+            _buildTextField(
+              _contentController,
+              '작가님의 이야기를 들려주세요 :)',
+              maxLines: 10,
             ),
-            SizedBox(height: 12),
-            TextField(
-              controller: _keywordController,
-              decoration: InputDecoration(hintText: '키워드 (예: 자연, 사랑 등)'),
-            ),
-            SizedBox(height: 12),
-            TextField(
-              controller: _authorController,
-              decoration: InputDecoration(hintText: '작가명'),
-            ),
-            SizedBox(height: 12),
-            TextField(
-              controller: _contentController,
-              decoration: InputDecoration(hintText: '작가님의 이야기를 들려주세요:)'),
-              keyboardType: TextInputType.multiline,
-              maxLines: 12,
-            ),
-            SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _submitPost,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.lightGreen[200],
-                foregroundColor: Colors.blueGrey[700],
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: Text(
-                '출간 하기',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
+            const SizedBox(height: 32),
+            _buildSubmitButton(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.lightGreen[50]!,
+            Colors.lightGreen[100]!.withOpacity(0.3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.lightGreen[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.lightGreen[600], size: 20),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey[800],
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return ElevatedButton.icon(
+      onPressed: _submitPost,
+      icon: const Icon(Icons.publish),
+      label: const Text(
+        '출간 하기',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.lightGreen[300],
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }

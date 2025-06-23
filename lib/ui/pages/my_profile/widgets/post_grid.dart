@@ -72,8 +72,8 @@ class _PostCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          height: 170,
-          width: 170,
+          height: 160,
+          width: 160,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.red[100],
@@ -96,20 +96,22 @@ class _PostCard extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 6),
+        SizedBox(height: 1),
         // 아이콘
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(Icons.favorite_border),
-            Icon(Icons.chat_outlined),
-            Icon(Icons.share),
+            Icon(Icons.favorite_border, size: 25),
+            SizedBox(width: 15),
+            Icon(Icons.chat_outlined, size: 25),
+            SizedBox(width: 15),
+            Icon(Icons.share, size: 25),
           ],
         ),
         const SizedBox(height: 4),
         //  작성날짜
         Padding(
-          padding: const EdgeInsets.only(top: 5, bottom: 1.6),
+          padding: const EdgeInsets.only(top: 5, bottom: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

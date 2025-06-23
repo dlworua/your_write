@@ -8,53 +8,116 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0XFFFFFDF4),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Stack(
-            children: [
-              Image.asset('assets/appbar_logo.png'),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return HomeWritePage();
+      backgroundColor: const Color(0XFFFFFDF4),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.topCenter,
+            radius: 1.5,
+            colors: [
+              const Color(0XFFFFFDF4),
+              const Color(0xFFF5F1EB).withOpacity(0.6),
+              const Color(0xFFFAF6F0).withOpacity(0.4),
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // 앱바 영역
+            Container(
+              padding: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0XFFFFFDF4),
+                    Colors.brown[50]!.withOpacity(0.8),
+                    const Color(0xFFF5F1EB).withOpacity(0.3),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.brown.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Image.asset('assets/appbar_logo.png'),
+                  Positioned(
+                    top: 75,
+                    right: 25,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HomeWritePage(),
+                          ),
+                        );
                       },
-                    ),
-                  );
-                },
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 85, left: 325),
-                      child: Icon(Icons.edit, size: 20),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 315),
-                      child: Text(
-                        '글쓰기',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFD2B48C).withOpacity(0.9),
+                              const Color(0xFFDDBEA9).withOpacity(0.8),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.brown.withOpacity(0.25),
+                              blurRadius: 15,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.create_outlined,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              '글쓰기',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [HomePostList()],
             ),
-          ),
-        ],
+            // 글 목록
+            const Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                child: HomePostList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

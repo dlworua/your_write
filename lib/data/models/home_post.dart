@@ -3,42 +3,33 @@ class HomePost {
   final String content;
   final String keyword;
   final String author;
-  // final int? likes;
-  // final int comments;
-  // 보류
-  // final String profileImageUrl;
+  final DateTime date;
 
   HomePost({
     required this.title,
     required this.content,
     required this.keyword,
     required this.author,
-    // this.likes = 0,
-    // this.comments = 0,
+    DateTime? date,
+  }) : date = date ?? DateTime.now();
 
-    // 보류
-    // required this.profileImageUrl,
-  });
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'content': content,
+      'keyword': keyword,
+      'author': author,
+      'date': date.toIso8601String(),
+    };
+  }
 
-  // Map<String, dynamic> toJson() {
-  //   return {
-  //     'title': title,
-  //     'content': content,
-  //     'keyword': keyword,
-  //     'author': author,
-  //     'likes': likes,
-  //     'comments': comments,
-  //   };
-  // }
-
-  // factory HomePost.fromJson(Map<String, dynamic> json) {
-  //   return HomePost(
-  //     title: json['title'],
-  //     content: json['content'],
-  //     keyword: json['keyword'],
-  //     author: json['author'],
-  //     likes: json['likes'] ?? 0,
-  //     comments: json['comments'] ?? 0,
-  //   );
-  // }
+  factory HomePost.fromMap(Map<String, dynamic> map) {
+    return HomePost(
+      title: map['title'] ?? '',
+      content: map['content'] ?? '',
+      keyword: map['keyword'] ?? '',
+      author: map['author'] ?? '익명',
+      date: DateTime.parse(map['date']),
+    );
+  }
 }
