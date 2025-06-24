@@ -56,6 +56,7 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
         .read(savedAiWritesProvider.notifier)
         .publish(
           WriteModel(
+            id: '',
             title: title,
             keyWord: keywords.join(','),
             nickname: author,

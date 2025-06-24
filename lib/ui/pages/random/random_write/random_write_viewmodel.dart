@@ -57,6 +57,7 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
     }
 
     final write = WriteModel(
+      id: '',
       title: title,
       keyWord: keyword,
       nickname: nickname,

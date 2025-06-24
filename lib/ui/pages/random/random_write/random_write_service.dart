@@ -36,7 +36,7 @@ class RandomWriteService {
               .get();
 
       return snapshot.docs
-          .map((doc) => WriteModel.fromMap(doc.data()))
+          .map((doc) => WriteModel.fromMap(doc.data(), docId: doc.id))
           .toList();
     } catch (e) {
       print('❌ 랜덤 글 불러오기 실패: $e');
