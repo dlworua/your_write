@@ -16,12 +16,18 @@ class AiWriteService {
   Future<List<WriteModel>> fetchAiPosts() async {
     final snapshot =
         await _firestore
-            .collection('writes')
+            .collection('ai_writes')
             .where('type', isEqualTo: 'ai')
             .orderBy('date', descending: true)
             .get();
 
-    return snapshot.docs.map((doc) => WriteModel.fromMap(doc.data())).toList();
+    return snapshot.docs
+        // ignore: unnecessary_null_comparison
+        .where((doc) => doc.data() != null)
+        .map(
+          (doc) => WriteModel.fromMap(doc.data(), docId: doc.id), // ✅ 문서 ID 추가
+        )
+        .toList();
   }
 
   /// 🤖 Gemini 모델 인스턴스 (Flash 모델 사용)
@@ -101,6 +107,7 @@ class AiWriteService {
       print('📝 본문:\n$content');
 
       return WriteModel(
+        id: '',
         title: title,
         keyWord: keyword,
         nickname: '',

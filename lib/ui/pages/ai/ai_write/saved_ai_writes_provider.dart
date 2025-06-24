@@ -41,6 +41,7 @@ Future<void> loadAiPostsFromFirestore(WidgetRef ref) async {
       snapshot.docs.map((doc) {
         final data = doc.data();
         return WriteModel(
+          id: doc.id,
           title: data['title'] ?? '',
           keyWord: data['keyWord'] ?? '',
           nickname: data['nickname'] ?? '',

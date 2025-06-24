@@ -15,6 +15,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
     : super(
         AsyncValue.data(
           WriteModel(
+            id: '',
             title: '',
             keyWord: '',
             nickname: '',
@@ -36,6 +37,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
       final current =
           state.value ??
           WriteModel(
+            id: '',
             title: '',
             keyWord: '',
             nickname: '',
@@ -60,6 +62,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
     final current =
         state.value ??
         WriteModel(
+          id: '',
           title: '',
           keyWord: '',
           nickname: '',

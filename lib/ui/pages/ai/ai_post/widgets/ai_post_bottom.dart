@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_keyword.dart';
+import 'package:your_write/ui/widgets/comment/comment_params.dart';
 
-class AiPostBottom extends StatelessWidget {
+class AiPostBottom extends ConsumerWidget {
   final List<String> keywords;
+  final String postId;
+  final VoidCallback onCommentTap;
 
-  const AiPostBottom({super.key, required this.keywords});
+  const AiPostBottom({
+    super.key,
+    required this.keywords,
+    required this.postId,
+    required this.onCommentTap,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final params = CommentParams(postId: postId, boardType: 'ai_posts');
+    final interaction = ref.watch(postInteractionProvider(params));
+    final viewModel = ref.read(postInteractionProvider(params).notifier);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -19,7 +33,6 @@ class AiPostBottom extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 🍂 키워드 섹션
           Row(
             children: [
               Container(
@@ -53,7 +66,6 @@ class AiPostBottom extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              // 👉 가로 스크롤 키워드
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -73,53 +85,58 @@ class AiPostBottom extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 22),
-          // 💬 아이콘 버튼들
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildIconOnlyButton(
-                Icons.favorite_border_rounded,
-                '37',
-                const Color(0xFFD2691E),
+              GestureDetector(
+                onTap: () => viewModel.toggleLike(),
+                child: Row(
+                  children: [
+                    Icon(
+                      interaction.isLiked
+                          ? Icons.favorite
+                          : Icons.favorite_border_rounded,
+                      size: 20,
+                      color: const Color(0xFFD2691E),
+                    ),
+                    const SizedBox(width: 6),
+                    Text('${interaction.likeCount}'),
+                  ],
+                ),
               ),
-              _buildIconOnlyButton(
-                Icons.chat_bubble_outline_rounded,
-                '326',
-                const Color(0xFF4682B4),
+              GestureDetector(
+                onTap: onCommentTap,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      size: 20,
+                      color: Color(0xFF4682B4),
+                    ),
+                    const SizedBox(width: 6),
+                    Text('${interaction.comments.length}'),
+                  ],
+                ),
               ),
-              _buildIconOnlyButton(
+              const Icon(
                 Icons.share_outlined,
-                '',
-                const Color(0xFF8FBC8F),
+                size: 20,
+                color: Color(0xFF8FBC8F),
               ),
-              _buildIconOnlyButton(
-                Icons.bookmark_outline_rounded,
-                '',
-                const Color(0xFFDDA0DD),
+              GestureDetector(
+                onTap: () => viewModel.toggleSave(),
+                child: Icon(
+                  interaction.isSaved
+                      ? Icons.bookmark
+                      : Icons.bookmark_outline_rounded,
+                  size: 20,
+                  color: const Color(0xFFDDA0DD),
+                ),
               ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildIconOnlyButton(IconData icon, String count, Color color) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: color),
-        if (count.isNotEmpty) ...[
-          const SizedBox(width: 6),
-          Text(
-            count,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF5D4037),
-            ),
-          ),
-        ],
-      ],
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/ui/pages/ai/ai_detail/ai_detail.dart';
-import 'ai_post_top.dart';
-import 'ai_post_middle.dart';
-import 'ai_post_bottom.dart';
+import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_bottom.dart';
+import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_middle.dart';
+import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_top.dart';
 
 class AiPostWidget extends StatelessWidget {
   final String nickname;
@@ -10,6 +10,7 @@ class AiPostWidget extends StatelessWidget {
   final String content;
   final List<String> keywords;
   final DateTime date;
+  final String postId;
 
   const AiPostWidget({
     super.key,
@@ -18,18 +19,19 @@ class AiPostWidget extends StatelessWidget {
     required this.content,
     required this.keywords,
     required this.date,
+    required this.postId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 15),
+      margin: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
         gradient: LinearGradient(
           colors: [
             Colors.white,
-            Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
+            const Color(0xFFFAF6F0).withOpacity(0.4),
             Colors.white,
           ],
           begin: Alignment.topLeft,
@@ -39,13 +41,13 @@ class AiPostWidget extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
             blurRadius: 25,
-            offset: Offset(0, 12),
+            offset: const Offset(0, 12),
             spreadRadius: 0,
           ),
           BoxShadow(
             color: Colors.brown.withOpacity(0.08),
             blurRadius: 40,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
             spreadRadius: -8,
           ),
         ],
@@ -67,13 +69,34 @@ class AiPostWidget extends StatelessWidget {
                           author: nickname,
                           keyword: keywords.join(', '),
                           date: date,
+                          postId: postId,
                         ),
                   ),
                 );
               },
               child: AiPostMiddle(title: title, content: content),
             ),
-            AiPostBottom(keywords: keywords),
+            AiPostBottom(
+              keywords: keywords,
+              postId: postId,
+              onCommentTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => AiDetailPage(
+                          title: title,
+                          content: content,
+                          author: nickname,
+                          keyword: keywords.join(', '),
+                          date: date,
+                          postId: postId,
+                          scrollToCommentOnLoad: true,
+                        ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

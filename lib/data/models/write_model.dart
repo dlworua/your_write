@@ -21,6 +21,7 @@ String postTypeToString(PostType type) {
 
 /// 글 모델
 class WriteModel {
+  final String id; // ✅ 추가됨
   final String title;
   final String keyWord;
   final String nickname;
@@ -29,6 +30,7 @@ class WriteModel {
   final PostType type;
 
   WriteModel({
+    required this.id,
     required this.title,
     required this.keyWord,
     required this.nickname,
@@ -38,6 +40,7 @@ class WriteModel {
   });
 
   WriteModel copyWith({
+    String? id,
     String? title,
     String? keyWord,
     String? nickname,
@@ -46,6 +49,7 @@ class WriteModel {
     PostType? type,
   }) {
     return WriteModel(
+      id: id ?? this.id,
       title: title ?? this.title,
       keyWord: keyWord ?? this.keyWord,
       nickname: nickname ?? this.nickname,
@@ -66,13 +70,20 @@ class WriteModel {
     };
   }
 
-  factory WriteModel.fromMap(Map<String, dynamic> map) {
+  factory WriteModel.fromMap(
+    Map<String, dynamic> map, {
+    required String docId,
+  }) {
     return WriteModel(
+      id: docId,
       title: map['title'],
       keyWord: map['keyWord'],
       nickname: map['nickname'],
       content: map['content'],
-      date: (map['date'] as Timestamp).toDate(),
+      date:
+          map['date'] is Timestamp
+              ? (map['date'] as Timestamp).toDate()
+              : DateTime.parse(map['date']),
       type: postTypeFromString(map['type']),
     );
   }

@@ -9,6 +9,10 @@ class AiDetailPage extends StatefulWidget {
   final String author;
   final String keyword;
   final DateTime date;
+  final String postId; // ✅ 이거 추가!
+
+  /// 상세페이지 진입 시 댓글로 자동 스크롤 여부 ✅ 기본값 false
+  final bool scrollToCommentOnLoad;
 
   const AiDetailPage({
     super.key,
@@ -17,13 +21,17 @@ class AiDetailPage extends StatefulWidget {
     required this.author,
     required this.keyword,
     required this.date,
+    required this.postId,
+    this.scrollToCommentOnLoad = false, //✅ 기본값 false
   });
 
   @override
-  State<AiDetailPage> createState() => _AiDetailPageState();
+  State<AiDetailPage> createState() => AiDetailPageState();
 }
 
-class _AiDetailPageState extends State<AiDetailPage> {
+class AiDetailPageState extends State<AiDetailPage> {
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
   final List<CommentModel> _comments = [];
 
@@ -43,12 +51,35 @@ class _AiDetailPageState extends State<AiDetailPage> {
     });
   }
 
+  /// 댓글 입력란으로 스크롤 + 포커스 주는 함수
+  void scrollToCommentInput() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // 첫 진입 시 자동 스크롤이 true일 경우
+    if (widget.scrollToCommentOnLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToCommentInput();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(), // 다른창 선택 시 키보드 내리기
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Color(0XFFFFFDF4),
+        backgroundColor: const Color(0XFFFFFDF4),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -66,6 +97,7 @@ class _AiDetailPageState extends State<AiDetailPage> {
             ),
             Expanded(
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
@@ -109,6 +141,7 @@ class _AiDetailPageState extends State<AiDetailPage> {
                   const Divider(height: 32, thickness: 2),
                   SharedCommentInput(
                     controller: _controller,
+                    focusNode: _focusNode,
                     onSubmitted: _addComment,
                   ),
                   const SizedBox(height: 16),

@@ -77,6 +77,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
       }
 
       final newPost = WriteModel(
+        id: '',
         title: titleController.text.trim(),
         keyWord: keywordController.text.trim(),
         nickname: authorController.text.trim(),
