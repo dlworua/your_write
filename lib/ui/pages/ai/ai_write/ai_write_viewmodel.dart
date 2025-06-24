@@ -94,7 +94,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
             'keyWord': current.keyWord,
             'nickname': current.nickname,
             'content': current.content,
-            'date': current.date.toIso8601String(),
+            'date': Timestamp.fromDate(current.date),
             'type': current.type.name, // enum → string 저장
           });
       // ignore: avoid_print
