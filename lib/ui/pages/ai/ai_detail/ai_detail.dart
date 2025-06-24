@@ -9,7 +9,7 @@ class AiDetailPage extends StatefulWidget {
   final String author;
   final String keyword;
   final DateTime date;
-  final String postId; // ✅ 이거 추가!
+  final String postId;
 
   /// 상세페이지 진입 시 댓글로 자동 스크롤 여부 ✅ 기본값 false
   final bool scrollToCommentOnLoad;
