@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:your_write/data/repository/user_repository.dart';
+import 'package:your_write/ui/pages/auth/agreement/agreement_page.dart';
 import 'package:your_write/ui/pages/auth/email/check_email_page.dart';
 import 'package:your_write/ui/pages/auth/user/user_info_page.dart';
 
-class AuthStateWrapper extends StatelessWidget {
+class AuthStateWrapper extends StatefulWidget {
   final Widget loggedInWidget;
   final Widget loggedOutWidget;
 
@@ -14,30 +16,75 @@ class AuthStateWrapper extends StatelessWidget {
   });
 
   @override
+  State<AuthStateWrapper> createState() => _AuthStateWrapperState();
+}
+
+class _AuthStateWrapperState extends State<AuthStateWrapper> {
+  final UserRepository _userRepository = UserRepository();
+
+  bool _loading = true;
+  Widget? _page;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUser();
+  }
+
+  Future<void> _checkUser() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      setState(() {
+        _page = widget.loggedOutWidget;
+        _loading = false;
+      });
+      return;
+    }
+
+    await user.reload();
+
+    if (!user.emailVerified) {
+      setState(() {
+        _page = const CheckEmailPage();
+        _loading = false;
+      });
+      return;
+    }
+
+    // UserRepository 사용해 Firestore에서 사용자 데이터 가져오기
+    final userModel = await _userRepository.fetchUser(user.uid);
+
+    if (userModel == null) {
+      // 사용자 문서가 없으면 약관 동의 페이지로 이동
+      setState(() {
+        _page = const AgreementPage();
+        _loading = false;
+      });
+      return;
+    }
+
+    if (userModel.nickname.isEmpty) {
+      // 닉네임이 비어있으면 추가 정보 입력 페이지로 이동
+      setState(() {
+        _page = const UserInfoPage();
+        _loading = false;
+      });
+      return;
+    }
+
+    // 모든 체크 완료, 로그인 상태 위젯으로 이동
+    setState(() {
+      _page = widget.loggedInWidget;
+      _loading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasData && snapshot.data != null) {
-          final user = snapshot.data!;
-          if (!user.emailVerified) {
-            // 이메일 인증 안 됐으면 인증 대기 페이지로
-            return const CheckEmailPage();
-          }
-          // 이메일 인증 됐으면 추가 정보 확인 필요
-          // Firestore 유저 닉네임 정보 확인 (간단하게 FirebaseAuth displayName 활용 가능)
-          if (user.displayName == null || user.displayName!.isEmpty) {
-            return const UserInfoPage();
-          }
-          return loggedInWidget;
-        }
-        return loggedOutWidget;
-      },
-    );
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return _page!;
   }
 }
