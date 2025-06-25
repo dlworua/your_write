@@ -1,179 +1,213 @@
-// 📦 ViewModel: 댓글 + 좋아요 + 저장 통합 상태 관리
-import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:your_write/data/models/comment_model.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
 
-final postInteractionProvider = StateNotifierProvider.family<
-  PostInteractionViewModel,
-  PostInteractionState,
-  CommentParams
->((ref, params) => PostInteractionViewModel(params: params));
+final postInteractionProvider = StateNotifierProvider.family
+    .autoDispose<PostInteractionViewModel, PostInteractionState, CommentParams>(
+      (ref, params) {
+        // postId 빈 문자열이면 에러 발생 방지용 빈 상태 반환
+        if (params.postId.isEmpty) {
+          return PostInteractionViewModel.empty();
+        }
+        final viewModel = PostInteractionViewModel(params);
+        ref.keepAlive();
+        return viewModel;
+      },
+    );
 
 class PostInteractionState {
-  final List<CommentModel> comments;
-  final int likeCount;
   final bool isLiked;
+  final int likeCount;
   final bool isSaved;
+  final List<CommentModel> comments;
 
   PostInteractionState({
-    required this.comments,
-    required this.likeCount,
     required this.isLiked,
+    required this.likeCount,
     required this.isSaved,
+    required this.comments,
   });
 
   PostInteractionState copyWith({
-    List<CommentModel>? comments,
-    int? likeCount,
     bool? isLiked,
+    int? likeCount,
     bool? isSaved,
+    List<CommentModel>? comments,
   }) {
     return PostInteractionState(
-      comments: comments ?? this.comments,
-      likeCount: likeCount ?? this.likeCount,
       isLiked: isLiked ?? this.isLiked,
+      likeCount: likeCount ?? this.likeCount,
       isSaved: isSaved ?? this.isSaved,
+      comments: comments ?? this.comments,
     );
   }
 }
 
 class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
-  final CommentParams params;
-  final _firestore = FirebaseFirestore.instance;
-  final _auth = FirebaseAuth.instance;
-  StreamSubscription? _commentSub;
+  final CommentParams? params;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+  final String nickname =
+      FirebaseAuth.instance.currentUser?.displayName ?? '익명';
 
-  PostInteractionViewModel({required this.params})
+  PostInteractionViewModel(this.params)
     : super(
         PostInteractionState(
-          comments: [],
-          likeCount: 0,
           isLiked: false,
+          likeCount: 0,
           isSaved: false,
+          comments: [],
         ),
       ) {
-    _init();
+    if (params != null && uid != null) {
+      _init();
+      _subscribeRealtime();
+    }
   }
+
+  // 빈 상태 생성자
+  PostInteractionViewModel.empty()
+    : params = null,
+      super(
+        PostInteractionState(
+          isLiked: false,
+          likeCount: 0,
+          isSaved: false,
+          comments: [],
+        ),
+      );
 
   Future<void> _init() async {
-    _subscribeToComments();
-    _loadLikeState();
-    _loadSaveState();
+    if (params == null || uid == null) return;
+
+    final docRef = firestore.collection(params!.boardType).doc(params!.postId);
+
+    final likeSnapshot = await docRef.collection('likes').get();
+    final isLiked = likeSnapshot.docs.any((doc) => doc.id == uid);
+
+    final savedDoc = await docRef.collection('saves').doc(uid).get();
+    final isSaved = savedDoc.exists;
+
+    final commentSnapshot =
+        await docRef
+            .collection('comments')
+            .orderBy('createdAt', descending: true)
+            .get();
+
+    final comments =
+        commentSnapshot.docs.map((doc) {
+          final data = doc.data();
+          return CommentModel(
+            id: doc.id,
+            author: data['author'],
+            content: data['content'],
+            createdAt: (data['createdAt'] as Timestamp).toDate(),
+          );
+        }).toList();
+
+    state = state.copyWith(
+      isLiked: isLiked,
+      likeCount: likeSnapshot.size,
+      isSaved: isSaved,
+      comments: comments,
+    );
   }
 
-  void _subscribeToComments() {
-    _commentSub = _firestore
-        .collection(params.boardType)
-        .doc(params.postId)
+  void _subscribeRealtime() {
+    if (params == null || uid == null) return;
+
+    final docRef = firestore.collection(params!.boardType).doc(params!.postId);
+
+    docRef.collection('likes').snapshots().listen((snapshot) {
+      final isLiked = snapshot.docs.any((doc) => doc.id == uid);
+      final likeCount = snapshot.size;
+      state = state.copyWith(isLiked: isLiked, likeCount: likeCount);
+    });
+
+    docRef.collection('saves').doc(uid).snapshots().listen((doc) {
+      final isSaved = doc.exists;
+      state = state.copyWith(isSaved: isSaved);
+    });
+
+    docRef
         .collection('comments')
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((snapshot) {
           final comments =
-              snapshot.docs
-                  .map((doc) => CommentModel.fromMap(doc.data(), doc.id))
-                  .toList();
+              snapshot.docs.map((doc) {
+                final data = doc.data();
+                return CommentModel(
+                  id: doc.id,
+                  author: data['author'],
+                  content: data['content'],
+                  createdAt: (data['createdAt'] as Timestamp).toDate(),
+                );
+              }).toList();
+
           state = state.copyWith(comments: comments);
         });
   }
 
-  Future<void> _loadLikeState() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
-
-    final doc =
-        await _firestore
-            .collection(params.boardType)
-            .doc(params.postId)
-            .collection('likes')
-            .doc(uid)
-            .get();
-
-    final snap =
-        await _firestore
-            .collection(params.boardType)
-            .doc(params.postId)
-            .collection('likes')
-            .get();
-
-    state = state.copyWith(isLiked: doc.exists, likeCount: snap.size);
-  }
-
-  Future<void> _loadSaveState() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
-
-    final doc =
-        await _firestore
-            .collection('users')
-            .doc(uid)
-            .collection('savedPosts')
-            .doc(params.postId)
-            .get();
-
-    state = state.copyWith(isSaved: doc.exists);
-  }
-
   Future<void> toggleLike() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    if (params == null || uid == null) return;
 
-    final ref = _firestore
-        .collection(params.boardType)
-        .doc(params.postId)
+    final likeDoc = firestore
+        .collection(params!.boardType)
+        .doc(params!.postId)
         .collection('likes')
         .doc(uid);
 
     if (state.isLiked) {
-      await ref.delete();
+      state = state.copyWith(isLiked: false, likeCount: state.likeCount - 1);
+      await likeDoc.delete();
     } else {
-      await ref.set({'createdAt': Timestamp.now()});
+      state = state.copyWith(isLiked: true, likeCount: state.likeCount + 1);
+      await likeDoc.set({'nickname': nickname});
     }
-    _loadLikeState();
   }
 
   Future<void> toggleSave() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    if (params == null || uid == null) return;
 
-    final ref = _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('savedPosts')
-        .doc(params.postId);
+    final saveDoc = firestore
+        .collection(params!.boardType)
+        .doc(params!.postId)
+        .collection('saves')
+        .doc(uid);
 
     if (state.isSaved) {
-      await ref.delete();
+      await saveDoc.delete();
     } else {
-      await ref.set({
-        'boardType': params.boardType,
-        'createdAt': Timestamp.now(),
-      });
+      await saveDoc.set({'nickname': nickname});
     }
-    _loadSaveState();
   }
 
-  Future<void> addComment(String content, String author) async {
+  Future<void> addComment(String content) async {
+    if (params == null || uid == null) return;
+    if (content.trim().isEmpty) return;
+
+    final commentRef =
+        firestore
+            .collection(params!.boardType)
+            .doc(params!.postId)
+            .collection('comments')
+            .doc();
+
     final comment = CommentModel(
-      id: '',
-      content: content,
-      author: author,
+      id: commentRef.id,
+      author: nickname,
+      content: content.trim(),
       createdAt: DateTime.now(),
     );
 
-    await _firestore
-        .collection(params.boardType)
-        .doc(params.postId)
-        .collection('comments')
-        .add(comment.toMap());
-  }
-
-  @override
-  void dispose() {
-    _commentSub?.cancel();
-    super.dispose();
+    await commentRef.set({
+      'author': comment.author,
+      'content': comment.content,
+      'createdAt': Timestamp.fromDate(comment.createdAt),
+      'uid': uid,
+    });
   }
 }

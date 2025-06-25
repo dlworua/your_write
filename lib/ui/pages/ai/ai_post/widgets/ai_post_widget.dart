@@ -70,6 +70,7 @@ class AiPostWidget extends StatelessWidget {
                           keyword: keywords.join(', '),
                           date: date,
                           postId: postId,
+                          scrollToCommentOnLoad: false, // 원한다면 true로 변경 가능
                         ),
                   ),
                 );
@@ -77,7 +78,6 @@ class AiPostWidget extends StatelessWidget {
               child: AiPostMiddle(title: title, content: content),
             ),
             AiPostBottom(
-              keywords: keywords,
               postId: postId,
               onCommentTap: () {
                 Navigator.push(
@@ -91,7 +91,7 @@ class AiPostWidget extends StatelessWidget {
                           keyword: keywords.join(', '),
                           date: date,
                           postId: postId,
-                          scrollToCommentOnLoad: true,
+                          scrollToCommentOnLoad: true, // 이게 꼭 true여야 함!
                         ),
                   ),
                 );

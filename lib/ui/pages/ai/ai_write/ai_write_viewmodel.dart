@@ -12,40 +12,15 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
   final Ref ref;
 
   AiWriteViewModel(this.ref)
-    : super(
-        AsyncValue.data(
-          WriteModel(
-            id: '',
-            title: '',
-            keyWord: '',
-            nickname: '',
-            content: '',
-            date: DateTime.now(),
-            type: PostType.ai,
-          ),
-        ),
-      );
+    : super(AsyncValue.data(WriteModel.empty(PostType.ai)));
 
   Future<void> generateContentFromPrompt(String prompt) async {
     state = const AsyncValue.loading();
-
     try {
       final aiWrite = await ref
           .read(aiWriterServiceProvider)
           .generateStructuredText(prompt);
-
-      final current =
-          state.value ??
-          WriteModel(
-            id: '',
-            title: '',
-            keyWord: '',
-            nickname: '',
-            content: '',
-            date: DateTime.now(),
-            type: PostType.ai,
-          );
-
+      final current = state.value ?? WriteModel.empty(PostType.ai);
       final updated = aiWrite.copyWith(nickname: current.nickname);
       state = AsyncValue.data(updated);
     } catch (e, st) {
@@ -59,18 +34,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
     String? author,
     String? content,
   }) {
-    final current =
-        state.value ??
-        WriteModel(
-          id: '',
-          title: '',
-          keyWord: '',
-          nickname: '',
-          content: '',
-          date: DateTime.now(),
-          type: PostType.ai,
-        );
-
+    final current = state.value ?? WriteModel.empty(PostType.ai);
     state = AsyncValue.data(
       current.copyWith(
         title: title,
@@ -81,28 +45,22 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
     );
   }
 
-  /// ✅ 파이어베이스에 출간하는 메서드
-  Future<void> publishWrite() async {
+  Future<String?> publishWrite() async {
     final current = state.value;
-    if (current == null) return;
+    if (current == null) return null;
 
     try {
-      await FirebaseFirestore.instance
-          .collection('ai_writes') // Firestore 컬렉션 이름
-          .add({
-            'title': current.title,
-            'keyWord': current.keyWord,
-            'nickname': current.nickname,
-            'content': current.content,
-            'date': Timestamp.fromDate(current.date),
-            'type': current.type.name, // enum → string 저장
-          });
-      // ignore: avoid_print
-      print('✅ Ai 글 Firestore 저장 완료');
+      final docRef = await FirebaseFirestore.instance
+          .collection('ai_writes')
+          .add(current.toMap());
+
+      final updated = current.copyWith(id: docRef.id);
+      state = AsyncValue.data(updated);
+
+      return docRef.id;
     } catch (e, st) {
-      // ignore: avoid_print
-      print('❌ Firestore 저장 실패: $e');
       state = AsyncValue.error(e, st);
+      return null;
     }
   }
 }

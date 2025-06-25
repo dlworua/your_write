@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/data/models/comment_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
+import 'package:your_write/ui/widgets/comment/comment_params.dart';
+import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_bottom.dart';
 
-class AiDetailPage extends StatefulWidget {
+class AiDetailPage extends ConsumerStatefulWidget {
   final String title;
   final String content;
   final String author;
   final String keyword;
   final DateTime date;
   final String postId;
-
-  /// 상세페이지 진입 시 댓글로 자동 스크롤 여부 ✅ 기본값 false
   final bool scrollToCommentOnLoad;
 
   const AiDetailPage({
@@ -22,53 +23,55 @@ class AiDetailPage extends StatefulWidget {
     required this.keyword,
     required this.date,
     required this.postId,
-    this.scrollToCommentOnLoad = false, //✅ 기본값 false
+    this.scrollToCommentOnLoad = false,
   });
 
   @override
-  State<AiDetailPage> createState() => AiDetailPageState();
+  ConsumerState<AiDetailPage> createState() => _AiDetailPageState();
 }
 
-class AiDetailPageState extends State<AiDetailPage> {
+class _AiDetailPageState extends ConsumerState<AiDetailPage> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
-  final List<CommentModel> _comments = [];
 
-  void _addComment(String content) {
-    if (content.trim().isEmpty) return;
-    setState(() {
-      _comments.insert(
-        0,
-        CommentModel(
-          id: '',
-          author: '익명',
-          content: content,
-          createdAt: DateTime.now(),
-        ),
-      );
-      _controller.clear();
-    });
-  }
+  late final CommentParams params;
 
-  /// 댓글 입력란으로 스크롤 + 포커스 주는 함수
-  void scrollToCommentInput() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-      FocusScope.of(context).requestFocus(_focusNode);
-    });
+  /// 댓글 입력창으로 스크롤하는 함수 (재시도 포함)
+  void scrollToCommentInput({int retryCount = 0}) {
+    if (retryCount > 10) return; // 최대 재시도 횟수 제한
+
+    if (!_scrollController.hasClients) {
+      print('[DEBUG] hasClients false, 재시도 $retryCount');
+      Future.delayed(const Duration(milliseconds: 100), () {
+        scrollToCommentInput(retryCount: retryCount + 1);
+      });
+      return;
+    }
+
+    // 🔥 고정된 위치로 무조건 이동 (예: 1000 픽셀)
+    const double fixedScrollPosition = 400;
+
+    _scrollController.animateTo(
+      fixedScrollPosition,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+    );
+
+    // 댓글 입력창 포커스
+    FocusScope.of(context).requestFocus(_focusNode);
   }
 
   @override
   void initState() {
     super.initState();
-    // 첫 진입 시 자동 스크롤이 true일 경우
+    params = CommentParams(postId: widget.postId, boardType: 'ai_writes');
+
     if (widget.scrollToCommentOnLoad) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('[DEBUG] scrollToCommentOnLoad true → post frame callback');
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // ❗ 댓글 데이터가 로드되기까지 기다리기 (최소 300~500ms 정도)
+        await Future.delayed(const Duration(milliseconds: 500));
         scrollToCommentInput();
       });
     }
@@ -76,13 +79,27 @@ class AiDetailPageState extends State<AiDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final interaction = ref.watch(postInteractionProvider(params));
+    final viewModel = ref.read(postInteractionProvider(params).notifier);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: const Color(0XFFFFFDF4),
+        backgroundColor: const Color(0xFFFFFDF4),
+
+        /// 하단 좋아요/댓글/저장 버튼
+        bottomNavigationBar: AiPostBottom(
+          postId: widget.postId,
+          onCommentTap: () {
+            print('[DEBUG] 댓글 아이콘 클릭됨');
+            scrollToCommentInput();
+          },
+        ),
+
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // 상단 앱바
             Stack(
               children: [
                 Image.asset('assets/appbar_logo.png'),
@@ -95,6 +112,8 @@ class AiDetailPageState extends State<AiDetailPage> {
                 ),
               ],
             ),
+
+            // 본문 + 댓글 영역
             Expanded(
               child: ListView(
                 controller: _scrollController,
@@ -139,14 +158,21 @@ class AiDetailPageState extends State<AiDetailPage> {
                     textAlign: TextAlign.center,
                   ),
                   const Divider(height: 32, thickness: 2),
+
+                  /// 댓글 입력창
                   SharedCommentInput(
                     controller: _controller,
                     focusNode: _focusNode,
-                    onSubmitted: _addComment,
+                    onSubmitted: (content) {
+                      viewModel.addComment(content);
+                      _controller.clear();
+                    },
                   ),
                   const SizedBox(height: 16),
-                  SharedCommentList(comments: _comments),
-                  const SizedBox(height: 16),
+
+                  /// 댓글 리스트
+                  SharedCommentList(comments: interaction.comments),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

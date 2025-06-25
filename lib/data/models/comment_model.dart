@@ -1,28 +1,26 @@
 class CommentModel {
   final String id;
-  final String content;
   final String author;
+  final String content;
   final DateTime createdAt;
 
   CommentModel({
     required this.id,
-    required this.content,
     required this.author,
+    required this.content,
     required this.createdAt,
   });
 
-  Map<String, dynamic> toMap() => {
-    'content': content,
-    'author': author,
-    'createdAt': createdAt.toIso8601String(),
-  };
-
-  factory CommentModel.fromMap(Map<String, dynamic> map, String id) {
+  factory CommentModel.fromMap(String id, Map<String, dynamic> map) {
     return CommentModel(
       id: id,
+      author: map['author'] ?? '익명',
       content: map['content'] ?? '',
-      author: map['author'] ?? '',
-      createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
+      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {'author': author, 'content': content, 'createdAt': createdAt};
   }
 }

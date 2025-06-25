@@ -87,4 +87,14 @@ class WriteModel {
       type: postTypeFromString(map['type']),
     );
   }
+  // WriteModel 내부에 추가해두면 더 깔끔합니다.
+  factory WriteModel.empty(PostType type) => WriteModel(
+    id: '',
+    title: '',
+    keyWord: '',
+    nickname: '',
+    content: '',
+    date: DateTime.now(),
+    type: type,
+  );
 }

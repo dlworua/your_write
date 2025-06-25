@@ -86,7 +86,7 @@ class AiPostTop extends StatelessWidget {
                     child: Text(
                       '☕ AI 창작',
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 8,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFFA0522D), // 브라운 톤
                       ),
