@@ -42,7 +42,6 @@ class AiPostWidget extends StatelessWidget {
             color: Colors.black.withOpacity(0.03),
             blurRadius: 25,
             offset: const Offset(0, 12),
-            spreadRadius: 0,
           ),
           BoxShadow(
             color: Colors.brown.withOpacity(0.08),
@@ -70,7 +69,7 @@ class AiPostWidget extends StatelessWidget {
                           keyword: keywords.join(', '),
                           date: date,
                           postId: postId,
-                          scrollToCommentOnLoad: false, // 원한다면 true로 변경 가능
+                          scrollToCommentOnLoad: false,
                         ),
                   ),
                 );
@@ -79,6 +78,8 @@ class AiPostWidget extends StatelessWidget {
             ),
             AiPostBottom(
               postId: postId,
+              title: title,
+              content: content,
               onCommentTap: () {
                 Navigator.push(
                   context,
@@ -91,7 +92,7 @@ class AiPostWidget extends StatelessWidget {
                           keyword: keywords.join(', '),
                           date: date,
                           postId: postId,
-                          scrollToCommentOnLoad: true, // 이게 꼭 true여야 함!
+                          scrollToCommentOnLoad: true,
                         ),
                   ),
                 );

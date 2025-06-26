@@ -47,7 +47,7 @@ class _AiPostListState extends ConsumerState<AiPostList> {
                       content: post.content,
                       keywords: post.keyWord.split(','),
                       date: post.date,
-                      postId: post.id, // ✅ Firestore 문서 ID
+                      postId: post.id,
                     ),
                     const SizedBox(height: 30),
                   ],

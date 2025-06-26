@@ -86,11 +86,16 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         type: PostType.ai,
       );
 
-      await ref.read(savedAiWritesProvider.notifier).publish(newPost);
-      await viewModel.publishWrite();
+      final postId = await ref
+          .read(savedAiWritesProvider.notifier)
+          .publish(newPost); // 여기서 Firestore 저장 + id 리턴
 
-      if (context.mounted) {
+      if (postId != null && postId.isNotEmpty && context.mounted) {
         Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('출간에 실패했습니다')));
       }
     }
 

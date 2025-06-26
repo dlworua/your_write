@@ -89,6 +89,8 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
 
         /// 하단 좋아요/댓글/저장 버튼
         bottomNavigationBar: AiPostBottom(
+          title: widget.title,
+          content: widget.content,
           postId: widget.postId,
           onCommentTap: () {
             print('[DEBUG] 댓글 아이콘 클릭됨');

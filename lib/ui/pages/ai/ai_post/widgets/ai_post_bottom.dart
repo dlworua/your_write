@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
 
 class AiPostBottom extends ConsumerWidget {
   final String postId;
+  final String title;
+  final String content;
   final VoidCallback onCommentTap;
 
   const AiPostBottom({
     super.key,
     required this.postId,
+    required this.title,
+    required this.content,
     required this.onCommentTap,
   });
 
+  void _sharePost() {
+    final postUrl = 'https://your-write.firebaseapp.com/posts/$postId';
+    final shareText = '📌 $title\n\n$content\n\n👉 자세히 보기: $postUrl';
+    Share.share(shareText);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // postId가 비어있으면 빈 화면 출력
-    if (postId.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (postId.isEmpty) return const SizedBox.shrink();
 
     final params = CommentParams(postId: postId, boardType: 'ai_writes');
     final state = ref.watch(postInteractionProvider(params));
@@ -36,7 +44,6 @@ class AiPostBottom extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // 좋아요
           GestureDetector(
             onTap: viewModel.toggleLike,
             child: Row(
@@ -47,7 +54,7 @@ class AiPostBottom extends ConsumerWidget {
                       : Icons.favorite_border_rounded,
                   color:
                       state.isLiked
-                          ? const Color(0xFFE57373) // 빨간색
+                          ? const Color(0xFFE57373)
                           : const Color(0xFFD2691E),
                   size: 20,
                 ),
@@ -56,8 +63,6 @@ class AiPostBottom extends ConsumerWidget {
               ],
             ),
           ),
-
-          // 댓글
           GestureDetector(
             onTap: onCommentTap,
             child: Row(
@@ -72,18 +77,21 @@ class AiPostBottom extends ConsumerWidget {
               ],
             ),
           ),
-
-          // 공유 (동작 없음)
-          const Icon(Icons.share_outlined, color: Color(0xFF8FBC8F), size: 20),
-
-          // 저장
+          GestureDetector(
+            onTap: _sharePost,
+            child: const Icon(
+              Icons.share_outlined,
+              color: Color(0xFF8FBC8F),
+              size: 20,
+            ),
+          ),
           GestureDetector(
             onTap: viewModel.toggleSave,
             child: Icon(
               state.isSaved ? Icons.bookmark : Icons.bookmark_outline_rounded,
               color:
                   state.isSaved
-                      ? const Color(0xFFBA68C8) // 보라
+                      ? const Color(0xFFBA68C8)
                       : const Color(0xFFDDA0DD),
               size: 20,
             ),

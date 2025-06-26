@@ -1,3 +1,5 @@
+// lib/ui/pages/ai/ai_write/saved_ai_writes_provider.dart
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,13 +14,23 @@ final savedAiWritesProvider =
 class AiWriteListNotifier extends StateNotifier<List<WriteModel>> {
   AiWriteListNotifier() : super([]);
 
-  /// 새로운 글을 목록에 추가
-  Future<void> publish(WriteModel post) async {
-    state = [...state, post];
+  /// ✅ Firestore 저장 + ID 반환
+  Future<String?> publish(WriteModel post) async {
+    try {
+      final docRef = await FirebaseFirestore.instance
+          .collection('ai_writes')
+          .add(post.toMap());
+
+      final newPost = post.copyWith(id: docRef.id);
+      state = [...state, newPost];
+      return docRef.id;
+    } catch (e) {
+      print('🔥 저장 실패: $e');
+      return null;
+    }
   }
 
   /// 모든 글을 교체 (Firestore에서 불러온 글 목록 반영용)
-  /// ✅ 불러온 글 목록 전체 반영
   void setPosts(List<WriteModel> posts) {
     state = posts;
   }
