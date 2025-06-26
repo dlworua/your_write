@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReportDialog extends StatefulWidget {
-  const ReportDialog({super.key});
+  final String boardType; // 예: 'home_posts', 'ai_writes', 'random_writes'
+  final String postId;
+
+  const ReportDialog({
+    super.key,
+    required this.boardType,
+    required this.postId,
+  });
 
   @override
   State<ReportDialog> createState() => _ReportDialogState();
@@ -33,6 +41,7 @@ class _ReportDialogState extends State<ReportDialog>
   final TextEditingController _etcController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -52,6 +61,81 @@ class _ReportDialogState extends State<ReportDialog>
     _animationController.dispose();
     _etcController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleReport() async {
+    if (_selectedReason == null) {
+      _showSnackBar(context, '신고 사유를 선택하세요.', Colors.orange);
+      return;
+    }
+    if (_selectedReason == '기타' && _etcController.text.trim().isEmpty) {
+      _showSnackBar(context, '기타 사유를 입력해주세요.', Colors.orange);
+      return;
+    }
+
+    final reason =
+        _selectedReason == '기타'
+            ? '기타 - ${_etcController.text.trim()}'
+            : _selectedReason!;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection(widget.boardType)
+          .doc(widget.postId);
+
+      final reportsCollection = FirebaseFirestore.instance.collection(
+        'reports',
+      );
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final snapshot = await transaction.get(docRef);
+
+        if (!snapshot.exists) {
+          throw Exception('게시글이 존재하지 않습니다.');
+        }
+
+        final data = snapshot.data()!;
+        final currentCount = (data['reportCount'] ?? 0) as int;
+        final newCount = currentCount + 1;
+
+        if (newCount >= 5) {
+          // 5회 이상 신고 시 게시글 삭제
+          transaction.delete(docRef);
+        } else {
+          // 신고 카운트만 증가
+          transaction.update(docRef, {'reportCount': newCount});
+        }
+
+        // 신고 로그 저장
+        reportsCollection.add({
+          'postId': widget.postId,
+          'boardType': widget.boardType,
+          'reason': reason,
+          'reportCount': newCount,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      });
+
+      Navigator.pop(context);
+      _showSnackBar(
+        context,
+        '신고가 접수되었습니다. ($reason)',
+        Colors.green,
+        icon: Icons.check_circle_rounded,
+      );
+    } catch (e) {
+      _showSnackBar(context, '신고 처리 중 오류가 발생했습니다.', Colors.red);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -237,7 +321,8 @@ class _ReportDialogState extends State<ReportDialog>
                           border: Border.all(color: Colors.grey.shade300),
                         ),
                         child: TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed:
+                              _isLoading ? null : () => Navigator.pop(context),
                           child: Text(
                             '취소',
                             style: TextStyle(
@@ -267,48 +352,25 @@ class _ReportDialogState extends State<ReportDialog>
                           ],
                         ),
                         child: TextButton(
-                          onPressed: () {
-                            if (_selectedReason == null) {
-                              _showSnackBar(
-                                context,
-                                '신고 사유를 선택하세요.',
-                                Colors.orange,
-                              );
-                              return;
-                            }
-                            if (_selectedReason == '기타' &&
-                                _etcController.text.trim().isEmpty) {
-                              _showSnackBar(
-                                context,
-                                '기타 사유를 입력해주세요.',
-                                Colors.orange,
-                              );
-                              return;
-                            }
-
-                            final result =
-                                _selectedReason == '기타'
-                                    ? '기타 - ${_etcController.text.trim()}'
-                                    : _selectedReason;
-
-                            Navigator.pop(context);
-                            _showSnackBar(
-                              context,
-                              '신고가 접수되었습니다. ($result)',
-                              Colors.green,
-                              icon: Icons.check_circle_rounded,
-                            );
-
-                            // TODO: 신고 데이터 처리 로직
-                          },
-                          child: const Text(
-                            '신고하기',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
+                          onPressed: _isLoading ? null : _handleReport,
+                          child:
+                              _isLoading
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  : const Text(
+                                    '신고하기',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                         ),
                       ),
                     ),
