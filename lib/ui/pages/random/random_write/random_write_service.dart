@@ -11,9 +11,9 @@ final randomWriteServiceProvider = Provider<RandomWriteService>((ref) {
 class RandomWriteService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> saveWriteToFirestore(WriteModel write) async {
+  Future<String?> saveWriteToFirestore(WriteModel write) async {
     try {
-      await _firestore.collection('random_writes').add({
+      final docRef = await _firestore.collection('random_writes').add({
         'title': write.title,
         'keyWord': write.keyWord,
         'nickname': write.nickname,
@@ -22,8 +22,10 @@ class RandomWriteService {
         'type': write.type.name,
       });
       print('✅ 랜덤 글 Firestore 저장 성공');
+      return docRef.id;
     } catch (e) {
       print('❌ 랜덤 글 저장 실패: $e');
+      return null;
     }
   }
 

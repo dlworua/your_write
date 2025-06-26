@@ -1,13 +1,10 @@
-// lib/ui/pages/random/random_write/random_write_viewmodel.dart
-
 import 'dart:math';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/random/random_write/random_keyword_list.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_service.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_state.dart';
-import 'random_write_firestore_loader.dart';
+import 'saved_random_writes_provider.dart';
 
 final randomWriteViewModelProvider =
     StateNotifierProvider<RandomWriteViewModel, RandomWriteState>(
@@ -44,10 +41,11 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
     );
   }
 
-  Future<void> saveRandomPostToFirestore() async {
+  /// 저장 + 상태 업데이트 (중복 저장 방지)
+  Future<String?> saveRandomPostToFirestore() async {
     if (_isSaving) {
       print('⚠️ 저장 중복 호출 방지');
-      return;
+      return null;
     }
 
     final title = state.title.trim();
@@ -60,7 +58,7 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
         nickname.isEmpty ||
         keyword.isEmpty) {
       print("❌ Firestore 저장 실패: 입력값이 비어 있음");
-      return;
+      return null;
     }
 
     _isSaving = true;
@@ -74,15 +72,31 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
         date: DateTime.now(),
         type: PostType.random,
       );
-      await _service.saveWriteToFirestore(write);
+
+      final docId = await _service.saveWriteToFirestore(write);
+      if (docId != null) {
+        final newPost = write.copyWith(id: docId);
+        // Firestore 저장 후 상태에만 추가 (중복 저장 방지)
+        await ref
+            .read(savedRandomWritesProvider.notifier)
+            .publish(newPost, fromExternal: true);
+
+        state = RandomWriteState.initial();
+
+        return docId;
+      }
+      return null;
     } catch (e) {
       print('❌ 저장 중 오류 발생: $e');
+      return null;
     } finally {
       _isSaving = false;
     }
   }
 
   Future<void> loadRandomPosts() async {
-    await loadRandomPostsFromFirestore(ref);
+    // Firestore에서 불러와 새 Provider 상태로 저장
+    final posts = await _service.fetchRandomPostsFromFirestore();
+    ref.read(savedRandomWritesProvider.notifier).setPosts(posts);
   }
 }

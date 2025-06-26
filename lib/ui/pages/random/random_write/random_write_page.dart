@@ -2,9 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_viewmodel.dart';
-import 'package:your_write/ui/pages/random/random_write/saved_random_writes_provider.dart';
 
 class RandomWritePage extends ConsumerStatefulWidget {
   const RandomWritePage({super.key});
@@ -50,29 +48,21 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     final viewModel = ref.read(randomWriteViewModelProvider.notifier);
     viewModel.updateFields(title: title, author: author, content: content);
 
-    await viewModel.saveRandomPostToFirestore();
+    final docId = await viewModel.saveRandomPostToFirestore();
 
-    ref
-        .read(savedRandomWritesProvider.notifier)
-        .publish(
-          WriteModel(
-            id: '',
-            title: title,
-            keyWord: keywords.join(','),
-            nickname: author,
-            content: content,
-            date: DateTime.now(),
-            type: PostType.random,
-          ),
-        );
-
-    Navigator.pop(context);
+    if (docId != null) {
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(randomWriteViewModelProvider);
     final keywords = state.keywords;
+
+    _titleController.text = state.title;
+    _authorController.text = state.author;
+    _contentController.text = state.content;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF4),
