@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class FilterTabs extends StatelessWidget {
-  const FilterTabs({super.key});
+  final int count;
+
+  const FilterTabs({super.key, required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -9,17 +11,16 @@ class FilterTabs extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          SizedBox(width: 25),
-          Text(
+          const SizedBox(width: 25),
+          const Text(
             'ALL',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Text(
-            '4',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25),
+            '$count',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 25),
           ),
-          // 필터를 구현할 경우 상태 관리 필요
         ],
       ),
     );

@@ -1,37 +1,12 @@
 import 'package:flutter/material.dart';
 
 class PostGrid extends StatelessWidget {
-  const PostGrid({super.key});
+  final List<Map<String, dynamic>> items;
+
+  const PostGrid({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      {
-        'title': '사진',
-        'writer': '수줍은',
-        'content': '나의 손이 닿는 대로\n나의 눈이 닿는 대로',
-        'date': '2024년 9월 8일',
-      },
-      {
-        'title': '노을',
-        'writer': '수줍은',
-        'content': '해외 경전철...\n순수한 빛깔',
-        'date': '2024년 9월 8일',
-      },
-      {
-        'title': '겨울',
-        'writer': '수줍은',
-        'content': '겨울 햇살 아래...',
-        'date': '2024년 9월 8일',
-      },
-      {
-        'title': '가로등',
-        'writer': '수줍은',
-        'content': '밤거리를 함께 비추다',
-        'date': '2024년 9월 8일',
-      },
-    ];
-
     return GridView.builder(
       padding: const EdgeInsets.all(5),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -42,11 +17,25 @@ class PostGrid extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return _PostCard(
-          title: item['title']!,
-          writer: item['writer']!,
-          content: item['content']!,
-          date: item['date']!,
+        return GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/detail',
+              arguments: {
+                'title': item['title'],
+                'content': item['content'],
+                'writer': item['writer'],
+                'date': item['date'],
+              },
+            );
+          },
+          child: _PostCard(
+            title: item['title'],
+            writer: item['writer'],
+            content: item['content'],
+            date: item['date'],
+          ),
         );
       },
     );
@@ -96,8 +85,7 @@ class _PostCard extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 1),
-        // 아이콘
+        const SizedBox(height: 1),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
@@ -109,14 +97,13 @@ class _PostCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        //  작성날짜
         Padding(
           padding: const EdgeInsets.only(top: 5, bottom: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('작성 날짜', style: TextStyle(fontSize: 12)),
-              SizedBox(width: 15),
+              const SizedBox(width: 15),
               Text(date, style: const TextStyle(fontSize: 12)),
             ],
           ),

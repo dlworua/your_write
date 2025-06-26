@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:your_write/ui/pages/ai/ai_detail/ai_detail.dart';
 import 'package:your_write/ui/pages/auth/agreement/agreement_page.dart';
 import 'package:your_write/ui/pages/auth/email/check_email_page.dart';
 import 'package:your_write/ui/pages/auth/email/email_login_page.dart';
 import 'package:your_write/ui/pages/auth/signup/signup_page.dart';
 import 'package:your_write/ui/pages/auth/user/user_info_page.dart';
+import 'package:your_write/ui/pages/home/home_detail/detail_page.dart'; // 홈 상세페이지 import 추가
+import 'package:your_write/ui/pages/random/random_detail/random_detail.dart';
 import 'package:your_write/ui/pages/main_page.dart';
 import 'package:your_write/ui/pages/my_profile/edit_profile_page.dart';
 
@@ -30,6 +33,60 @@ class AppRoutes {
         builder:
             (context) =>
                 SignUpPage(agreeMarketing: args?['agreeMarketing'] ?? false),
+      );
+    }
+
+    // 홈 상세페이지 라우팅 추가
+    if (settings.name == '/home-detail') {
+      final args = settings.arguments as Map<String, dynamic>?;
+
+      return MaterialPageRoute(
+        builder:
+            (context) => HomeDetailPage(
+              postId: args?['postId'] ?? '',
+              title: args?['title'] ?? '',
+              content: args?['content'] ?? '',
+              author: args?['author'] ?? '',
+              keyword: args?['keyword'] ?? '',
+              date: args?['date'] ?? DateTime.now(),
+              scrollToCommentInput: args?['scrollToCommentInput'] ?? false,
+            ),
+      );
+    }
+
+    // AI 상세페이지 라우팅 추가
+    if (settings.name == '/ai-detail') {
+      final args = settings.arguments as Map<String, dynamic>?;
+
+      return MaterialPageRoute(
+        builder:
+            (context) => AiDetailPage(
+              postId: args?['postId'] ?? '',
+              title: args?['title'] ?? '',
+              content: args?['content'] ?? '',
+              author: args?['author'] ?? '',
+              keywords: args?['keywords']?.cast<String>() ?? [],
+              date: args?['date'] ?? DateTime.now(),
+              scrollToCommentOnLoad: args?['scrollToCommentOnLoad'] ?? false,
+            ),
+      );
+    }
+
+    // 랜덤 상세페이지 라우팅 추가
+    if (settings.name == '/random-detail') {
+      final args = settings.arguments as Map<String, dynamic>?;
+
+      return MaterialPageRoute(
+        builder:
+            (context) => RandomDetailPage(
+              postId: args?['postId'] ?? '',
+              title: args?['title'] ?? '',
+              content: args?['content'] ?? '',
+              author: args?['author'] ?? '',
+              keyword: args?['keyword'] ?? '',
+              date: args?['date'] ?? DateTime.now(),
+              focusOnComment: args?['focusOnComment'] ?? false,
+            ),
       );
     }
 

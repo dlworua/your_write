@@ -1,76 +1,172 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/my_profile/widgets/post_grid.dart';
-import 'package:your_write/ui/pages/my_profile/widgets/profile_header.dart';
 import 'package:your_write/ui/pages/my_profile/widgets/tap_filter.dart';
+import 'widgets/profile_header.dart';
+import 'widgets/post_grid.dart';
 
-// 마이페이지 (내 프로필 페이지)
-class MyProfilePage extends StatelessWidget {
+class MyProfilePage extends StatefulWidget {
   const MyProfilePage({super.key});
 
-  // Firebase에서 현재 로그인된 사용자의 유저 정보를 불러오는 함수
-  Future<Map<String, dynamic>?> _loadUserData() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid; // 현재 사용자 UID
-    if (uid == null) return null;
+  @override
+  State<MyProfilePage> createState() => _MyProfilePageState();
+}
 
-    final doc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .get(); // Firestore에서 사용자 문서 가져오기
-    return doc.data(); // 사용자 데이터 반환
+class _MyProfilePageState extends State<MyProfilePage> {
+  Map<String, dynamic>? _userData;
+  List<Map<String, dynamic>> _myPosts = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserAndPosts();
+  }
+
+  Future<void> _loadUserAndPosts() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        _error = '로그인된 사용자가 없습니다.';
+        _loading = false;
+      });
+      return;
+    }
+
+    try {
+      final userDoc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+      final nickname = userDoc.data()?['nickname'] ?? '';
+
+      if (nickname.isEmpty) {
+        setState(() {
+          _error = '닉네임 정보가 없습니다.';
+          _loading = false;
+        });
+        return;
+      }
+
+      final collections = ['ai_writes', 'random_writes', 'home_posts'];
+      List<Map<String, dynamic>> allPosts = [];
+
+      for (final col in collections) {
+        final query =
+            await FirebaseFirestore.instance
+                .collection(col)
+                .where('nickname', isEqualTo: nickname)
+                .get();
+
+        final posts =
+            query.docs.map((doc) {
+              final data = doc.data();
+
+              DateTime? date;
+              if (data['date'] is Timestamp) {
+                date = (data['date'] as Timestamp).toDate();
+              } else if (data['date'] is DateTime) {
+                date = data['date'] as DateTime;
+              }
+
+              return {
+                'title': data['title'] ?? '',
+                'writer': data['nickname'] ?? '',
+                'content': data['content'] ?? '',
+                'date':
+                    date != null
+                        ? '${date.year}년 ${date.month}월 ${date.day}일'
+                        : '',
+              };
+            }).toList();
+
+        allPosts.addAll(posts);
+      }
+
+      // 날짜 문자열 -> DateTime 으로 변환 후 내림차순 정렬
+      allPosts.sort((a, b) {
+        DateTime dateA = _parseDate(a['date']);
+        DateTime dateB = _parseDate(b['date']);
+        return dateB.compareTo(dateA);
+      });
+
+      setState(() {
+        _userData = userDoc.data();
+        _myPosts = allPosts;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = '데이터 불러오기 실패: $e';
+        _loading = false;
+      });
+    }
+  }
+
+  DateTime _parseDate(String dateStr) {
+    // "2024년 6월 27일" -> DateTime 변환
+    try {
+      final parts = dateStr
+          .replaceAll('년', '')
+          .replaceAll('월', '')
+          .replaceAll('일', '')
+          .split(' ');
+      if (parts.length < 3) return DateTime(1970);
+      final year = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final day = int.parse(parts[2]);
+      return DateTime(year, month, day);
+    } catch (_) {
+      return DateTime(1970);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _loadUserData(), // 사용자 데이터를 불러옴
-      builder: (context, snapshot) {
-        // 데이터가 아직 없을 경우 로딩 표시
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()), // 로딩 스피너
-          );
-        }
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-        final userData = snapshot.data!; // 데이터가 있을 경우
+    if (_error != null) {
+      return Scaffold(body: Center(child: Text(_error!)));
+    }
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFFFF3E0), // 배경색 (연한 오렌지 계열)
-          appBar: AppBar(
-            title: const Text('마이페이지'), // 상단 앱바 제목
-            backgroundColor: const Color(0xFFFF8A65), // 앱바 배경색
-            foregroundColor: Colors.white, // 텍스트 및 아이콘 색상
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout), // 로그아웃 아이콘
-                onPressed: () async {
-                  // 로그아웃 처리
-                  await FirebaseAuth.instance.signOut();
-                  // 로그인 페이지로 이동하고 모든 이전 페이지 제거
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/login',
-                    (_) => false,
-                  );
-                },
-              ),
-            ],
+    if (_userData == null) {
+      return const Scaffold(body: Center(child: Text('사용자 데이터를 찾을 수 없습니다.')));
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF3E0),
+      appBar: AppBar(
+        title: const Text('마이페이지'),
+        backgroundColor: const Color(0xFFFF8A65),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (_) => false,
+              );
+            },
           ),
-          body: Column(
-            children: [
-              // 사용자 프로필 정보를 표시하는 위젯
-              ProfileHeader(
-                nickname: userData['nickname'] ?? '', // 닉네임
-                email: userData['email'] ?? '', // 이메일
-              ),
-              const FilterTabs(), // 게시물 필터 탭 (예: 전체/AI글 등)
-              Expanded(child: const PostGrid()), // 그리드 형태의 게시글 목록
-            ],
+        ],
+      ),
+      body: Column(
+        children: [
+          ProfileHeader(
+            nickname: _userData?['nickname'] ?? '',
+            email: _userData?['email'] ?? '',
           ),
-        );
-      },
+          FilterTabs(count: _myPosts.length),
+          Expanded(child: PostGrid(items: _myPosts)),
+        ],
+      ),
     );
   }
 }
