@@ -66,7 +66,8 @@ class AiPostWidget extends StatelessWidget {
                           title: title,
                           content: content,
                           author: nickname,
-                          keyword: keywords.join(', '),
+                          keywords: keywords,
+                          // .join(', '),
                           date: date,
                           postId: postId,
                           scrollToCommentOnLoad: false,
@@ -80,6 +81,7 @@ class AiPostWidget extends StatelessWidget {
               postId: postId,
               title: title,
               content: content,
+              keywords: keywords, // 여기 꼭 넣어줘야 오류 안남
               onCommentTap: () {
                 Navigator.push(
                   context,
@@ -89,7 +91,8 @@ class AiPostWidget extends StatelessWidget {
                           title: title,
                           content: content,
                           author: nickname,
-                          keyword: keywords.join(', '),
+                          keywords: keywords,
+                          // .join(', '),
                           date: date,
                           postId: postId,
                           scrollToCommentOnLoad: true,

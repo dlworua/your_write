@@ -186,8 +186,21 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
   }
 
   Future<void> addComment(String content) async {
-    if (params == null || uid == null) return;
-    if (content.trim().isEmpty) return;
+    print('[DEBUG] 댓글 저장 위치: ${params!.boardType}/${params!.postId}');
+
+    print('[DEBUG] addComment 호출됨');
+    if (params == null) {
+      print('[DEBUG] ❌ params가 null입니다.');
+      return;
+    }
+    if (uid == null) {
+      print('[DEBUG] ❌ uid가 null입니다.');
+      return;
+    }
+    if (content.trim().isEmpty) {
+      print('[DEBUG] ❌ 내용이 비어있습니다.');
+      return;
+    }
 
     final commentRef =
         firestore
@@ -209,5 +222,7 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
       'createdAt': Timestamp.fromDate(comment.createdAt),
       'uid': uid,
     });
+
+    print('[DEBUG] ✅ 댓글 저장 완료: ${comment.content}');
   }
 }
