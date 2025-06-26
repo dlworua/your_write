@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/widgets/comment/comment_params.dart';
+import 'package:share_plus/share_plus.dart';
 
-class HomePostBottom extends StatelessWidget {
+class HomePostBottom extends ConsumerWidget {
   final String postId;
   final List<String> keywords;
   final DateTime date;
@@ -19,7 +23,18 @@ class HomePostBottom extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final interaction = ref.watch(
+      postInteractionProvider(
+        CommentParams(postId: postId, boardType: 'home_posts'),
+      ),
+    );
+    final interactionNotifier = ref.read(
+      postInteractionProvider(
+        CommentParams(postId: postId, boardType: 'home_posts'),
+      ).notifier,
+    );
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -34,34 +49,43 @@ class HomePostBottom extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildIconWithCount(
-                Icons.favorite_border_rounded,
-                '37',
-                const Color(0xFFD2691E),
-                onTap: () {
-                  // 좋아요 기능 구현 예정
-                },
+                icon:
+                    interaction.isLiked
+                        ? Icons.favorite
+                        : Icons.favorite_border_rounded,
+                count: interaction.likeCount.toString(),
+                isActive: interaction.isLiked,
+                color: const Color(0xFFD2691E),
+                onTap: interactionNotifier.toggleLike,
               ),
               _buildIconWithCount(
-                Icons.chat_bubble_outline_rounded,
-                '326',
-                const Color(0xFF4682B4),
+                icon: Icons.chat_bubble_outline_rounded,
+                count: interaction.comments.length.toString(),
+                isActive: false,
+                color: const Color(0xFF4682B4),
                 onTap: onCommentPressed,
               ),
               _buildIconWithCount(
-                Icons.share_outlined,
-                '',
-                const Color(0xFF8FBC8F),
-                onTap: () {
-                  // 공유 기능 구현 예정
-                },
+                icon: Icons.share_outlined,
+                count: null,
+                isActive: false,
+                color: const Color(0xFF8FBC8F),
+                onTap:
+                    () => ShareUtil.sharePost(
+                      title: title,
+                      content: content,
+                      postId: postId,
+                    ),
               ),
               _buildIconWithCount(
-                Icons.bookmark_outline_rounded,
-                '',
-                const Color(0xFFDDA0DD),
-                onTap: () {
-                  // 저장 기능 구현 예정
-                },
+                icon:
+                    interaction.isSaved
+                        ? Icons.bookmark
+                        : Icons.bookmark_outline_rounded,
+                count: null,
+                isActive: interaction.isSaved,
+                color: const Color(0xFFDDA0DD),
+                onTap: interactionNotifier.toggleSave,
               ),
             ],
           ),
@@ -70,18 +94,19 @@ class HomePostBottom extends StatelessWidget {
     );
   }
 
-  Widget _buildIconWithCount(
-    IconData icon,
-    String count,
-    Color color, {
-    VoidCallback? onTap,
+  Widget _buildIconWithCount({
+    required IconData icon,
+    required String? count,
+    required bool isActive,
+    required Color color,
+    required VoidCallback onTap,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 20, color: color),
-          if (count.isNotEmpty) ...[
+          Icon(icon, size: 20, color: isActive ? color : Colors.grey),
+          if (count != null && count.isNotEmpty) ...[
             const SizedBox(width: 6),
             Text(
               count,
@@ -95,5 +120,16 @@ class HomePostBottom extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class ShareUtil {
+  static void sharePost({
+    required String postId,
+    required String title,
+    required String content,
+  }) {
+    final text = '[$title]\n\n$content\n\n🔗 게시글 ID: $postId';
+    Share.share(text);
   }
 }

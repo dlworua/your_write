@@ -61,7 +61,15 @@ class HomePostWidget extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => HomeDetailPage(postId: postId),
+                    builder:
+                        (_) => HomeDetailPage(
+                          postId: postId,
+                          title: title,
+                          content: content,
+                          author: nickname,
+                          keyword: keywords.isNotEmpty ? keywords.first : '',
+                          date: date,
+                        ),
                   ),
                 );
               },

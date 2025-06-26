@@ -15,37 +15,40 @@ class HomePostList extends ConsumerWidget {
       return const Center(child: Text("메인 게시판에 출간된 글이 없습니다."));
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        children:
-            posts.map((post) {
-              return Column(
-                children: [
-                  HomePostWidget(
-                    postId: post.id,
-                    content: post.content,
-                    title: post.title,
-                    nickname: post.author,
-                    keywords: [post.keyword],
-                    date: post.date,
-                    onCommentPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => HomeDetailPage(
-                                postId: post.id,
-                                scrollToCommentInput: true,
-                              ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                ],
-              );
-            }).toList(),
-      ),
+    return Column(
+      children:
+          posts.map((post) {
+            return Column(
+              children: [
+                HomePostWidget(
+                  postId: post.id,
+                  content: post.content,
+                  title: post.title,
+                  nickname: post.author,
+                  keywords: [post.keyword],
+                  date: post.date,
+                  onCommentPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => HomeDetailPage(
+                              postId: post.id,
+                              title: post.title,
+                              content: post.content,
+                              author: post.author,
+                              keyword: post.keyword,
+                              date: post.date,
+                              scrollToCommentInput: true,
+                            ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 30),
+              ],
+            );
+          }).toList(),
     );
   }
 }
