@@ -16,7 +16,7 @@ class HomePostService {
             .get();
 
     return snapshot.docs.map((doc) {
-      return HomePostModel.fromMap(doc.data());
+      return HomePostModel.fromMap(doc.data(), doc.id);
     }).toList();
   }
 }

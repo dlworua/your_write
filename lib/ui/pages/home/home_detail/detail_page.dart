@@ -2,39 +2,105 @@ import 'package:flutter/material.dart';
 import 'package:your_write/data/models/comment_model.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
+import 'package:your_write/data/models/home_post_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeDetailPage extends StatefulWidget {
-  final String title;
-  final String content;
-  final String author;
-  final String keyword;
-  final DateTime date;
-
-  /// 댓글 입력창으로 스크롤 및 포커스 요청 콜백
-  final VoidCallback? onScrollToComment;
+  final String postId;
+  final bool scrollToCommentInput;
 
   const HomeDetailPage({
     super.key,
-    required this.title,
-    required this.content,
-    required this.author,
-    required this.keyword,
-    required this.date,
-    this.onScrollToComment,
+    required this.postId,
+    this.scrollToCommentInput = false,
   });
 
   @override
-  State<HomeDetailPage> createState() => HomeDetailPageState();
+  State<HomeDetailPage> createState() => _HomeDetailPageState();
 }
 
-class HomeDetailPageState extends State<HomeDetailPage> {
+class _HomeDetailPageState extends State<HomeDetailPage> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
   final List<CommentModel> _comments = [];
+  HomePostModel? _post;
+  bool _isLoading = true;
 
-  void _addComment(String content) {
+  @override
+  void initState() {
+    super.initState();
+    _loadPost();
+    _loadComments();
+  }
+
+  Future<void> _loadPost() async {
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('home_posts')
+            .doc(widget.postId)
+            .get();
+
+    if (!doc.exists) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _post = HomePostModel.fromMap(doc.data()!, doc.id);
+      _isLoading = false;
+    });
+
+    if (widget.scrollToCommentInput) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => scrollToCommentInput(),
+      );
+    }
+  }
+
+  Future<void> _loadComments() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('home_posts')
+            .doc(widget.postId)
+            .collection('comments')
+            .orderBy('createdAt', descending: true)
+            .get();
+
+    final comments =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return CommentModel(
+            id: doc.id,
+            author: data['author'] ?? '익명',
+            content: data['content'] ?? '',
+            createdAt: (data['createdAt'] as Timestamp).toDate(),
+          );
+        }).toList();
+
+    setState(() {
+      _comments.clear();
+      _comments.addAll(comments);
+    });
+  }
+
+  void _addComment(String content) async {
     if (content.trim().isEmpty) return;
+
+    final commentData = {
+      'author': '익명',
+      'content': content,
+      'createdAt': Timestamp.now(),
+    };
+
+    await FirebaseFirestore.instance
+        .collection('home_posts')
+        .doc(widget.postId)
+        .collection('comments')
+        .add(commentData);
+
     setState(() {
       _comments.insert(
         0,
@@ -60,14 +126,15 @@ class HomeDetailPageState extends State<HomeDetailPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    // 콜백이 있다면 콜백에 현재 함수 연결
-    widget.onScrollToComment?.call();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_post == null) {
+      return Scaffold(body: Center(child: Text('게시글을 찾을 수 없습니다.')));
+    }
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -96,7 +163,7 @@ class HomeDetailPageState extends State<HomeDetailPage> {
                 ),
                 children: [
                   Text(
-                    widget.title,
+                    _post!.title,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -105,13 +172,13 @@ class HomeDetailPageState extends State<HomeDetailPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'by ${widget.author}',
+                    'by ${_post!.author}',
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '#${widget.keyword}',
+                    '#${_post!.keyword}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -120,13 +187,13 @@ class HomeDetailPageState extends State<HomeDetailPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}',
+                    '${_post!.date.year}.${_post!.date.month.toString().padLeft(2, '0')}.${_post!.date.day.toString().padLeft(2, '0')}',
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                   const Divider(height: 32, thickness: 2),
                   Text(
-                    widget.content,
+                    _post!.content,
                     style: const TextStyle(fontSize: 18, height: 1.5),
                     textAlign: TextAlign.center,
                   ),

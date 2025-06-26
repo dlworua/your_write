@@ -1,4 +1,3 @@
-// ui/pages/home/home_write/home_write_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/home_post_model.dart';
@@ -34,10 +33,12 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
     }
 
     final newPost = HomePostModel(
+      id: '', // id는 Firestore에서 자동 생성됨
       title: title,
       content: content,
       keyword: keyword,
       author: author,
+      date: DateTime.now(),
     );
 
     await ref.read(homePostListProvider.notifier).addPost(newPost);
