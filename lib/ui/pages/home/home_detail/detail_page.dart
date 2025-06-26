@@ -10,6 +10,9 @@ class HomeDetailPage extends StatefulWidget {
   final String keyword;
   final DateTime date;
 
+  /// 댓글 입력창으로 스크롤 및 포커스 요청 콜백
+  final VoidCallback? onScrollToComment;
+
   const HomeDetailPage({
     super.key,
     required this.title,
@@ -17,6 +20,7 @@ class HomeDetailPage extends StatefulWidget {
     required this.author,
     required this.keyword,
     required this.date,
+    this.onScrollToComment,
   });
 
   @override
@@ -24,6 +28,8 @@ class HomeDetailPage extends StatefulWidget {
 }
 
 class HomeDetailPageState extends State<HomeDetailPage> {
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
   final List<CommentModel> _comments = [];
 
@@ -43,12 +49,29 @@ class HomeDetailPageState extends State<HomeDetailPage> {
     });
   }
 
+  /// 댓글 입력란으로 스크롤 + 포커스 주는 함수
+  void scrollToCommentInput() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+    FocusScope.of(context).requestFocus(_focusNode);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // 콜백이 있다면 콜백에 현재 함수 연결
+    widget.onScrollToComment?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(), // 다른창 선택 시 키보드 내리기
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Color(0XFFFFFDF4),
+        backgroundColor: const Color(0XFFFFFDF4),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -66,6 +89,7 @@ class HomeDetailPageState extends State<HomeDetailPage> {
             ),
             Expanded(
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
@@ -109,6 +133,7 @@ class HomeDetailPageState extends State<HomeDetailPage> {
                   const Divider(height: 32, thickness: 2),
                   SharedCommentInput(
                     controller: _controller,
+                    focusNode: _focusNode,
                     onSubmitted: _addComment,
                   ),
                   const SizedBox(height: 16),
