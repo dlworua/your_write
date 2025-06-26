@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/data/models/comment_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/widgets/comment/comment_params.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 
-class RandomDetailPage extends StatefulWidget {
+class RandomDetailPage extends ConsumerStatefulWidget {
   final String title;
   final String content;
   final String author;
   final String keyword;
   final DateTime date;
+  final String postId;
+
+  /// 댓글창 포커스를 요청할지 여부
+  final bool focusOnComment;
 
   const RandomDetailPage({
     super.key,
@@ -17,38 +23,54 @@ class RandomDetailPage extends StatefulWidget {
     required this.author,
     required this.keyword,
     required this.date,
+    required this.postId,
+    this.focusOnComment = false,
   });
 
   @override
-  State<RandomDetailPage> createState() => _RandomDetailPageState();
+  ConsumerState<RandomDetailPage> createState() => _RandomDetailPageState();
 }
 
-class _RandomDetailPageState extends State<RandomDetailPage> {
+class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
-  final List<CommentModel> _comments = [];
 
-  void _addComment(String content) {
-    if (content.trim().isEmpty) return;
-    setState(() {
-      _comments.insert(
-        0,
-        CommentModel(
-          id: '',
-          author: '익명',
-          content: content,
-          createdAt: DateTime.now(),
-        ),
+  late final postParams = CommentParams(
+    postId: widget.postId,
+    boardType: 'random_writes', // Firestore 컬렉션명 확인 필요
+  );
+
+  void scrollToCommentInput() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
       );
-      _controller.clear();
+      FocusScope.of(context).requestFocus(_focusNode);
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.focusOnComment) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToCommentInput();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final interaction = ref.watch(postInteractionProvider(postParams));
+    final viewModel = ref.read(postInteractionProvider(postParams).notifier);
+
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(), // 다른창 선택 시 키보드 내리기
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Color(0XFFFFFDF4),
+        backgroundColor: const Color(0XFFFFFDF4),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -66,6 +88,7 @@ class _RandomDetailPageState extends State<RandomDetailPage> {
             ),
             Expanded(
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
@@ -107,12 +130,20 @@ class _RandomDetailPageState extends State<RandomDetailPage> {
                     textAlign: TextAlign.center,
                   ),
                   const Divider(height: 32, thickness: 2),
+
+                  // 댓글 입력 위젯
                   SharedCommentInput(
                     controller: _controller,
-                    onSubmitted: _addComment,
+                    focusNode: _focusNode,
+                    onSubmitted: (content) async {
+                      await viewModel.addComment(content);
+                      _controller.clear();
+                    },
                   ),
                   const SizedBox(height: 16),
-                  SharedCommentList(comments: _comments),
+
+                  // 댓글 리스트 위젯
+                  SharedCommentList(comments: interaction.comments),
                   const SizedBox(height: 16),
                 ],
               ),

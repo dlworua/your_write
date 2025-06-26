@@ -1,14 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:your_write/ui/pages/random/random_post/widgets/random_post_keyword.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/widgets/comment/comment_params.dart';
+import 'package:share_plus/share_plus.dart';
 
-class RandomPostBottom extends StatelessWidget {
+class RandomPostBottom extends ConsumerWidget {
+  final String postId;
+  final String title;
+  final String content;
   final List<String> keywords;
+  final VoidCallback onCommentPressed;
 
-  const RandomPostBottom({super.key, required this.keywords});
+  const RandomPostBottom({
+    super.key,
+    required this.postId,
+    required this.title,
+    required this.content,
+    required this.keywords,
+    required this.onCommentPressed,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    // 쉼표로 나눈 리스트로 변환
+  Widget build(BuildContext context, WidgetRef ref) {
+    final interaction = ref.watch(
+      postInteractionProvider(
+        CommentParams(postId: postId, boardType: 'random_writes'),
+      ),
+    );
+    final viewModel = ref.read(
+      postInteractionProvider(
+        CommentParams(postId: postId, boardType: 'random_writes'),
+      ).notifier,
+    );
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -19,84 +43,64 @@ class RandomPostBottom extends StatelessWidget {
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🍂 키워드 섹션
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFFD2B48C).withOpacity(0.8),
-                      const Color(0xFFDDBEA9).withOpacity(0.7),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.brown.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: const Text(
-                  ' 🎲 랜덤 인용구',
+          // 🔁 AI 스타일 키워드 UI
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: '📌 키워드: ',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown,
+                    fontSize: 13,
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              // 👉 가로 스크롤 키워드
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        keywords
-                            .map(
-                              (k) => Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: RandomPostKeyword(keyword: k),
-                              ),
-                            )
-                            .toList(),
-                  ),
+                TextSpan(
+                  text: keywords.join(', '),
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 22),
-          // 💬 아이콘 버튼들
+          const SizedBox(height: 18),
+          // 💬 좋아요/댓글/공유/저장 아이콘
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildIconOnlyButton(
-                Icons.favorite_border_rounded,
-                '37',
-                const Color(0xFFD2691E),
+                icon:
+                    interaction.isLiked
+                        ? Icons.favorite
+                        : Icons.favorite_border_rounded,
+                count: interaction.likeCount.toString(),
+                color: const Color(0xFFD2691E),
+                onTap: viewModel.toggleLike,
               ),
               _buildIconOnlyButton(
-                Icons.chat_bubble_outline_rounded,
-                '326',
-                const Color(0xFF4682B4),
+                icon: Icons.chat_bubble_outline_rounded,
+                count: interaction.comments.length.toString(),
+                color: const Color(0xFF4682B4),
+                onTap: onCommentPressed,
               ),
               _buildIconOnlyButton(
-                Icons.share_outlined,
-                '',
-                const Color(0xFF8FBC8F),
+                icon: Icons.share_outlined,
+                count: '',
+                color: const Color(0xFF8FBC8F),
+                onTap: () {
+                  final text = '"$title"\n\n$content\n\n👉 from Your Write App';
+                  Share.share(text);
+                },
               ),
               _buildIconOnlyButton(
-                Icons.bookmark_outline_rounded,
-                '',
-                const Color(0xFFDDA0DD),
+                icon:
+                    interaction.isSaved
+                        ? Icons.bookmark
+                        : Icons.bookmark_outline_rounded,
+                count: '',
+                color: const Color(0xFFDDA0DD),
+                onTap: viewModel.toggleSave,
               ),
             ],
           ),
@@ -105,22 +109,30 @@ class RandomPostBottom extends StatelessWidget {
     );
   }
 
-  Widget _buildIconOnlyButton(IconData icon, String count, Color color) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: color),
-        if (count.isNotEmpty) ...[
-          const SizedBox(width: 6),
-          Text(
-            count,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF5D4037),
+  Widget _buildIconOnlyButton({
+    required IconData icon,
+    required String count,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: color),
+          if (count.isNotEmpty) ...[
+            const SizedBox(width: 6),
+            Text(
+              count,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF5D4037),
+              ),
             ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

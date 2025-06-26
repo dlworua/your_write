@@ -1,4 +1,4 @@
-// random_write_service.dart
+// lib/ui/pages/random/random_write/random_write_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +19,7 @@ class RandomWriteService {
         'nickname': write.nickname,
         'content': write.content,
         'date': write.date,
-        'type': write.type.name, // "random"
+        'type': write.type.name,
       });
       print('✅ 랜덤 글 Firestore 저장 성공');
     } catch (e) {

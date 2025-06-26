@@ -1,9 +1,10 @@
-// ui/pages/random/random_write/random_write_page.dart
+// lib/ui/pages/random/random_write/random_write_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write_model.dart';
-import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_viewmodel.dart';
+import 'package:your_write/ui/pages/random/random_write/saved_random_writes_provider.dart';
 
 class RandomWritePage extends ConsumerStatefulWidget {
   const RandomWritePage({super.key});
@@ -16,7 +17,6 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
   final _titleController = TextEditingController();
   final _authorController = TextEditingController();
   final _contentController = TextEditingController();
-  final _keywordController = TextEditingController();
 
   int _keywordCount = 3;
 
@@ -43,7 +43,7 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     if (!allIncluded) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('모든 키워드를 본문에 포함해주세요.')));
+      ).showSnackBar(const SnackBar(content: Text('모든 키워드를 본문에 포함해주세요.')));
       return;
     }
 
@@ -53,7 +53,7 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     await viewModel.saveRandomPostToFirestore();
 
     ref
-        .read(savedAiWritesProvider.notifier)
+        .read(savedRandomWritesProvider.notifier)
         .publish(
           WriteModel(
             id: '',
@@ -73,7 +73,6 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
   Widget build(BuildContext context) {
     final state = ref.watch(randomWriteViewModelProvider);
     final keywords = state.keywords;
-    _keywordController.text = keywords.join(', ');
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF4),
