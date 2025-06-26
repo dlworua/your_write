@@ -55,7 +55,7 @@ class HomePostWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Column(
           children: [
-            HomePostTop(nickname: nickname),
+            HomePostTop(nickname: nickname, postId: postId),
             GestureDetector(
               onTap: () {
                 Navigator.push(

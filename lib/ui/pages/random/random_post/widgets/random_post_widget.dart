@@ -57,7 +57,7 @@ class RandomPostWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Column(
           children: [
-            RandomPostTop(nickname: nickname),
+            RandomPostTop(nickname: nickname, postId: postId),
             GestureDetector(
               onTap: () {
                 Navigator.push(

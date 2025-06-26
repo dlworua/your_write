@@ -55,7 +55,7 @@ class AiPostWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Column(
           children: [
-            AiPostTop(nickname: nickname),
+            AiPostTop(nickname: nickname, postId: postId),
             GestureDetector(
               onTap: () {
                 Navigator.push(

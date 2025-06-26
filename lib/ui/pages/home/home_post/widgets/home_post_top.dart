@@ -3,10 +3,15 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class HomePostTop extends StatelessWidget {
   final String nickname;
-  const HomePostTop({super.key, required this.nickname});
+  final String postId;
+  const HomePostTop({super.key, required this.nickname, required this.postId});
 
   void _onReportPressed(BuildContext context) {
-    showDialog(context: context, builder: (context) => const ReportDialog());
+    showDialog(
+      context: context,
+      builder:
+          (context) => ReportDialog(boardType: 'home_posts', postId: postId),
+    );
   }
 
   @override

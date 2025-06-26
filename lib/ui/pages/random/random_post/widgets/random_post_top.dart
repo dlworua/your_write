@@ -3,10 +3,20 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class RandomPostTop extends StatelessWidget {
   final String nickname;
-  const RandomPostTop({super.key, required this.nickname});
+  final String postId;
+
+  const RandomPostTop({
+    super.key,
+    required this.nickname,
+    required this.postId,
+  });
 
   void _onReportPressed(BuildContext context) {
-    showDialog(context: context, builder: (context) => const ReportDialog());
+    showDialog(
+      context: context,
+      builder:
+          (context) => ReportDialog(boardType: 'random_writes', postId: postId),
+    );
   }
 
   @override

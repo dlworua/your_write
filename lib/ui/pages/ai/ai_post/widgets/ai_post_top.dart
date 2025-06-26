@@ -3,10 +3,15 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class AiPostTop extends StatelessWidget {
   final String nickname;
-  const AiPostTop({super.key, required this.nickname});
+  final String postId;
+  const AiPostTop({super.key, required this.nickname, required this.postId});
 
   void _onReportPressed(BuildContext context) {
-    showDialog(context: context, builder: (context) => const ReportDialog());
+    showDialog(
+      context: context,
+      builder:
+          (context) => ReportDialog(boardType: 'ai_writes', postId: postId),
+    );
   }
 
   @override
