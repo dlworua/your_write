@@ -1,4 +1,4 @@
-package com.sujubeun.your_write
+package com.sujubeun.yourwrite
 
 import io.flutter.embedding.android.FlutterActivity
 
