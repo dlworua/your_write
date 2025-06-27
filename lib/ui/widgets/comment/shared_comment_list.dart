@@ -15,6 +15,7 @@ class SharedCommentList extends StatelessWidget {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
       itemCount: comments.length,
       separatorBuilder: (_, __) => const Divider(),
       itemBuilder: (context, index) {

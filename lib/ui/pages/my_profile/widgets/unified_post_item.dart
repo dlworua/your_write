@@ -38,7 +38,7 @@ class UnifiedPostItem extends StatelessWidget {
                   author: post.nickname,
                   title: post.title,
                   content: post.content,
-                  keyword: post.keyword,
+                  keyword: [post.keyword],
                   date: post.date,
                   focusOnComment: false,
                 ),

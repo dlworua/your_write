@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
@@ -44,10 +45,10 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
       });
       return;
     }
-    const double fixedScrollPosition = 400;
+    const double fixedScrollPosition = 1000;
     _scrollController.animateTo(
       fixedScrollPosition,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 900),
       curve: Curves.easeOut,
     );
     FocusScope.of(context).requestFocus(_focusNode);
@@ -74,104 +75,128 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFFDF4),
-
-        // 하단 버튼 없음
-        bottomNavigationBar: null,
-
+        backgroundColor: const Color(0XFFFFFDF4),
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 상단 앱바
             Stack(
               children: [
                 Image.asset('assets/appbar_logo.png'),
-                Padding(
-                  padding: const EdgeInsets.only(top: 85, left: 30),
+                Positioned(
+                  top: 85,
+                  left: 30,
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.keyboard_return_sharp, size: 30),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 20.sp,
+                      color: const Color(0xFF8B6F47),
+                    ),
                   ),
                 ),
               ],
             ),
 
+            // 본문
             Expanded(
               child: ListView(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
                 children: [
-                  // 제목
-                  Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF5D4037),
+                  Container(
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFE8D5C4).withOpacity(0.3),
+                          offset: const Offset(0, 4),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start, // ✅ 왼쪽 정렬
+                      children: [
+                        // ✅ 제목 왼쪽 정렬
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF6B4E3D),
+                            height: 1.3,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+
+                        // ✅ 작성자 + 날짜 가운데 정렬 Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _infoTag(
+                              icon: Icons.person_outline,
+                              text: 'by ${widget.author}',
+                            ),
+                            SizedBox(width: 8.w),
+                            _infoTag(
+                              icon: Icons.calendar_today_outlined,
+                              text:
+                                  '${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}',
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
 
-                  // 작성자, 날짜 한줄 배치
-                  Row(
-                    children: [
-                      Text(
-                        'by ${widget.author}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF8B7D7B),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Text(
-                        '${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF8B7D7B),
-                        ),
-                      ),
-                    ],
-                  ),
+                  SizedBox(height: 20.h),
 
-                  const SizedBox(height: 20),
-
-                  // 키워드 가로 스크롤
+                  // 키워드
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children:
                           widget.keywords.map((k) {
                             return Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 8,
+                              margin: EdgeInsets.only(right: 12.w),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 18.w,
+                                vertical: 10.h,
                               ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                   colors: [
-                                    const Color(0xFFE6CCB2).withOpacity(0.7),
-                                    const Color(0xFFF5F1EB).withOpacity(0.5),
-                                    Colors.white.withOpacity(0.8),
+                                    const Color(0xFFF0E6D2).withOpacity(0.8),
+                                    const Color(0xFFE8D5C4).withOpacity(0.6),
                                   ],
                                 ),
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(20.r),
                                 border: Border.all(
                                   color: const Color(
-                                    0xFFDDBEA9,
+                                    0xFFD4B5A0,
                                   ).withOpacity(0.4),
-                                  width: 1,
+                                  width: 1.w,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFE8D5C4,
+                                    ).withOpacity(0.2),
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 6,
+                                  ),
+                                ],
                               ),
                               child: Text(
                                 '#$k',
-                                style: const TextStyle(
-                                  fontSize: 12,
+                                style: TextStyle(
+                                  fontSize: 13.sp,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFFA0522D),
+                                  color: const Color(0xFF8B6F47),
                                 ),
                               ),
                             );
@@ -179,21 +204,81 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32.h),
 
-                  // 본문 내용
-                  Text(
-                    widget.content,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      height: 1.6,
-                      color: Color(0xFF5D4037),
+                  // 본문
+                  Container(
+                    padding: EdgeInsets.all(28.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white.withOpacity(0.95),
+                          const Color(0xFFFAF6F0).withOpacity(0.9),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(24.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFE8D5C4).withOpacity(0.2),
+                          offset: const Offset(0, 6),
+                          blurRadius: 16,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      widget.content,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        height: 1.7,
+                        color: const Color(0xFF5D4E42),
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.2,
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: 25.h),
 
-                  // 댓글 입력창
+                  // 댓글 타이틀
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.w,
+                      vertical: 12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFF5EFE7).withOpacity(0.6),
+                          const Color(0xFFE8D5C4).withOpacity(0.4),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 18.sp,
+                          color: const Color(0xFF8B6F47),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '댓글을 남겨보세요',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF8B6F47),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 16.h),
+
                   SharedCommentInput(
                     controller: _controller,
                     focusNode: _focusNode,
@@ -203,17 +288,48 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
                     },
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 5.h),
 
-                  // 댓글 리스트
                   SharedCommentList(comments: interaction.comments),
 
-                  const SizedBox(height: 48),
+                  SizedBox(height: 60.h),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _infoTag({required IconData icon, required String text}) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5EFE7).withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(4.w),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD4B5A0).withOpacity(0.3),
+              borderRadius: BorderRadius.circular(6.r),
+            ),
+            child: Icon(icon, size: 12.sp, color: const Color(0xFF8B6F47)),
+          ),
+          SizedBox(width: 6.w),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF8B6F47),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,6 @@
-// lib/ui/pages/home/home_detail/detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
@@ -35,15 +35,21 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
 
-  void _scrollToCommentInput() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-      FocusScope.of(context).requestFocus(_focusNode);
-    });
+  void _scrollToCommentInput({int retryCount = 0}) {
+    if (retryCount > 10) return;
+    if (!_scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollToCommentInput(retryCount: retryCount + 1);
+      });
+      return;
+    }
+    const double fixedScrollPosition = 1000;
+    _scrollController.animateTo(
+      fixedScrollPosition,
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeOut,
+    );
+    FocusScope.of(context).requestFocus(_focusNode);
   }
 
   @override
@@ -58,13 +64,20 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
   Widget build(BuildContext context) {
     final commentParams = CommentParams(
       postId: widget.postId,
-      boardType: 'home_posts', // ✅ 컬렉션 경로 통일
+      boardType: 'home_posts',
     );
 
     final commentState = ref.watch(postInteractionProvider(commentParams));
     final commentNotifier = ref.read(
       postInteractionProvider(commentParams).notifier,
     );
+
+    final keywords =
+        widget.keyword
+            .split(',')
+            .map((k) => k.trim())
+            .where((k) => k.isNotEmpty)
+            .toList();
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -80,7 +93,11 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                   left: 30,
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.keyboard_return_sharp, size: 30),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 20.sp,
+                      color: const Color(0xFF8B6F47),
+                    ),
                   ),
                 ),
               ],
@@ -88,47 +105,179 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
             Expanded(
               child: ListView(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
                 children: [
-                  Text(
-                    widget.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFE8D5C4).withOpacity(0.3),
+                          offset: const Offset(0, 4),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF6B4E3D),
+                            height: 1.3,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _infoTag(
+                              icon: Icons.person_outline,
+                              text: 'by ${widget.author}',
+                            ),
+                            SizedBox(width: 8.w),
+                            _infoTag(
+                              icon: Icons.calendar_today_outlined,
+                              text:
+                                  '${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}',
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "by ${widget.author}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "#${widget.keyword}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+
+                  SizedBox(height: 20.h),
+
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children:
+                          keywords.map((k) {
+                            return Container(
+                              margin: EdgeInsets.only(right: 12.w),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 18.w,
+                                vertical: 10.h,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    const Color(0xFFF0E6D2).withOpacity(0.8),
+                                    const Color(0xFFE8D5C4).withOpacity(0.6),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20.r),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFFD4B5A0,
+                                  ).withOpacity(0.4),
+                                  width: 1.w,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFE8D5C4,
+                                    ).withOpacity(0.2),
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 6,
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                '#$k',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF8B6F47),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${widget.date.year}.${widget.date.month.toString().padLeft(2, '0')}.${widget.date.day.toString().padLeft(2, '0')}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+
+                  SizedBox(height: 32.h),
+
+                  Container(
+                    padding: EdgeInsets.all(28.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white.withOpacity(0.95),
+                          const Color(0xFFFAF6F0).withOpacity(0.9),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(24.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFE8D5C4).withOpacity(0.2),
+                          offset: const Offset(0, 6),
+                          blurRadius: 16,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      widget.content,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        height: 1.7,
+                        color: const Color(0xFF5D4E42),
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
                   ),
-                  const Divider(height: 32, thickness: 2),
-                  Text(
-                    widget.content,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18, height: 1.5),
+
+                  SizedBox(height: 25.h),
+
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.w,
+                      vertical: 12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFF5EFE7).withOpacity(0.6),
+                          const Color(0xFFE8D5C4).withOpacity(0.4),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 18.sp,
+                          color: const Color(0xFF8B6F47),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '댓글을 남겨보세요',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF8B6F47),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const Divider(height: 32, thickness: 2),
+
+                  SizedBox(height: 16.h),
+
                   SharedCommentInput(
                     controller: _controller,
                     focusNode: _focusNode,
@@ -137,14 +286,49 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                       _controller.clear();
                     },
                   ),
-                  const SizedBox(height: 16),
+
+                  SizedBox(height: 16.h),
+
                   SharedCommentList(comments: commentState.comments),
-                  const SizedBox(height: 16),
+
+                  SizedBox(height: 60.h),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _infoTag({required IconData icon, required String text}) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5EFE7).withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(4.w),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD4B5A0).withOpacity(0.3),
+              borderRadius: BorderRadius.circular(6.r),
+            ),
+            child: Icon(icon, size: 12.sp, color: const Color(0xFF8B6F47)),
+          ),
+          SizedBox(width: 6.w),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF8B6F47),
+            ),
+          ),
+        ],
       ),
     );
   }
