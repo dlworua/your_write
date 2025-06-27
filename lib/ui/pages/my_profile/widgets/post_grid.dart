@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class PostGrid extends StatelessWidget {
@@ -57,74 +58,65 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          height: 160,
-          width: 160,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.red[100],
-            borderRadius: BorderRadius.circular(50),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14, // 글씨 크기 줄임
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            height: 160,
+            width: 160,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12, // 글씨 크기 줄임
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              // 닉네임 한줄, 줄바꿈없이 ...
-              Text(
-                writer,
-                style: const TextStyle(fontSize: 12),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                content,
-                textAlign: TextAlign.center,
-                maxLines: 4, // 최대 4줄까지
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13), // 글씨 크기 줄임
-              ),
-            ],
+                const SizedBox(height: 4),
+                // 닉네임 한줄, 줄바꿈없이 ...
+                Text(
+                  writer,
+                  style: const TextStyle(fontSize: 10),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                AutoSizeText(
+                  content,
+                  textAlign: TextAlign.center,
+                  maxLines: 4, // 최대 4줄까지
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 10), // 글씨 크기 줄임
+                ),
+              ],
+            ),
           ),
-        ),
-        // const SizedBox(height: 4),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: const [
-        //     Icon(Icons.favorite_border, size: 22),
-        //     SizedBox(width: 15),
-        //     Icon(Icons.chat_outlined, size: 22),
-        //     SizedBox(width: 15),
-        //     Icon(Icons.share, size: 22),
-        //   ],
-        // ),
-        // const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 50),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('작성 날짜', style: TextStyle(fontSize: 12)),
-              const SizedBox(width: 15),
-              Text(date, style: const TextStyle(fontSize: 12)),
-            ],
+
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('작성 날짜', style: TextStyle(fontSize: 10)),
+                const SizedBox(width: 10),
+                Text(date, style: const TextStyle(fontSize: 10)),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -82,24 +82,12 @@ class RandomPostTop extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 5),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFE6CCB2).withOpacity(0.7), // 베이지
-                          Color(0xFFF5F1EB).withOpacity(0.5), // 연한 베이지
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '☕ 작가 창작',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFA0522D), // 브라운 톤
-                      ),
+                  Text(
+                    '☕ 작가 창작',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFA0522D), // 브라운 톤
                     ),
                   ),
                 ],

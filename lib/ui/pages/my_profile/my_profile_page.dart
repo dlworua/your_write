@@ -230,7 +230,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 10),
             child: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(8),
@@ -278,14 +278,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
             ProfileHeader(
               nickname: _userData?['nickname'] ?? '',
               email: _userData?['email'] ?? '',
             ),
-            const SizedBox(height: 8),
             FilterTabs(count: _myPosts.length),
-            const SizedBox(height: 8),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 12),

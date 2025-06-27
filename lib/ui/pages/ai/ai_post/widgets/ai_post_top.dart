@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class AiPostTop extends StatelessWidget {
@@ -18,7 +17,7 @@ class AiPostTop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 85.h,
+      height: 85,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.white, Color(0xFFF5F1EB).withOpacity(0.5)],
@@ -30,14 +29,14 @@ class AiPostTop extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
           children: [
             Container(
-              width: 55.w,
-              height: 55.w,
+              width: 55,
+              height: 55,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.r),
+                borderRadius: BorderRadius.circular(20),
                 gradient: LinearGradient(
                   colors: [
                     Color(0xFFDDBEA9).withOpacity(0.8),
@@ -55,11 +54,11 @@ class AiPostTop extends StatelessWidget {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20.r),
+                borderRadius: BorderRadius.circular(20),
                 child: Image.asset('assets/app_logo.png', fit: BoxFit.cover),
               ),
             ),
-            SizedBox(width: 18.w),
+            SizedBox(width: 18),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,33 +68,19 @@ class AiPostTop extends StatelessWidget {
                     nickname,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 17.sp,
+                      fontSize: 17,
                       color: Color(0xFF8B4513),
                       letterSpacing: 0.2,
                     ),
                   ),
-                  SizedBox(height: 5.h),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFE6CCB2).withOpacity(0.7),
-                          Color(0xFFF5F1EB).withOpacity(0.5),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Text(
-                      '☕ AI 창작',
-                      style: TextStyle(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFA0522D),
-                      ),
+                  SizedBox(height: 5),
+
+                  Text(
+                    '☕ AI 창작',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFA0522D),
                     ),
                   ),
                 ],
@@ -103,7 +88,7 @@ class AiPostTop extends StatelessWidget {
             ),
             IconButton(
               onPressed: () => _onReportPressed(context),
-              icon: Icon(Icons.report, color: Color(0xFFCD853F), size: 22.sp),
+              icon: Icon(Icons.report, color: Color(0xFFCD853F), size: 22),
             ),
           ],
         ),

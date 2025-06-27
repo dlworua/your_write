@@ -63,9 +63,11 @@ class HomePage extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                        padding: EdgeInsets.only(
+                          left: 11,
+                          right: 11,
+                          top: 6,
+                          bottom: 6,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
