@@ -67,8 +67,8 @@ class RandomPage extends StatelessWidget {
                         padding: EdgeInsets.only(
                           left: 11,
                           right: 11,
-                          top: 6,
-                          bottom: 6,
+                          top: 11,
+                          bottom: 11,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

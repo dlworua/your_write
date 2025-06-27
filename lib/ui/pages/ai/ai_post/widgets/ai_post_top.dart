@@ -68,17 +68,17 @@ class AiPostTop extends StatelessWidget {
                     nickname,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 17,
+                      fontSize: 15,
                       color: Color(0xFF8B4513),
                       letterSpacing: 0.2,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 4),
 
                   Text(
                     '☕ AI 창작',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFFA0522D),
                     ),

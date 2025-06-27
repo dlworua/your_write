@@ -66,8 +66,8 @@ class HomePage extends StatelessWidget {
                         padding: EdgeInsets.only(
                           left: 11,
                           right: 11,
-                          top: 6,
-                          bottom: 6,
+                          top: 11,
+                          bottom: 11,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -98,7 +98,7 @@ class HomePage extends StatelessWidget {
                               '글쓰기',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 16,
                                 color: Colors.white,
                                 letterSpacing: 0.5,
                               ),
