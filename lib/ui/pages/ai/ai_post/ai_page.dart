@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:your_write/ui/pages/ai/ai_post/widgets/ai_post_list.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AiPage extends StatelessWidget {
   const AiPage({super.key});
@@ -16,8 +17,8 @@ class AiPage extends StatelessWidget {
             radius: 1.5,
             colors: [
               Color(0XFFFFFDF4),
-              Color(0xFFF5F1EB).withOpacity(0.6), // 따뜻한 베이지
-              Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
+              Color(0xFFF5F1EB).withOpacity(0.6),
+              Color(0xFFFAF6F0).withOpacity(0.4),
             ],
           ),
         ),
@@ -25,7 +26,7 @@ class AiPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.only(bottom: 20.h),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -37,14 +38,14 @@ class AiPage extends StatelessWidget {
                   end: Alignment.bottomCenter,
                 ),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+                  bottomLeft: Radius.circular(30.r),
+                  bottomRight: Radius.circular(30.r),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.brown.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: Offset(0, 10),
+                    blurRadius: 20.r,
+                    offset: Offset(0, 10.h),
                   ),
                 ],
               ),
@@ -52,8 +53,8 @@ class AiPage extends StatelessWidget {
                 children: [
                   Image.asset('assets/appbar_logo.png'),
                   Positioned(
-                    top: 75,
-                    right: 25,
+                    top: 75.h,
+                    right: 25.w,
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -65,24 +66,24 @@ class AiPage extends StatelessWidget {
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                          horizontal: 20.w,
+                          vertical: 12.h,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFD2B48C).withOpacity(0.9), // 따뜻한 탄 색
-                              Color(0xFFDDBEA9).withOpacity(0.8), // 연한 베이지
+                              Color(0xFFD2B48C).withOpacity(0.9),
+                              Color(0xFFDDBEA9).withOpacity(0.8),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(30.r),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.brown.withOpacity(0.25),
-                              blurRadius: 15,
-                              offset: Offset(0, 6),
+                              blurRadius: 15.r,
+                              offset: Offset(0, 6.h),
                             ),
                           ],
                         ),
@@ -91,15 +92,15 @@ class AiPage extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.create_outlined,
-                              size: 18,
+                              size: 18.sp,
                               color: Colors.white,
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: 8.w),
                             Text(
                               '글쓰기',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 color: Colors.white,
                                 letterSpacing: 0.5,
                               ),
@@ -114,10 +115,7 @@ class AiPage extends StatelessWidget {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
                 children: [AiPostList()],
               ),
             ),

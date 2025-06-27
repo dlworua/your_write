@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
@@ -35,7 +36,7 @@ class AiPostBottom extends ConsumerWidget {
     final viewModel = ref.read(postInteractionProvider(params).notifier);
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [const Color(0xFFF5F1EB).withOpacity(0.3), Colors.white],
@@ -46,14 +47,10 @@ class AiPostBottom extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🍂 키워드 UI (랜덤 스타일 적용)
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -61,18 +58,18 @@ class AiPostBottom extends ConsumerWidget {
                       const Color(0xFFDDBEA9).withOpacity(0.7),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
-                child: const Text(
+                child: Text(
                   '🍂 글 키워드',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -81,10 +78,10 @@ class AiPostBottom extends ConsumerWidget {
                         keywords
                             .map(
                               (k) => Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 8,
+                                margin: EdgeInsets.only(right: 8.w),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14.w,
+                                  vertical: 8.h,
                                 ),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -94,20 +91,20 @@ class AiPostBottom extends ConsumerWidget {
                                       Colors.white.withOpacity(0.8),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(18.r),
                                   border: Border.all(
                                     color: const Color(
                                       0xFFDDBEA9,
                                     ).withOpacity(0.4),
-                                    width: 1,
+                                    width: 1.w,
                                   ),
                                 ),
                                 child: Text(
                                   '#$k',
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFFA0522D),
+                                    color: const Color(0xFFA0522D),
                                   ),
                                 ),
                               ),
@@ -118,9 +115,7 @@ class AiPostBottom extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // 버튼 UI
+          SizedBox(height: 20.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -174,25 +169,25 @@ class AiPostBottom extends ConsumerWidget {
   }) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         splashColor: splashColor.withOpacity(0.3),
         highlightColor: splashColor.withOpacity(0.2),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: color),
+              Icon(icon, size: 20.sp, color: color),
               if (count.isNotEmpty) ...[
-                const SizedBox(width: 6),
+                SizedBox(width: 6.w),
                 Text(
                   count,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF5D4037),
+                    color: const Color(0xFF5D4037),
                   ),
                 ),
               ],

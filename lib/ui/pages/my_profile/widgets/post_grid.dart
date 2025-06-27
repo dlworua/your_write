@@ -12,7 +12,7 @@ class PostGrid extends StatelessWidget {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.75,
-        crossAxisSpacing: 16,
+        crossAxisSpacing: 10,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -74,31 +74,47 @@ class _PostCard extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14, // 글씨 크기 줄임
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 95),
-                child: Text(writer, style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: 4),
+              // 닉네임 한줄, 줄바꿈없이 ...
+              Text(
+                writer,
+                style: const TextStyle(fontSize: 12),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text(content, textAlign: TextAlign.center),
+              Text(
+                content,
+                textAlign: TextAlign.center,
+                maxLines: 4, // 최대 4줄까지
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 13), // 글씨 크기 줄임
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 1),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.favorite_border, size: 25),
-            SizedBox(width: 15),
-            Icon(Icons.chat_outlined, size: 25),
-            SizedBox(width: 15),
-            Icon(Icons.share, size: 25),
-          ],
-        ),
-        const SizedBox(height: 4),
+        // const SizedBox(height: 4),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: const [
+        //     Icon(Icons.favorite_border, size: 22),
+        //     SizedBox(width: 15),
+        //     Icon(Icons.chat_outlined, size: 22),
+        //     SizedBox(width: 15),
+        //     Icon(Icons.share, size: 22),
+        //   ],
+        // ),
+        // const SizedBox(height: 6),
         Padding(
-          padding: const EdgeInsets.only(top: 5, bottom: 20),
+          padding: const EdgeInsets.only(top: 10, bottom: 50),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

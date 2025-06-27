@@ -69,7 +69,7 @@ class RandomPostWidget extends StatelessWidget {
                           title: title,
                           content: content,
                           author: nickname,
-                          keyword: keywords.join(', '),
+                          keyword: keywords,
                           date: date,
                         ),
                   ),
@@ -93,7 +93,7 @@ class RandomPostWidget extends StatelessWidget {
                           title: title,
                           content: content,
                           author: nickname,
-                          keyword: keywords.join(', '),
+                          keyword: keywords,
                           date: date,
                           focusOnComment: true, // 🟡 다음에 구현할 상세페이지에서 이 값 처리
                         ),

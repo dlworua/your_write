@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class AiPostTop extends StatelessWidget {
@@ -17,13 +18,10 @@ class AiPostTop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 85,
+      height: 85.h,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            Color(0xFFF5F1EB).withOpacity(0.5), // 베이지 톤
-          ],
+          colors: [Colors.white, Color(0xFFF5F1EB).withOpacity(0.5)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -32,18 +30,18 @@ class AiPostTop extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
         child: Row(
           children: [
             Container(
-              width: 55,
-              height: 55,
+              width: 55.w,
+              height: 55.w,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFDDBEA9).withOpacity(0.8), // 따뜻한 베이지
-                    Color(0xFFE6CCB2).withOpacity(0.6), // 연한 베이지
+                    Color(0xFFDDBEA9).withOpacity(0.8),
+                    Color(0xFFE6CCB2).withOpacity(0.6),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -57,11 +55,11 @@ class AiPostTop extends StatelessWidget {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
                 child: Image.asset('assets/app_logo.png', fit: BoxFit.cover),
               ),
             ),
-            SizedBox(width: 18),
+            SizedBox(width: 18.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,43 +69,41 @@ class AiPostTop extends StatelessWidget {
                     nickname,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 17,
-                      color: Color(0xFF8B4513), // 따뜻한 브라운
+                      fontSize: 17.sp,
+                      color: Color(0xFF8B4513),
                       letterSpacing: 0.2,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 5.h),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 4.h,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Color(0xFFE6CCB2).withOpacity(0.7), // 베이지
-                          Color(0xFFF5F1EB).withOpacity(0.5), // 연한 베이지
+                          Color(0xFFE6CCB2).withOpacity(0.7),
+                          Color(0xFFF5F1EB).withOpacity(0.5),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Text(
                       '☕ AI 창작',
                       style: TextStyle(
-                        fontSize: 8,
+                        fontSize: 8.sp,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFFA0522D), // 브라운 톤
+                        color: Color(0xFFA0522D),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-
             IconButton(
               onPressed: () => _onReportPressed(context),
-              icon: Icon(
-                Icons.report,
-                color: Color(0xFFCD853F), // 따뜻한 브라운
-                size: 22,
-              ),
+              icon: Icon(Icons.report, color: Color(0xFFCD853F), size: 22.sp),
             ),
           ],
         ),

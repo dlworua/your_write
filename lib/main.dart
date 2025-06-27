@@ -8,11 +8,21 @@ import 'package:your_write/ui/pages/auth/email/auth_state_warpper.dart';
 import 'package:your_write/ui/pages/auth/email/email_login_page.dart';
 import 'package:your_write/ui/pages/main_page.dart';
 import 'firebase_options.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
+
   print(const String.fromEnvironment('GEMINI_API_KEY'));
   runApp(ProviderScope(child: const MyApp()));
 }
