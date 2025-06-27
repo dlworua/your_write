@@ -63,9 +63,11 @@ class HomePage extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                        padding: EdgeInsets.only(
+                          left: 11,
+                          right: 11,
+                          top: 11,
+                          bottom: 11,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -96,7 +98,7 @@ class HomePage extends StatelessWidget {
                               '글쓰기',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 16,
                                 color: Colors.white,
                                 letterSpacing: 0.5,
                               ),

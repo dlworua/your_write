@@ -1,27 +1,34 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/home_post.dart';
-import 'package:your_write/ui/pages/home/home_post/home_post_service.dart';
+import 'package:your_write/data/models/home_post_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-// ignore: non_constant_identifier_names
 final homePostListProvider =
-    StateNotifierProvider<HomePostListNotifier, List<HomePost>>(
+    StateNotifierProvider<HomePostListNotifier, List<HomePostModel>>(
       (ref) => HomePostListNotifier(),
     );
 
-class HomePostListNotifier extends StateNotifier<List<HomePost>> {
-  final _service = HomePostService();
-
-  HomePostListNotifier() : super([]);
-
-  Future<void> loadPosts() async {
-    final posts = await _service.fetchPosts();
-    state = posts;
+class HomePostListNotifier extends StateNotifier<List<HomePostModel>> {
+  HomePostListNotifier() : super([]) {
+    _init();
   }
 
-  Future<void> addPost(HomePost post) async {
-    await _service.addPost(post);
-    state = [post, ...state]; // 최신글이 위에 오도록
+  final _db = FirebaseFirestore.instance;
+
+  void _init() {
+    _db
+        .collection('home_posts')
+        .orderBy('date', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+          final posts =
+              snapshot.docs
+                  .map((doc) => HomePostModel.fromMap(doc.data(), doc.id))
+                  .toList();
+          state = posts;
+        });
   }
 
-  void clear() => state = [];
+  Future<void> addPost(HomePostModel post) async {
+    await _db.collection('home_posts').add(post.toMap());
+  }
 }

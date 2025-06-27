@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_viewmodel.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
@@ -45,7 +45,10 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
     final asyncValue = ref.watch(aiWriteViewModelProvider);
     final viewModel = ref.read(aiWriteViewModelProvider.notifier);
 
-    ref.listen<AsyncValue<Write>>(aiWriteViewModelProvider, (previous, next) {
+    ref.listen<AsyncValue<WriteModel>>(aiWriteViewModelProvider, (
+      previous,
+      next,
+    ) {
       next.when(
         data: (data) {
           if (titleController.text != data.title) {
@@ -73,7 +76,8 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         return;
       }
 
-      final newPost = Write(
+      final newPost = WriteModel(
+        id: '',
         title: titleController.text.trim(),
         keyWord: keywordController.text.trim(),
         nickname: authorController.text.trim(),
@@ -82,11 +86,16 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         type: PostType.ai,
       );
 
-      await ref.read(savedAiWritesProvider.notifier).publish(newPost);
-      await viewModel.publishWrite();
+      final postId = await ref
+          .read(savedAiWritesProvider.notifier)
+          .publish(newPost); // 여기서 Firestore 저장 + id 리턴
 
-      if (context.mounted) {
+      if (postId != null && postId.isNotEmpty && context.mounted) {
         Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('출간에 실패했습니다')));
       }
     }
 

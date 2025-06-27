@@ -3,10 +3,15 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class AiPostTop extends StatelessWidget {
   final String nickname;
-  const AiPostTop({super.key, required this.nickname});
+  final String postId;
+  const AiPostTop({super.key, required this.nickname, required this.postId});
 
   void _onReportPressed(BuildContext context) {
-    showDialog(context: context, builder: (context) => const ReportDialog());
+    showDialog(
+      context: context,
+      builder:
+          (context) => ReportDialog(boardType: 'ai_writes', postId: postId),
+    );
   }
 
   @override
@@ -15,10 +20,7 @@ class AiPostTop extends StatelessWidget {
       height: 85,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            Color(0xFFF5F1EB).withOpacity(0.5), // 베이지 톤
-          ],
+          colors: [Colors.white, Color(0xFFF5F1EB).withOpacity(0.5)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -27,7 +29,7 @@ class AiPostTop extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
           children: [
             Container(
@@ -37,8 +39,8 @@ class AiPostTop extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFDDBEA9).withOpacity(0.8), // 따뜻한 베이지
-                    Color(0xFFE6CCB2).withOpacity(0.6), // 연한 베이지
+                    Color(0xFFDDBEA9).withOpacity(0.8),
+                    Color(0xFFE6CCB2).withOpacity(0.6),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -66,43 +68,27 @@ class AiPostTop extends StatelessWidget {
                     nickname,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 17,
-                      color: Color(0xFF8B4513), // 따뜻한 브라운
+                      fontSize: 15,
+                      color: Color(0xFF8B4513),
                       letterSpacing: 0.2,
                     ),
                   ),
-                  SizedBox(height: 5),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFE6CCB2).withOpacity(0.7), // 베이지
-                          Color(0xFFF5F1EB).withOpacity(0.5), // 연한 베이지
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '☕ AI 창작',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFA0522D), // 브라운 톤
-                      ),
+                  SizedBox(height: 4),
+
+                  Text(
+                    '☕ AI 창작',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFA0522D),
                     ),
                   ),
                 ],
               ),
             ),
-
             IconButton(
               onPressed: () => _onReportPressed(context),
-              icon: Icon(
-                Icons.report,
-                color: Color(0xFFCD853F), // 따뜻한 브라운
-                size: 22,
-              ),
+              icon: Icon(Icons.report, color: Color(0xFFCD853F), size: 22),
             ),
           ],
         ),

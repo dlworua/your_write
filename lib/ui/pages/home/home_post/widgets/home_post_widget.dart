@@ -5,19 +5,23 @@ import 'package:your_write/ui/pages/home/home_post/widgets/home_post_middle.dart
 import 'package:your_write/ui/pages/home/home_post/widgets/home_post_top.dart';
 
 class HomePostWidget extends StatelessWidget {
+  final String postId;
   final String nickname;
   final String title;
   final String content;
   final List<String> keywords;
   final DateTime date;
+  final VoidCallback onCommentPressed;
 
   const HomePostWidget({
     super.key,
+    required this.postId,
     required this.nickname,
     required this.title,
     required this.content,
     required this.keywords,
     required this.date,
+    required this.onCommentPressed,
   });
 
   @override
@@ -51,7 +55,7 @@ class HomePostWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Column(
           children: [
-            HomePostTop(nickname: nickname),
+            HomePostTop(nickname: nickname, postId: postId),
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -59,10 +63,11 @@ class HomePostWidget extends StatelessWidget {
                   MaterialPageRoute(
                     builder:
                         (_) => HomeDetailPage(
+                          postId: postId,
                           title: title,
                           content: content,
                           author: nickname,
-                          keyword: keywords.join(', '),
+                          keyword: keywords.isNotEmpty ? keywords.first : '',
                           date: date,
                         ),
                   ),
@@ -70,7 +75,14 @@ class HomePostWidget extends StatelessWidget {
               },
               child: HomePostMiddle(title: title, content: content),
             ),
-            HomePostBottom(keywords: keywords),
+            HomePostBottom(
+              postId: postId,
+              keywords: keywords,
+              date: date,
+              onCommentPressed: onCommentPressed,
+              title: title,
+              content: content,
+            ),
           ],
         ),
       ),

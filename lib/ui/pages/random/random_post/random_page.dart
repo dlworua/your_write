@@ -64,9 +64,11 @@ class RandomPage extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                        padding: EdgeInsets.only(
+                          left: 11,
+                          right: 11,
+                          top: 11,
+                          bottom: 11,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

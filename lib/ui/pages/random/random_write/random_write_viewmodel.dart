@@ -1,11 +1,10 @@
 import 'dart:math';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
-import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/random/random_write/random_keyword_list.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_service.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_state.dart';
+import 'saved_random_writes_provider.dart';
 
 final randomWriteViewModelProvider =
     StateNotifierProvider<RandomWriteViewModel, RandomWriteState>(
@@ -15,6 +14,8 @@ final randomWriteViewModelProvider =
 class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
   final RandomWriteService _service;
   final Ref ref;
+
+  bool _isSaving = false; // 저장 중복 방지 플래그
 
   RandomWriteViewModel(this._service, this.ref)
     : super(RandomWriteState.initial());
@@ -40,42 +41,62 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
     );
   }
 
-  /// Service를 통해 저장 요청
-  Future<void> saveRandomPostToFirestore() async {
+  /// 저장 + 상태 업데이트 (중복 저장 방지)
+  Future<String?> saveRandomPostToFirestore() async {
+    if (_isSaving) {
+      print('⚠️ 저장 중복 호출 방지');
+      return null;
+    }
+
     final title = state.title.trim();
     final content = state.content.trim();
     final nickname = state.author.trim();
     final keyword = state.keywords.join(', ').trim();
 
-    // ✅ 저장 조건 검사
     if (title.isEmpty ||
         content.isEmpty ||
         nickname.isEmpty ||
         keyword.isEmpty) {
       print("❌ Firestore 저장 실패: 입력값이 비어 있음");
-      return;
+      return null;
     }
 
-    final write = Write(
-      title: title,
-      keyWord: keyword,
-      nickname: nickname,
-      content: content,
-      date: DateTime.now(),
-      type: PostType.random,
-    );
-    await _service.saveWriteToFirestore(write);
+    _isSaving = true;
+    try {
+      final write = WriteModel(
+        id: '',
+        title: title,
+        keyWord: keyword,
+        nickname: nickname,
+        content: content,
+        date: DateTime.now(),
+        type: PostType.random,
+      );
+
+      final docId = await _service.saveWriteToFirestore(write);
+      if (docId != null) {
+        final newPost = write.copyWith(id: docId);
+        // Firestore 저장 후 상태에만 추가 (중복 저장 방지)
+        await ref
+            .read(savedRandomWritesProvider.notifier)
+            .publish(newPost, fromExternal: true);
+
+        state = RandomWriteState.initial();
+
+        return docId;
+      }
+      return null;
+    } catch (e) {
+      print('❌ 저장 중 오류 발생: $e');
+      return null;
+    } finally {
+      _isSaving = false;
+    }
   }
 
   Future<void> loadRandomPosts() async {
+    // Firestore에서 불러와 새 Provider 상태로 저장
     final posts = await _service.fetchRandomPostsFromFirestore();
-
-    // savedAiWritesProvider에 저장
-    for (final post in posts) {
-      if (post.type == PostType.random) {
-        // 이미 있는 글이 중복 저장되지 않도록 체크하거나 무조건 저장
-        ref.read(savedAiWritesProvider.notifier).publish(post);
-      }
-    }
+    ref.read(savedRandomWritesProvider.notifier).setPosts(posts);
   }
 }

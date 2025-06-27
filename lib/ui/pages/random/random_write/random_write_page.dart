@@ -1,8 +1,7 @@
-// ui/pages/random/random_write/random_write_page.dart
+// lib/ui/pages/random/random_write/random_write_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
-import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 import 'package:your_write/ui/pages/random/random_write/random_write_viewmodel.dart';
 
 class RandomWritePage extends ConsumerStatefulWidget {
@@ -16,7 +15,6 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
   final _titleController = TextEditingController();
   final _authorController = TextEditingController();
   final _contentController = TextEditingController();
-  final _keywordController = TextEditingController();
 
   int _keywordCount = 3;
 
@@ -43,36 +41,28 @@ class _RandomWritePageState extends ConsumerState<RandomWritePage> {
     if (!allIncluded) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('모든 키워드를 본문에 포함해주세요.')));
+      ).showSnackBar(const SnackBar(content: Text('모든 키워드를 본문에 포함해주세요.')));
       return;
     }
 
     final viewModel = ref.read(randomWriteViewModelProvider.notifier);
     viewModel.updateFields(title: title, author: author, content: content);
 
-    await viewModel.saveRandomPostToFirestore();
+    final docId = await viewModel.saveRandomPostToFirestore();
 
-    ref
-        .read(savedAiWritesProvider.notifier)
-        .publish(
-          Write(
-            title: title,
-            keyWord: keywords.join(','),
-            nickname: author,
-            content: content,
-            date: DateTime.now(),
-            type: PostType.random,
-          ),
-        );
-
-    Navigator.pop(context);
+    if (docId != null) {
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(randomWriteViewModelProvider);
     final keywords = state.keywords;
-    _keywordController.text = keywords.join(', ');
+
+    _titleController.text = state.title;
+    _authorController.text = state.author;
+    _contentController.text = state.content;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF4),

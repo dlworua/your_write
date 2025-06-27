@@ -3,10 +3,20 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 
 class RandomPostTop extends StatelessWidget {
   final String nickname;
-  const RandomPostTop({super.key, required this.nickname});
+  final String postId;
+
+  const RandomPostTop({
+    super.key,
+    required this.nickname,
+    required this.postId,
+  });
 
   void _onReportPressed(BuildContext context) {
-    showDialog(context: context, builder: (context) => const ReportDialog());
+    showDialog(
+      context: context,
+      builder:
+          (context) => ReportDialog(boardType: 'random_writes', postId: postId),
+    );
   }
 
   @override
@@ -66,30 +76,18 @@ class RandomPostTop extends StatelessWidget {
                     nickname,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 17,
+                      fontSize: 15,
                       color: Color(0xFF8B4513), // 따뜻한 브라운
                       letterSpacing: 0.2,
                     ),
                   ),
-                  SizedBox(height: 5),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFE6CCB2).withOpacity(0.7), // 베이지
-                          Color(0xFFF5F1EB).withOpacity(0.5), // 연한 베이지
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '☕ 작가 창작',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFA0522D), // 브라운 톤
-                      ),
+                  SizedBox(height: 4),
+                  Text(
+                    '☕ 작가 창작',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFA0522D), // 브라운 톤
                     ),
                   ),
                 ],

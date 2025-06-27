@@ -16,8 +16,8 @@ class AiPage extends StatelessWidget {
             radius: 1.5,
             colors: [
               Color(0XFFFFFDF4),
-              Color(0xFFF5F1EB).withOpacity(0.6), // 따뜻한 베이지
-              Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
+              Color(0xFFF5F1EB).withOpacity(0.6),
+              Color(0xFFFAF6F0).withOpacity(0.4),
             ],
           ),
         ),
@@ -64,15 +64,17 @@ class AiPage extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                        padding: EdgeInsets.only(
+                          left: 11,
+                          right: 11,
+                          top: 11,
+                          bottom: 11,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFD2B48C).withOpacity(0.9), // 따뜻한 탄 색
-                              Color(0xFFDDBEA9).withOpacity(0.8), // 연한 베이지
+                              Color(0xFFD2B48C).withOpacity(0.9),
+                              Color(0xFFDDBEA9).withOpacity(0.8),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -114,10 +116,7 @@ class AiPage extends StatelessWidget {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 children: [AiPostList()],
               ),
             ),

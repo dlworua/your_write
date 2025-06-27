@@ -1,3 +1,5 @@
+// lib/ui/pages/random/random_write/random_write_state.dart
+
 class RandomWriteState {
   final String title;
   final String author;

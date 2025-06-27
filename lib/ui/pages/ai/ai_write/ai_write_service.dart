@@ -1,37 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 
-/// Provider로 AiWriterService를 앱 전체에서 사용할 수 있게 등록
 final aiWriterServiceProvider = Provider<AiWriteService>((ref) {
   return AiWriteService();
 });
 
-/// 실제 Gemini API를 통해 글 생성 작업을 처리하는 서비스 클래스
 class AiWriteService {
   final _firestore = FirebaseFirestore.instance;
 
-  /// 🔄 Firestore에서 ai 타입 게시글을 가져오는 메서드
-  Future<List<Write>> fetchAiPosts() async {
+  late final GenerativeModel _model;
+
+  AiWriteService() {
+    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+    if (apiKey.isEmpty) {
+      throw Exception('GEMINI_API_KEY가 .env에 설정되어 있지 않습니다.');
+    }
+    _model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
+  }
+
+  Future<List<WriteModel>> fetchAiPosts() async {
     final snapshot =
         await _firestore
-            .collection('writes')
+            .collection('ai_writes')
             .where('type', isEqualTo: 'ai')
             .orderBy('date', descending: true)
             .get();
 
-    return snapshot.docs.map((doc) => Write.fromMap(doc.data())).toList();
+    return snapshot.docs
+        // ignore: unnecessary_null_comparison
+        .where((doc) => doc.data() != null)
+        .map((doc) => WriteModel.fromMap(doc.data(), docId: doc.id))
+        .toList();
   }
 
-  /// 🤖 Gemini 모델 인스턴스 (Flash 모델 사용)
-  final _model = GenerativeModel(
-    model: 'gemini-2.0-flash',
-    apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
-  );
-
-  /// 📝 프롬프트로부터 제목, 키워드, 본문을 생성하고 Write 객체로 반환
-  Future<Write> generateStructuredText(String prompt) async {
+  Future<WriteModel> generateStructuredText(String prompt) async {
     print('✍️ Gemini 요청: $prompt');
 
     try {
@@ -52,13 +57,11 @@ class AiWriteService {
 
       for (final line in lines) {
         final lower = line.toLowerCase();
-
         if (lower.startsWith('제목:') || lower.startsWith('title:')) {
           title = line.split(':').sublist(1).join(':').trim();
         } else if (lower.startsWith('제목 -')) {
           title = line.split('-').sublist(1).join('-').trim();
         } else if (RegExp(r'^#{1,3}\s*').hasMatch(line)) {
-          // Markdown 형식 제목: # 제목, ## 제목
           title = line.replaceFirst(RegExp(r'^#{1,3}\s*'), '').trim();
         } else if (lower.startsWith('키워드:') || lower.startsWith('keywords:')) {
           keyword = line.split(':').sublist(1).join(':').trim();
@@ -91,7 +94,6 @@ class AiWriteService {
         keyword = topKeywords.join(', ');
       }
 
-      // 제목 없을 경우 첫 줄로 대체
       if (title.isEmpty && contentBuffer.isNotEmpty) {
         title = contentBuffer.first.split(' ').take(5).join(' ').trim();
       }
@@ -100,7 +102,8 @@ class AiWriteService {
       print('🔑 키워드: $keyword');
       print('📝 본문:\n$content');
 
-      return Write(
+      return WriteModel(
+        id: '',
         title: title,
         keyWord: keyword,
         nickname: '',

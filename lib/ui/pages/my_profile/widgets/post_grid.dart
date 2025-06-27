@@ -1,52 +1,42 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class PostGrid extends StatelessWidget {
-  const PostGrid({super.key});
+  final List<Map<String, dynamic>> items;
+
+  const PostGrid({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      {
-        'title': '사진',
-        'writer': '수줍은',
-        'content': '나의 손이 닿는 대로\n나의 눈이 닿는 대로',
-        'date': '2024년 9월 8일',
-      },
-      {
-        'title': '노을',
-        'writer': '수줍은',
-        'content': '해외 경전철...\n순수한 빛깔',
-        'date': '2024년 9월 8일',
-      },
-      {
-        'title': '겨울',
-        'writer': '수줍은',
-        'content': '겨울 햇살 아래...',
-        'date': '2024년 9월 8일',
-      },
-      {
-        'title': '가로등',
-        'writer': '수줍은',
-        'content': '밤거리를 함께 비추다',
-        'date': '2024년 9월 8일',
-      },
-    ];
-
     return GridView.builder(
       padding: const EdgeInsets.all(5),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.75,
-        crossAxisSpacing: 16,
+        crossAxisSpacing: 10,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return _PostCard(
-          title: item['title']!,
-          writer: item['writer']!,
-          content: item['content']!,
-          date: item['date']!,
+        return GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/detail',
+              arguments: {
+                'title': item['title'],
+                'content': item['content'],
+                'writer': item['writer'],
+                'date': item['date'],
+              },
+            );
+          },
+          child: _PostCard(
+            title: item['title'],
+            writer: item['writer'],
+            content: item['content'],
+            date: item['date'],
+          ),
         );
       },
     );
@@ -68,60 +58,65 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          height: 160,
-          width: 160,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.red[100],
-            borderRadius: BorderRadius.circular(50),
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            height: 160,
+            width: 160,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12, // 글씨 크기 줄임
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                // 닉네임 한줄, 줄바꿈없이 ...
+                Text(
+                  writer,
+                  style: const TextStyle(fontSize: 10),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                AutoSizeText(
+                  content,
+                  textAlign: TextAlign.center,
+                  maxLines: 4, // 최대 4줄까지
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 10), // 글씨 크기 줄임
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 95),
-                child: Text(writer, style: const TextStyle(fontSize: 12)),
-              ),
-              const SizedBox(height: 8),
-              Text(content, textAlign: TextAlign.center),
-            ],
+
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('작성 날짜', style: TextStyle(fontSize: 10)),
+                const SizedBox(width: 10),
+                Text(date, style: const TextStyle(fontSize: 10)),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 1),
-        // 아이콘
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.favorite_border, size: 25),
-            SizedBox(width: 15),
-            Icon(Icons.chat_outlined, size: 25),
-            SizedBox(width: 15),
-            Icon(Icons.share, size: 25),
-          ],
-        ),
-        const SizedBox(height: 4),
-        //  작성날짜
-        Padding(
-          padding: const EdgeInsets.only(top: 5, bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('작성 날짜', style: TextStyle(fontSize: 12)),
-              SizedBox(width: 15),
-              Text(date, style: const TextStyle(fontSize: 12)),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

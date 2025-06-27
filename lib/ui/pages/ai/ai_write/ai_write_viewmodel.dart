@@ -1,49 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_write/data/models/write.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final aiWriteViewModelProvider =
-    StateNotifierProvider<AiWriteViewModel, AsyncValue<Write>>(
+    StateNotifierProvider<AiWriteViewModel, AsyncValue<WriteModel>>(
       (ref) => AiWriteViewModel(ref),
     );
 
-class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
+class AiWriteViewModel extends StateNotifier<AsyncValue<WriteModel>> {
   final Ref ref;
 
   AiWriteViewModel(this.ref)
-    : super(
-        AsyncValue.data(
-          Write(
-            title: '',
-            keyWord: '',
-            nickname: '',
-            content: '',
-            date: DateTime.now(),
-            type: PostType.ai,
-          ),
-        ),
-      );
+    : super(AsyncValue.data(WriteModel.empty(PostType.ai)));
 
   Future<void> generateContentFromPrompt(String prompt) async {
     state = const AsyncValue.loading();
-
     try {
       final aiWrite = await ref
           .read(aiWriterServiceProvider)
           .generateStructuredText(prompt);
-
-      final current =
-          state.value ??
-          Write(
-            title: '',
-            keyWord: '',
-            nickname: '',
-            content: '',
-            date: DateTime.now(),
-            type: PostType.ai,
-          );
-
+      final current = state.value ?? WriteModel.empty(PostType.ai);
       final updated = aiWrite.copyWith(nickname: current.nickname);
       state = AsyncValue.data(updated);
     } catch (e, st) {
@@ -57,17 +34,7 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
     String? author,
     String? content,
   }) {
-    final current =
-        state.value ??
-        Write(
-          title: '',
-          keyWord: '',
-          nickname: '',
-          content: '',
-          date: DateTime.now(),
-          type: PostType.ai,
-        );
-
+    final current = state.value ?? WriteModel.empty(PostType.ai);
     state = AsyncValue.data(
       current.copyWith(
         title: title,
@@ -78,38 +45,32 @@ class AiWriteViewModel extends StateNotifier<AsyncValue<Write>> {
     );
   }
 
-  /// ✅ 파이어베이스에 출간하는 메서드
-  Future<void> publishWrite() async {
+  Future<String?> publishWrite() async {
     final current = state.value;
-    if (current == null) return;
+    if (current == null) return null;
 
     try {
-      await FirebaseFirestore.instance
-          .collection('ai_writes') // Firestore 컬렉션 이름
-          .add({
-            'title': current.title,
-            'keyWord': current.keyWord,
-            'nickname': current.nickname,
-            'content': current.content,
-            'date': current.date.toIso8601String(),
-            'type': current.type.name, // enum → string 저장
-          });
-      // ignore: avoid_print
-      print('✅ Ai 글 Firestore 저장 완료');
+      final docRef = await FirebaseFirestore.instance
+          .collection('ai_writes')
+          .add(current.toMap());
+
+      final updated = current.copyWith(id: docRef.id);
+      state = AsyncValue.data(updated);
+
+      return docRef.id;
     } catch (e, st) {
-      // ignore: avoid_print
-      print('❌ Firestore 저장 실패: $e');
       state = AsyncValue.error(e, st);
+      return null;
     }
   }
 }
 
 final aiWriteListProvider =
-    StateNotifierProvider<AiWriteListViewModel, List<Write>>(
+    StateNotifierProvider<AiWriteListViewModel, List<WriteModel>>(
       (ref) => AiWriteListViewModel(AiWriteService()),
     );
 
-class AiWriteListViewModel extends StateNotifier<List<Write>> {
+class AiWriteListViewModel extends StateNotifier<List<WriteModel>> {
   final AiWriteService _service;
 
   AiWriteListViewModel(this._service) : super([]);
