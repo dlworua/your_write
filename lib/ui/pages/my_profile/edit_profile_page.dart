@@ -13,6 +13,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _nicknameController = TextEditingController();
   bool _isSaving = false;
   String _originalNickname = '';
+  // ignore: unused_field
   bool _isNicknameAvailable = true;
 
   @override
