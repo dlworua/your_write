@@ -1,4 +1,3 @@
-// 프로필 수정 페이지
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,16 +10,23 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final _nicknameController = TextEditingController(); // 닉네임 입력 컨트롤러
-  bool _isSaving = false; // 저장 중 상태 표시
+  final _nicknameController = TextEditingController();
+  bool _isSaving = false;
+  String _originalNickname = '';
+  bool _isNicknameAvailable = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // 페이지 로딩 시 유저 정보 불러오기
+    _loadUserData();
+
+    _nicknameController.addListener(() {
+      setState(() {
+        _isNicknameAvailable = true; // 입력이 바뀌면 중복 상태 초기화
+      });
+    });
   }
 
-  // 현재 사용자 Firestore 정보에서 닉네임 불러오기
   Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -29,27 +35,66 @@ class _EditProfilePageState extends State<EditProfilePage> {
               .collection('users')
               .doc(user.uid)
               .get();
-      _nicknameController.text = doc.data()?['nickname'] ?? ''; // 입력창에 닉네임 설정
+      final nickname = doc.data()?['nickname'] ?? '';
+      _nicknameController.text = nickname;
+      _originalNickname = nickname;
     }
   }
 
-  // 닉네임을 Firestore에 저장하는 함수
-  Future<void> _saveProfile() async {
-    final nickname = _nicknameController.text.trim(); // 공백 제거
-    if (nickname.isEmpty) return; // 닉네임이 비어있으면 저장하지 않음
+  Future<bool> _checkNicknameDuplicate(String nickname) async {
+    final query =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .where('nickname', isEqualTo: nickname)
+            .get();
 
-    setState(() => _isSaving = true); // 저장 중 상태로 전환
+    if (query.docs.isEmpty) return true; // 사용 가능
+
+    // 현재 로그인한 사용자의 닉네임이면 OK
+    final user = FirebaseAuth.instance.currentUser;
+    return query.docs.first.id == user?.uid;
+  }
+
+  Future<void> _saveProfile() async {
+    final nickname = _nicknameController.text.trim();
+    if (nickname.isEmpty) return;
+
+    setState(() => _isSaving = true);
 
     try {
+      final isAvailable = await _checkNicknameDuplicate(nickname);
+      if (!isAvailable) {
+        setState(() {
+          _isNicknameAvailable = false;
+          _isSaving = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              '이미 사용 중인 닉네임입니다.',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: const Color(0xFFCD853F),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+        return;
+      }
+
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Firestore에 닉네임 업데이트
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .update({'nickname': nickname});
 
-        // 저장 완료 메시지
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
@@ -68,10 +113,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         );
 
-        Navigator.pop(context); // 이전 페이지로 돌아가기
+        Navigator.pop(context);
       }
     } catch (e) {
-      // 오류 발생 시 메시지 출력
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -90,33 +134,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       );
     } finally {
-      setState(() => _isSaving = false); // 저장 완료 상태로 전환
+      setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final nickname = _nicknameController.text.trim();
+    final isButtonEnabled =
+        !_isSaving && nickname.isNotEmpty && nickname != _originalNickname;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF6E3), // 따뜻한 크림색 배경
+      backgroundColor: const Color(0xFFFDF6E3),
       appBar: AppBar(
         elevation: 0,
         title: const Text(
           '프로필 수정',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
-        backgroundColor: const Color(0xFFD4AF37), // 따뜻한 골드색
+        backgroundColor: const Color(0xFFD4AF37),
         foregroundColor: Colors.white,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 198, 169, 140), // 크림색
-                Color(0xFFFAF0E6), // 따뜻한 베이지
-              ],
+              colors: [Color.fromARGB(255, 198, 169, 140), Color(0xFFFAF0E6)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -140,17 +181,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFDF6E3), // 크림색
-              Color(0xFFFAF0E6), // 따뜻한 베이지
-            ],
+            colors: [Color(0xFFFDF6E3), Color(0xFFFAF0E6)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: Column(
           children: [
-            // 부드러운 그라데이션 구분선
             Container(
               height: 2,
               decoration: BoxDecoration(
@@ -164,8 +201,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // 메인 카드
             Expanded(
               child: Container(
                 margin: const EdgeInsets.all(20),
@@ -184,7 +219,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 제목 섹션
                     Row(
                       children: [
                         Container(
@@ -223,10 +257,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 40),
-
-                    // 닉네임 입력 필드
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -288,20 +319,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                       ],
                     ),
-
                     const Spacer(),
-
-                    // 저장 버튼
                     SizedBox(
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed:
-                            _isSaving
-                                ? null
-                                : (_nicknameController.text.trim().isEmpty
-                                    ? null
-                                    : _saveProfile),
+                        onPressed: isButtonEnabled ? _saveProfile : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(
                             255,
@@ -352,7 +375,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 ),
                       ),
                     ),
-
                     const SizedBox(height: 16),
                   ],
                 ),

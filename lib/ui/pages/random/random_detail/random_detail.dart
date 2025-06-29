@@ -48,10 +48,10 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
       });
       return;
     }
-    const double fixedScrollPosition = 1000;
+    const double fixedScrollPosition = 700;
     _scrollController.animateTo(
       fixedScrollPosition,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 600),
       curve: Curves.easeOut,
     );
     FocusScope.of(context).requestFocus(_focusNode);

@@ -18,6 +18,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool _loading = true;
   String? _error;
 
+  int _selectedFilterIndex = 0; // 필터 상태
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +63,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
         final query =
             await FirebaseFirestore.instance
                 .collection(col)
-                .where('nickname', isEqualTo: nickname)
+                .where(
+                  col == 'home_posts' ? 'author' : 'nickname',
+                  isEqualTo: nickname,
+                )
                 .get();
 
         final posts =
@@ -83,20 +88,24 @@ class _MyProfilePageState extends State<MyProfilePage> {
               }
 
               return {
+                'id': doc.id,
                 'title': data['title'] ?? '',
-                'writer': data['nickname'] ?? '',
+                'writer':
+                    data[col == 'home_posts' ? 'author' : 'nickname'] ?? '',
                 'content': data['content'] ?? '',
                 'date': date != null ? _formatKoreanDateTime(date) : '',
                 'sortDate': date ?? DateTime(1970),
+                'keywords': data['keywords'] ?? '',
               };
             }).toList();
 
         allPosts.addAll(posts);
       }
 
-      allPosts.sort((a, b) {
-        return (b['sortDate'] as DateTime).compareTo(a['sortDate'] as DateTime);
-      });
+      allPosts.sort(
+        (a, b) =>
+            (b['sortDate'] as DateTime).compareTo(a['sortDate'] as DateTime),
+      );
 
       if (mounted) {
         setState(() {
@@ -118,6 +127,27 @@ class _MyProfilePageState extends State<MyProfilePage> {
   String _formatKoreanDateTime(DateTime dateTime) {
     final local = dateTime.toLocal();
     return '${local.year}년 ${local.month}월 ${local.day}일';
+  }
+
+  // 필터에 따라 정렬된 리스트 반환
+  List<Map<String, dynamic>> get _filteredPosts {
+    switch (_selectedFilterIndex) {
+      case 1: // 최신순
+        final list = List<Map<String, dynamic>>.from(_myPosts);
+        list.sort(
+          (a, b) =>
+              (b['sortDate'] as DateTime).compareTo(a['sortDate'] as DateTime),
+        );
+        return list;
+      case 2: // 작성자별
+        final list = List<Map<String, dynamic>>.from(_myPosts);
+        list.sort(
+          (a, b) => (a['writer'] as String).compareTo(b['writer'] as String),
+        );
+        return list;
+      default: // 전체 (원본)
+        return _myPosts;
+    }
   }
 
   @override
@@ -308,7 +338,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
                   ),
-                  child: PostGrid(items: _myPosts),
+                  child: PostGrid(items: _filteredPosts),
                 ),
               ),
             ),

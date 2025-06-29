@@ -19,8 +19,10 @@ class HomePostTop extends StatelessWidget {
     return Container(
       height: 85,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.white, Color(0xFFF5F1EB)],
+        gradient: LinearGradient(
+          colors: [Colors.white, Color(0xFFF5F1EB).withOpacity(0.5)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
         border: Border(
           bottom: BorderSide(color: Colors.brown.withOpacity(0.1), width: 1),
