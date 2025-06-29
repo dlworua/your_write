@@ -18,6 +18,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool _loading = true;
   String? _error;
 
+  int _selectedFilterIndex = 0; // 필터 상태
+
   @override
   void initState() {
     super.initState();
@@ -27,10 +29,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
   Future<void> _loadUserAndPosts() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      setState(() {
-        _error = '로그인된 사용자가 없습니다.';
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = '로그인된 사용자가 없습니다.';
+          _loading = false;
+        });
+      }
       return;
     }
 
@@ -43,10 +47,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
       final nickname = userDoc.data()?['nickname'] ?? '';
 
       if (nickname.isEmpty) {
-        setState(() {
-          _error = '닉네임 정보가 없습니다.';
-          _loading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _error = '닉네임 정보가 없습니다.';
+            _loading = false;
+          });
+        }
         return;
       }
 
@@ -57,7 +63,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
         final query =
             await FirebaseFirestore.instance
                 .collection(col)
-                .where('nickname', isEqualTo: nickname)
+                .where(
+                  col == 'home_posts' ? 'author' : 'nickname',
+                  isEqualTo: nickname,
+                )
                 .get();
 
         final posts =
@@ -72,39 +81,46 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 date = rawDate;
               } else if (rawDate is String) {
                 try {
-                  date = DateTime.parse(rawDate); // ISO 포맷 처리
+                  date = DateTime.parse(rawDate);
                 } catch (_) {
-                  date = DateTime(1970); // 파싱 실패 시 기본값
+                  date = DateTime(1970);
                 }
               }
 
               return {
+                'id': doc.id,
                 'title': data['title'] ?? '',
-                'writer': data['nickname'] ?? '',
+                'writer':
+                    data[col == 'home_posts' ? 'author' : 'nickname'] ?? '',
                 'content': data['content'] ?? '',
                 'date': date != null ? _formatKoreanDateTime(date) : '',
                 'sortDate': date ?? DateTime(1970),
+                'keywords': data['keywords'] ?? '',
               };
             }).toList();
 
         allPosts.addAll(posts);
       }
 
-      // 날짜 기준 내림차순 정렬
-      allPosts.sort((a, b) {
-        return (b['sortDate'] as DateTime).compareTo(a['sortDate'] as DateTime);
-      });
+      allPosts.sort(
+        (a, b) =>
+            (b['sortDate'] as DateTime).compareTo(a['sortDate'] as DateTime),
+      );
 
-      setState(() {
-        _userData = userDoc.data();
-        _myPosts = allPosts;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _userData = userDoc.data();
+          _myPosts = allPosts;
+          _loading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = '데이터 불러오기 실패: $e';
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = '데이터 불러오기 실패: $e';
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -113,11 +129,32 @@ class _MyProfilePageState extends State<MyProfilePage> {
     return '${local.year}년 ${local.month}월 ${local.day}일';
   }
 
+  // 필터에 따라 정렬된 리스트 반환
+  List<Map<String, dynamic>> get _filteredPosts {
+    switch (_selectedFilterIndex) {
+      case 1: // 최신순
+        final list = List<Map<String, dynamic>>.from(_myPosts);
+        list.sort(
+          (a, b) =>
+              (b['sortDate'] as DateTime).compareTo(a['sortDate'] as DateTime),
+        );
+        return list;
+      case 2: // 작성자별
+        final list = List<Map<String, dynamic>>.from(_myPosts);
+        list.sort(
+          (a, b) => (a['writer'] as String).compareTo(b['writer'] as String),
+        );
+        return list;
+      default: // 전체 (원본)
+        return _myPosts;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
       return Scaffold(
-        backgroundColor: const Color(0xFFFDF6E3), // 따뜻한 크림색 배경
+        backgroundColor: const Color(0xFFFDF6E3),
         body: Center(
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -133,7 +170,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
               ],
             ),
             child: const CircularProgressIndicator(
-              color: Color(0xFFD4AF37), // 따뜻한 골드색
+              color: Color(0xFFD4AF37),
               strokeWidth: 3,
             ),
           ),
@@ -162,7 +199,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
             child: Text(
               _error!,
               style: const TextStyle(
-                color: Color(0xFF8B4513), // 따뜻한 브라운
+                color: Color(0xFF8B4513),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -206,7 +243,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF6E3), // 따뜻한 크림색 배경
+      backgroundColor: const Color(0xFFFDF6E3),
       appBar: AppBar(
         elevation: 0,
         title: const Text(
@@ -217,7 +254,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
             letterSpacing: 0.5,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 142, 132, 101), // 따뜻한 골드색
+        backgroundColor: const Color.fromARGB(255, 142, 132, 101),
         foregroundColor: Colors.white,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -255,17 +292,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFDF6E3), // 크림색
-              Color(0xFFFAF0E6), // 따뜻한 베이지
-            ],
+            colors: [Color(0xFFFDF6E3), Color(0xFFFAF0E6)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: Column(
           children: [
-            // 부드러운 그라데이션 구분선
             Container(
               height: 2,
               decoration: BoxDecoration(
@@ -305,7 +338,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
                   ),
-                  child: PostGrid(items: _myPosts),
+                  child: PostGrid(items: _filteredPosts),
                 ),
               ),
             ),

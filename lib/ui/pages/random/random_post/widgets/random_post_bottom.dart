@@ -20,6 +20,12 @@ class RandomPostBottom extends ConsumerWidget {
     required this.onCommentPressed,
   });
 
+  void _sharePost() {
+    final postUrl = 'https://your-write.firebaseapp.com/posts/$postId';
+    final shareText = '📌 $title\n\n$content\n\n👉 자세히 보기: $postUrl';
+    Share.share(shareText);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final interaction = ref.watch(
@@ -145,10 +151,7 @@ class RandomPostBottom extends ConsumerWidget {
                 count: '',
                 color: const Color(0xFF8FBC8F),
                 splashColor: const Color(0xFFF0FFF0),
-                onTap: () {
-                  final text = '"$title"\n\n$content\n\n👉 from Your Write App';
-                  Share.share(text);
-                },
+                onTap: _sharePost,
               ),
               _buildTapButton(
                 icon:

@@ -14,36 +14,36 @@ class RandomPostMiddle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: RadialGradient(
           center: Alignment.center,
           radius: 1.2,
           colors: [
-            Color(0xFFF5F1EB).withOpacity(0.6), // 베이지
-            Color(0xFFFAF6F0).withOpacity(0.4), // 크림 베이지
-            Color(0xFFF5F1EB).withOpacity(0.3), // 연한 베이지
+            Color(0xFFF5F1EB).withOpacity(0.6),
+            Color(0xFFFAF6F0).withOpacity(0.4),
+            Color(0xFFF5F1EB).withOpacity(0.3),
           ],
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               title,
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF8B4513), // 따뜻한 브라운
+                color: Color(0xFF8B4513),
                 letterSpacing: -0.8,
                 height: 1.4,
               ),
               textAlign: TextAlign.left,
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 24),
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(20),
@@ -51,7 +51,7 @@ class RandomPostMiddle extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   Colors.white.withOpacity(0.9),
-                  Color(0xFFFAF6F0).withOpacity(0.4), // 크림
+                  Color(0xFFFAF6F0).withOpacity(0.7),
                   Colors.white.withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
@@ -59,7 +59,7 @@ class RandomPostMiddle extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Color(0xFFDDBEA9).withOpacity(0.3), // 베이지 테두리
+                color: Color(0xFFDDBEA9).withOpacity(0.3),
                 width: 1.5,
               ),
               boxShadow: [
@@ -75,7 +75,7 @@ class RandomPostMiddle extends StatelessWidget {
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF5D4037), // 따뜻한 브라운 텍스트
+                color: Color(0xFF5D4037),
                 height: 1.7,
                 letterSpacing: 0.3,
               ),
@@ -83,6 +83,7 @@ class RandomPostMiddle extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          SizedBox(height: 8),
         ],
       ),
     );

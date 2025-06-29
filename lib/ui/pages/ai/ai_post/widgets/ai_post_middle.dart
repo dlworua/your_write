@@ -48,7 +48,7 @@ class AiPostMiddle extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   Colors.white.withOpacity(0.9),
-                  Color(0xFFFAF6F0).withOpacity(0.4),
+                  Color(0xFFFAF6F0).withOpacity(0.7),
                   Colors.white.withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
