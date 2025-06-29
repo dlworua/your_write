@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
@@ -15,24 +15,26 @@
                         <viewControllerLayoutGuide type="top" id="Ydg-fD-yQy"/>
                         <viewControllerLayoutGuide type="bottom" id="xbc-2k-c8Z"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                    <view key="view" contentMode="scaleAspectFit" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" misplaced="YES" image="yourwrite_logo" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4">
-                                <rect key="frame" x="35" y="192" width="323" height="468"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="yourwrite_logo" translatesAutoresizingMaskIntoConstraints="NO" id="yQU-RL-b4K">
+                                <rect key="frame" x="87" y="384" width="240" height="128"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.96470588235294119" green="0.94509803921568625" blue="0.87450980392156863" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="4X2-HB-R7a"/>
+                            <constraint firstItem="yQU-RL-b4K" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="U1P-iW-HAK"/>
+                            <constraint firstItem="yQU-RL-b4K" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="j97-dB-PNb"/>
+                            <constraint firstItem="yQU-RL-b4K" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="oUT-0r-D3W"/>
+                            <constraint firstItem="yQU-RL-b4K" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="wYh-EE-CQs"/>
                         </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="80.152671755725194" y="264.08450704225356"/>
+            <point key="canvasLocation" x="79.200000000000003" y="263.79310344827587"/>
         </scene>
     </scenes>
     <resources>
