@@ -20,15 +20,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" image="yourwrite_logo" translatesAutoresizingMaskIntoConstraints="NO" id="zlY-tg-LBC">
-                                <rect key="frame" x="33.666666666666657" y="291.33333333333337" width="372.66666666666674" height="373.33333333333337"/>
+                                <rect key="frame" x="78.666666666666657" y="336.33333333333337" width="282.66666666666674" height="283.33333333333337"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.96470588235294119" green="0.94509803921568625" blue="0.87450980392156863" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
                             <constraint firstItem="zlY-tg-LBC" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="FvS-SB-PUQ"/>
                             <constraint firstItem="zlY-tg-LBC" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Y1H-jP-h0Q"/>
-                            <constraint firstItem="zlY-tg-LBC" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" multiplier="0.483092" constant="160" id="ZJI-Ac-F77"/>
-                            <constraint firstItem="zlY-tg-LBC" firstAttribute="height" secondItem="Ze5-6b-2t3" secondAttribute="height" multiplier="0.223214" constant="160" id="plN-eG-6i4"/>
+                            <constraint firstItem="zlY-tg-LBC" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" multiplier="0.483092" constant="70" id="ZJI-Ac-F77"/>
+                            <constraint firstItem="zlY-tg-LBC" firstAttribute="height" secondItem="Ze5-6b-2t3" secondAttribute="height" multiplier="0.223214" constant="70" id="plN-eG-6i4"/>
                         </constraints>
                     </view>
                 </viewController>
