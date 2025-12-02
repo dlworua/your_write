@@ -1,16 +1,126 @@
 # your_write
 
-A new Flutter project.
+<img width="2493" height="1650" alt="image" src="https://github.com/user-attachments/assets/db2e8d2a-f90c-43dd-bdb8-7a725d79601c" />
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## 1️⃣  프로젝트 소개
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Your Write는 일상 속 아이디어, 감정, 영감을 쉽고 편리하게 기록할 수 있는 글쓰기 앱입니다.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+AI글쓰기 기능을 통하여 글에 취미가 없더라도 간단한 프롬프트 작성을 통하여 멋진 글 한편을 작성할 수 있습니다!
+
+또한 평소에 글 쓰는 것이 지루하게 느껴진다면 랜덤 키워드 글쓰기 기능으로 보다 재미있게 글 작성이 가능합니다.
+
+혼자만의 글쓰기는 물론, 다른 사용자들과 자유롭게 소통하며 창작의 즐거움을 느껴보세요.
+
+- 직관적인 UI와 부드러운 입력 환경  직관적인 UI와 부드러운 입력 환경
+- AI를 활용한 글쓰기 기능
+- 랜덤키워드 활용한 글쓰기 기능
+- 자유페이지 글쓰기 기능
+- 작가명 설정 가능
+- Firebase 연동으로 안전한 데이터 저장과 관리
+- 지속적인 업데이트와 커뮤니티 지원
+
+당신의 생각이 가장 빛나는 공간, Your Write에서 오늘부터 새로운 이야기를 시작하세요.
+
+## 2️⃣  기술 스택
+
+---
+
+- MVVM 패턴 사용
+- Riverpod 상태관리 패키지 사용
+    - `flutter_riverpod: ****^2.6.1`
+        
+        구조화된 상태 관리를 위한 패키지
+        
+- Firebase
+    - Authentication - 이메일 로그인 기능에 사용
+        - `firebase_auth: ^5.6.0`
+            - Firebase 인증 기능을 Flutter 앱에서 사용할 수 있게 해주는 패키지 (이메일, 구글 로그인 등)
+    - Firestore Database - 앱 내 모든 데이터 관리에 사용
+        - `cloud_firestore: ^5.6.9`
+            
+            Firebase Firestore (NoSQL 데이터베이스)를 사용하기 위한 패키지
+            
+- Gemini AI  - AI 글쓰기페이지에서 글쓰기에 사용
+    - `google_generative_ai`
+        
+        Google의 `Gemini(생성형 AI) API`를 `Flutter`에서 사용할 수 있게 해주는 공식 패키지
+        
+- 그 외 개발에 사용된 패키지들
+    - `flutter_markdown: ^0.7.7+1`
+        
+        Markdown 형식의 텍스트를 Flutter 위젯으로 렌더링해주는 패키지 (`# 제목`, `**굵게**` 등 지원)
+        
+    - `share_plus: ^11.0.0`
+        
+        앱 내의 텍스트, 이미지, URL 등을 다른 앱(카카오톡, 메일, 복사 등)으로 공유할 수 있게 도와주는 패키지
+        
+    - `flutter_dotenv: ^5.2.1`
+        
+        `.env` 파일을 통해 API 키나 비밀 정보를 안전하게 관리할 수 있게 해주는 패키지
+        
+    - `auto_size_text: ^3.0.0`
+        
+        글자 수에 따라 텍스트 크기를 자동으로 줄여주는 위젯 (`Text` 대체 가능)
+        
+
+## 3️⃣  주요 기능
+
+---
+
+- AI 글쓰기 - 프롬프트를 입력하여 글 생성 (예시 - 구름의 폭신함을 시로 표현해줘)
+- 랜덤 키워드 글쓰기 - 1~5개 까지의 랜덤 한 키워드 생성 (키워드 갯수 선택 및 새로고침 가능)
+
+---
+
+## 4️⃣  기술적 의사결정
+
+- **MVVM 디자인 패턴** 채택
+    1. UI와 로직 분리로 코드가 깔끔하고 유지보수가 쉬운 장점
+    2. `ViewModel`에서의 일관된 상태 관리로 상태 관리 효율 증가
+    3. 로직만 따로 테스트 가능하여 테스트에 용이
+    4. 기능 추가나 코드 재사용이 쉬워 재사용성과 확장성이 좋음
+- **Riverpod** 상태관리 패키지 사용
+    1.  `MVVM 구조`와 궁합이 좋고, 테스트와 전역 상태 관리에 유리 
+    2. `Riverpod`은 `Provider`의 단점을 보완한 구조로, 더 안전하고 테스트 가능하며 유지보수에 유리
+- **Gemini AI 사용**
+    1. **아이디어 생성 지원**
+        
+        → 사용자가 글을 시작하기 어려울 때, 주제나 문장 아이디어를 자동으로 제공
+        
+    2. **문장 추천 및 교정**
+        
+        → 문법, 표현, 스타일 등을 자연스럽게 개선해주는 AI 도우미 역할
+        
+    3. **창작 부담 완화**
+        
+        → “백지 공포증”을 줄이고, 글쓰기 진입 장벽을 낮춰줌
+        
+    4. **개인 맞춤형 글쓰기 가능**
+        
+        → 사용자의 스타일에 맞는 문장, 분위기, 길이 등을 추천
+        
+    5. **창작 퀄리티 향상**
+        
+        → 단순한 메모 앱이 아닌, 창의적이고 영감을 주는 글쓰기 도구로 발전
+        
+    
+    > 이러한 이유들로 인하여 글쓰기에 가장 적합한 AI라고 판단하여 사용
+    > 
+- `flutter_dotenv: ^5.2.1` 패키지 추가
+    
+    시뮬레이터에 이미 API가 잘 불러와짐
+    
+    하지만 실 기기에 테스트시 API가 불러와지지 않는 오류로 인한 추가설치
+    
+
+## 5️⃣  트러블 슈팅
+
+---
+
+[제목 없음](https://www.notion.so/2bd0564b3bdf80628405cfe219d9766d?pvs=21)
+
+---
