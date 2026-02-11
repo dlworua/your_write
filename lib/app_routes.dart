@@ -9,6 +9,7 @@ import 'package:your_write/ui/pages/home/home_detail/detail_page.dart'; // 홈 �
 import 'package:your_write/ui/pages/random/random_detail/random_detail.dart';
 import 'package:your_write/ui/pages/main_page.dart';
 import 'package:your_write/ui/pages/my_profile/edit_profile_page.dart';
+import 'package:your_write/test/test_cloud_function.dart'; // Cloud Function 테스트 페이지
 
 class AppRoutes {
   // 고정된 라우트 정의: 각 경로 문자열과 해당 페이지 위젯을 매핑
@@ -19,6 +20,7 @@ class AppRoutes {
     '/user-info': (context) => const UserInfoPage(), // 유저 추가 정보 입력 페이지
     '/home': (context) => const MainPage(), // 메인 홈 페이지
     '/edit-profile': (context) => const EditProfilePage(), // 프로필 수정 페이지
+    '/test-cloud-function': (context) => const TestCloudFunctionPage(), // Cloud Function 테스트
   };
 
   // 동적 라우트 처리 (예: arguments 전달이 필요한 경우)
