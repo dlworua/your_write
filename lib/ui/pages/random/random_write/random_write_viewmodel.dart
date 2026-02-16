@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/ui/pages/random/random_write/random_keyword_list.dart';
@@ -71,6 +72,7 @@ class RandomWriteViewModel extends StateNotifier<RandomWriteState> {
         content: content,
         date: DateTime.now(),
         type: PostType.random,
+        uid: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 
       final docId = await _service.saveWriteToFirestore(write);

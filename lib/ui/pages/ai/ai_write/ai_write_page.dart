@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write_model.dart';
@@ -117,6 +118,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         content: contentController.text.trim(),
         date: DateTime.now(),
         type: PostType.ai,
+        uid: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 
       final postId = await ref

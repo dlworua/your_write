@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/home_post_model.dart';
@@ -39,6 +40,7 @@ class _HomeWritePageState extends ConsumerState<HomeWritePage> {
       keyword: keyword,
       author: author,
       date: DateTime.now(),
+      uid: FirebaseAuth.instance.currentUser?.uid ?? '',
     );
 
     await ref.read(homePostListProvider.notifier).addPost(newPost);

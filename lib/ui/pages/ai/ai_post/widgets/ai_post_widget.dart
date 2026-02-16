@@ -11,6 +11,7 @@ class AiPostWidget extends StatelessWidget {
   final List<String> keywords;
   final DateTime date;
   final String postId;
+  final String authorUid;
 
   const AiPostWidget({
     super.key,
@@ -20,6 +21,7 @@ class AiPostWidget extends StatelessWidget {
     required this.keywords,
     required this.date,
     required this.postId,
+    this.authorUid = '',
   });
 
   @override
@@ -69,6 +71,7 @@ class AiPostWidget extends StatelessWidget {
                           keywords: keywords,
                           date: date,
                           postId: postId,
+                          authorUid: authorUid,
                           scrollToCommentOnLoad: false,
                         ),
                   ),
@@ -93,6 +96,7 @@ class AiPostWidget extends StatelessWidget {
                           keywords: keywords,
                           date: date,
                           postId: postId,
+                          authorUid: authorUid,
                           scrollToCommentOnLoad: true,
                         ),
                   ),

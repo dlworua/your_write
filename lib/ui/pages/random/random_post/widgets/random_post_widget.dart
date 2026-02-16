@@ -11,6 +11,7 @@ class RandomPostWidget extends StatelessWidget {
   final String content;
   final List<String> keywords;
   final DateTime date;
+  final String authorUid;
 
   const RandomPostWidget({
     super.key,
@@ -20,6 +21,7 @@ class RandomPostWidget extends StatelessWidget {
     required this.content,
     required this.keywords,
     required this.date,
+    this.authorUid = '',
   });
 
   @override
@@ -71,6 +73,7 @@ class RandomPostWidget extends StatelessWidget {
                           author: nickname,
                           keyword: keywords,
                           date: date,
+                          authorUid: authorUid,
                         ),
                   ),
                 );
@@ -95,7 +98,8 @@ class RandomPostWidget extends StatelessWidget {
                           author: nickname,
                           keyword: keywords,
                           date: date,
-                          focusOnComment: true, // 🟡 다음에 구현할 상세페이지에서 이 값 처리
+                          authorUid: authorUid,
+                          focusOnComment: true,
                         ),
                   ),
                 );

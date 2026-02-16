@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/pages/random/random_write/random_write_service.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
@@ -13,6 +16,7 @@ class RandomDetailPage extends ConsumerStatefulWidget {
   final List<String> keyword;
   final DateTime date;
   final String postId;
+  final String authorUid;
   final bool focusOnComment;
 
   const RandomDetailPage({
@@ -23,6 +27,7 @@ class RandomDetailPage extends ConsumerStatefulWidget {
     required this.keyword,
     required this.date,
     required this.postId,
+    this.authorUid = '',
     this.focusOnComment = false,
   });
 
@@ -39,6 +44,126 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
     postId: widget.postId,
     boardType: 'random_writes',
   );
+
+  late String _title;
+  late String _content;
+  late List<String> _keywords;
+
+  @override
+  void initState() {
+    super.initState();
+    _title = widget.title;
+    _content = widget.content;
+    _keywords = List.from(widget.keyword);
+    if (widget.focusOnComment) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToCommentInput();
+      });
+    }
+  }
+
+  void _showEditDialog() {
+    final titleCtrl = TextEditingController(text: _title);
+    final contentCtrl = TextEditingController(text: _content);
+    final keywordCtrl = TextEditingController(text: _keywords.join(', '));
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('글 수정'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleCtrl,
+                decoration: const InputDecoration(labelText: '제목'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: keywordCtrl,
+                decoration: const InputDecoration(labelText: '키워드'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: contentCtrl,
+                decoration: const InputDecoration(labelText: '본문'),
+                maxLines: 5,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final updated = WriteModel(
+                id: widget.postId,
+                title: titleCtrl.text.trim(),
+                keyWord: keywordCtrl.text.trim(),
+                nickname: widget.author,
+                content: contentCtrl.text.trim(),
+                date: widget.date,
+                type: PostType.random,
+                uid: widget.authorUid,
+              );
+              await ref
+                  .read(randomWriteServiceProvider)
+                  .updatePost(updated);
+              if (mounted) {
+                setState(() {
+                  _title = updated.title;
+                  _content = updated.content;
+                  _keywords =
+                      updated.keyWord
+                          .split(',')
+                          .map((k) => k.trim())
+                          .where((k) => k.isNotEmpty)
+                          .toList();
+                });
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('수정되었습니다')),
+                );
+              }
+            },
+            child: const Text('저장', style: TextStyle(color: Color(0xFF8B6F47))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirm() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('글 삭제'),
+        content: const Text('이 글을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(randomWriteServiceProvider)
+                  .deletePost(widget.postId);
+              if (mounted) {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 
   void scrollToCommentInput({int retryCount = 0}) {
     if (retryCount > 10) return;
@@ -58,19 +183,13 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.focusOnComment) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollToCommentInput();
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final interaction = ref.watch(postInteractionProvider(postParams));
     final viewModel = ref.read(postInteractionProvider(postParams).notifier);
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final isAuthor =
+        widget.authorUid.isNotEmpty && currentUid == widget.authorUid;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -93,6 +212,26 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
                     ),
                   ),
                 ),
+                if (isAuthor)
+                  Positioned(
+                    top: 85,
+                    right: 16,
+                    child: PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        size: 20.sp,
+                        color: const Color(0xFF8B6F47),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'edit') _showEditDialog();
+                        if (value == 'delete') _showDeleteConfirm();
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'edit', child: Text('수정')),
+                        PopupMenuItem(value: 'delete', child: Text('삭제')),
+                      ],
+                    ),
+                  ),
               ],
             ),
 
@@ -118,7 +257,7 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.title,
+                          _title,
                           style: TextStyle(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.w700,
@@ -153,7 +292,7 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children:
-                          widget.keyword.map((k) {
+                          _keywords.map((k) {
                             return Container(
                               margin: EdgeInsets.only(right: 12.w),
                               padding: EdgeInsets.symmetric(
@@ -222,7 +361,7 @@ class _RandomDetailPageState extends ConsumerState<RandomDetailPage> {
                       ],
                     ),
                     child: Text(
-                      widget.content,
+                      _content,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18.sp,

@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:your_write/data/models/write_model.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/pages/ai/ai_write/ai_write_service.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
@@ -13,6 +16,7 @@ class AiDetailPage extends ConsumerStatefulWidget {
   final List<String> keywords;
   final DateTime date;
   final String postId;
+  final String authorUid;
   final bool scrollToCommentOnLoad;
 
   const AiDetailPage({
@@ -23,6 +27,7 @@ class AiDetailPage extends ConsumerStatefulWidget {
     required this.keywords,
     required this.date,
     required this.postId,
+    this.authorUid = '',
     this.scrollToCommentOnLoad = false,
   });
 
@@ -36,6 +41,126 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
   final TextEditingController _controller = TextEditingController();
 
   late final CommentParams params;
+  late String _title;
+  late String _content;
+  late List<String> _keywords;
+
+  @override
+  void initState() {
+    super.initState();
+    _title = widget.title;
+    _content = widget.content;
+    _keywords = List.from(widget.keywords);
+    params = CommentParams(postId: widget.postId, boardType: 'ai_writes');
+
+    if (widget.scrollToCommentOnLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(const Duration(milliseconds: 500));
+        scrollToCommentInput();
+      });
+    }
+  }
+
+  void _showEditDialog() {
+    final titleCtrl = TextEditingController(text: _title);
+    final contentCtrl = TextEditingController(text: _content);
+    final keywordCtrl = TextEditingController(text: _keywords.join(', '));
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('글 수정'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleCtrl,
+                decoration: const InputDecoration(labelText: '제목'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: keywordCtrl,
+                decoration: const InputDecoration(labelText: '키워드'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: contentCtrl,
+                decoration: const InputDecoration(labelText: '본문'),
+                maxLines: 5,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final updated = WriteModel(
+                id: widget.postId,
+                title: titleCtrl.text.trim(),
+                keyWord: keywordCtrl.text.trim(),
+                nickname: widget.author,
+                content: contentCtrl.text.trim(),
+                date: widget.date,
+                type: PostType.ai,
+                uid: widget.authorUid,
+              );
+              await ref.read(aiWriterServiceProvider).updatePost(updated);
+              if (mounted) {
+                setState(() {
+                  _title = updated.title;
+                  _content = updated.content;
+                  _keywords =
+                      updated.keyWord
+                          .split(',')
+                          .map((k) => k.trim())
+                          .where((k) => k.isNotEmpty)
+                          .toList();
+                });
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('수정되었습니다')),
+                );
+              }
+            },
+            child: const Text('저장', style: TextStyle(color: Color(0xFF8B6F47))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirm() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('글 삭제'),
+        content: const Text('이 글을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(aiWriterServiceProvider)
+                  .deletePost(widget.postId);
+              if (mounted) {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 
   void scrollToCommentInput({int retryCount = 0}) {
     if (retryCount > 10) return;
@@ -55,22 +180,13 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    params = CommentParams(postId: widget.postId, boardType: 'ai_writes');
-
-    if (widget.scrollToCommentOnLoad) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Future.delayed(const Duration(milliseconds: 500));
-        scrollToCommentInput();
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final interaction = ref.watch(postInteractionProvider(params));
     final viewModel = ref.read(postInteractionProvider(params).notifier);
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final isAuthor =
+        widget.authorUid.isNotEmpty && currentUid == widget.authorUid;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -93,6 +209,26 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
                     ),
                   ),
                 ),
+                if (isAuthor)
+                  Positioned(
+                    top: 85,
+                    right: 16,
+                    child: PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        size: 20.sp,
+                        color: const Color(0xFF8B6F47),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'edit') _showEditDialog();
+                        if (value == 'delete') _showDeleteConfirm();
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'edit', child: Text('수정')),
+                        PopupMenuItem(value: 'delete', child: Text('삭제')),
+                      ],
+                    ),
+                  ),
               ],
             ),
 
@@ -120,7 +256,7 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
                       children: [
                         // ✅ 제목 왼쪽 정렬
                         Text(
-                          widget.title,
+                          _title,
                           style: TextStyle(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.w700,
@@ -158,7 +294,7 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children:
-                          widget.keywords.map((k) {
+                          _keywords.map((k) {
                             return Container(
                               margin: EdgeInsets.only(right: 12.w),
                               padding: EdgeInsets.symmetric(
@@ -228,7 +364,7 @@ class _AiDetailPageState extends ConsumerState<AiDetailPage> {
                       ],
                     ),
                     child: Text(
-                      widget.content,
+                      _content,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18.sp,

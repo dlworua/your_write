@@ -63,6 +63,7 @@ Future<void> loadAiPostsFromFirestore(WidgetRef ref) async {
                   ? (data['date'] as Timestamp).toDate()
                   : DateTime.now(),
           type: PostType.ai,
+          uid: data['uid'] ?? '',
         );
       }).toList();
 

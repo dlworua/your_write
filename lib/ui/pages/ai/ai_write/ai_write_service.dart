@@ -40,6 +40,18 @@ class AiWriteService {
         .toList();
   }
 
+  Future<void> updatePost(WriteModel post) async {
+    await _firestore.collection('ai_writes').doc(post.id).update({
+      'title': post.title,
+      'keyWord': post.keyWord,
+      'content': post.content,
+    });
+  }
+
+  Future<void> deletePost(String postId) async {
+    await _firestore.collection('ai_writes').doc(postId).delete();
+  }
+
   Future<WriteModel> generateStructuredText(String prompt) async {
     print('✍️ Cloud Function 요청: $prompt');
 

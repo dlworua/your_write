@@ -12,6 +12,7 @@ class HomePostWidget extends StatelessWidget {
   final List<String> keywords;
   final DateTime date;
   final VoidCallback onCommentPressed;
+  final String authorUid;
 
   const HomePostWidget({
     super.key,
@@ -22,6 +23,7 @@ class HomePostWidget extends StatelessWidget {
     required this.keywords,
     required this.date,
     required this.onCommentPressed,
+    this.authorUid = '',
   });
 
   @override
@@ -69,6 +71,7 @@ class HomePostWidget extends StatelessWidget {
                           author: nickname,
                           keyword: keywords.isNotEmpty ? keywords.first : '',
                           date: date,
+                          authorUid: authorUid,
                         ),
                   ),
                 );

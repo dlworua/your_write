@@ -45,6 +45,7 @@ class _RandomPostListState extends ConsumerState<RandomPostList> {
                   content: post.content,
                   keywords: post.keyWord.split(','),
                   date: post.date,
+                  authorUid: post.uid,
                 ),
                 const SizedBox(height: 30),
               ],

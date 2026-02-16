@@ -45,4 +45,16 @@ class RandomWriteService {
       return [];
     }
   }
+
+  Future<void> updatePost(WriteModel post) async {
+    await _firestore.collection('random_writes').doc(post.id).update({
+      'title': post.title,
+      'keyWord': post.keyWord,
+      'content': post.content,
+    });
+  }
+
+  Future<void> deletePost(String postId) async {
+    await _firestore.collection('random_writes').doc(postId).delete();
+  }
 }

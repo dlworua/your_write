@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:your_write/data/models/home_post_model.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
@@ -13,6 +16,7 @@ class HomeDetailPage extends ConsumerStatefulWidget {
   final String author;
   final String keyword;
   final DateTime date;
+  final String authorUid;
   final bool scrollToCommentInput;
 
   const HomeDetailPage({
@@ -23,6 +27,7 @@ class HomeDetailPage extends ConsumerStatefulWidget {
     required this.author,
     required this.keyword,
     required this.date,
+    this.authorUid = '',
     this.scrollToCommentInput = false,
   });
 
@@ -34,6 +39,21 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
+
+  late String _title;
+  late String _content;
+  late String _keyword;
+
+  @override
+  void initState() {
+    super.initState();
+    _title = widget.title;
+    _content = widget.content;
+    _keyword = widget.keyword;
+    if (widget.scrollToCommentInput) {
+      _scrollToCommentInput();
+    }
+  }
 
   void _scrollToCommentInput({int retryCount = 0}) {
     if (retryCount > 10) return;
@@ -52,12 +72,101 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
     FocusScope.of(context).requestFocus(_focusNode);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.scrollToCommentInput) {
-      _scrollToCommentInput();
-    }
+  void _showEditDialog() {
+    final titleCtrl = TextEditingController(text: _title);
+    final contentCtrl = TextEditingController(text: _content);
+    final keywordCtrl = TextEditingController(text: _keyword);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('글 수정'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleCtrl,
+                decoration: const InputDecoration(labelText: '제목'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: keywordCtrl,
+                decoration: const InputDecoration(labelText: '키워드'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: contentCtrl,
+                decoration: const InputDecoration(labelText: '본문'),
+                maxLines: 5,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final updated = HomePostModel(
+                id: widget.postId,
+                title: titleCtrl.text.trim(),
+                content: contentCtrl.text.trim(),
+                keyword: keywordCtrl.text.trim(),
+                author: widget.author,
+                date: widget.date,
+                uid: widget.authorUid,
+              );
+              await ref
+                  .read(homePostListProvider.notifier)
+                  .updatePost(updated);
+              if (mounted) {
+                setState(() {
+                  _title = updated.title;
+                  _content = updated.content;
+                  _keyword = updated.keyword;
+                });
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('수정되었습니다')),
+                );
+              }
+            },
+            child: const Text('저장', style: TextStyle(color: Color(0xFF8B6F47))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirm() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('글 삭제'),
+        content: const Text('이 글을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(homePostListProvider.notifier)
+                  .deletePost(widget.postId);
+              if (mounted) {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -73,11 +182,14 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
     );
 
     final keywords =
-        widget.keyword
+        _keyword
             .split(',')
             .map((k) => k.trim())
             .where((k) => k.isNotEmpty)
             .toList();
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final isAuthor = widget.authorUid.isNotEmpty && currentUid == widget.authorUid;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -100,6 +212,26 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                     ),
                   ),
                 ),
+                if (isAuthor)
+                  Positioned(
+                    top: 85,
+                    right: 16,
+                    child: PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        size: 20.sp,
+                        color: const Color(0xFF8B6F47),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'edit') _showEditDialog();
+                        if (value == 'delete') _showDeleteConfirm();
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'edit', child: Text('수정')),
+                        PopupMenuItem(value: 'delete', child: Text('삭제')),
+                      ],
+                    ),
+                  ),
               ],
             ),
             Expanded(
@@ -124,7 +256,7 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.title,
+                          _title,
                           style: TextStyle(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.w700,
@@ -228,7 +360,7 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                       ],
                     ),
                     child: Text(
-                      widget.content,
+                      _content,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18.sp,

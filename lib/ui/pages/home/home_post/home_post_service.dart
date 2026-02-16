@@ -19,4 +19,16 @@ class HomePostService {
       return HomePostModel.fromMap(doc.data(), doc.id);
     }).toList();
   }
+
+  Future<void> updatePost(HomePostModel post) async {
+    await _db.collection('home_posts').doc(post.id).update({
+      'title': post.title,
+      'content': post.content,
+      'keyword': post.keyword,
+    });
+  }
+
+  Future<void> deletePost(String postId) async {
+    await _db.collection('home_posts').doc(postId).delete();
+  }
 }
