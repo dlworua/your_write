@@ -86,6 +86,17 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
         loading: () {},
         error: (e, st) {
           print('❌ 에러: $e');
+          // 에러 메시지를 사용자에게 표시
+          if (context.mounted) {
+            final message = e.toString().replaceFirst('Exception: ', '');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: Colors.red[400],
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
         },
       );
     });
@@ -214,7 +225,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                       _buildTextField(
                         controller: promptController,
                         label: '프롬프트',
-                        hint: 'AI에게 글쓰기 요청을 해보세요!\n(예: "자연과 사랑에 대한 시 한 편 써줘")',
+                        hint: 'AI에게 글쓰기 요청을 해보세요! (10자 이상)\n(예: "자연과 사랑에 대한 시 한 편 써줘")',
                         maxLines: 3,
                         icon: Icons.chat_bubble_outline,
                       ),
@@ -222,15 +233,32 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                       _buildButton(
                         text: 'AI 글 생성',
                         onPressed: () {
-                          if (promptController.text.trim().isEmpty) {
+                          final prompt = promptController.text.trim();
+                          if (prompt.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('프롬프트를 입력하세요')),
                             );
                             return;
                           }
-                          viewModel.generateContentFromPrompt(
-                            promptController.text,
-                          );
+                          if (prompt.length < 10) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('프롬프트는 10자 이상 입력해주세요'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+                          if (prompt.length > 5000) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('프롬프트는 5000자 이하로 입력해주세요'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+                          viewModel.generateContentFromPrompt(prompt);
                         },
                         icon: Icons.auto_awesome,
                       ),
