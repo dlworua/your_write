@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:your_write/data/models/write_model.dart';
 
 final aiWriterServiceProvider = Provider<AiWriteService>((ref) {
@@ -10,15 +9,20 @@ final aiWriterServiceProvider = Provider<AiWriteService>((ref) {
 
 class AiWriteService {
   final _firestore = FirebaseFirestore.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'asia-northeast3');
 
-  late final GenerativeModel _model;
-
-  AiWriteService() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
-    if (apiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY가 .env에 설정되어 있지 않습니다.');
+  // Cold Start 보완: AI 탭 진입 시 미리 웜업
+  Future<void> warmUp() async {
+    try {
+      // 짧은 더미 호출로 함수 웜업 (실패해도 무시)
+      final callable = _functions.httpsCallable(
+        'generateAI',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 3)),
+      );
+      await callable.call({'prompt': 'warmup'});
+    } catch (_) {
+      // 웜업 실패는 무시 (프롬프트 검증 에러 포함)
     }
-    _model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
   }
 
   Future<List<WriteModel>> fetchAiPosts() async {
@@ -37,12 +41,21 @@ class AiWriteService {
   }
 
   Future<WriteModel> generateStructuredText(String prompt) async {
-    print('✍️ Gemini 요청: $prompt');
+    print('✍️ Cloud Function 요청: $prompt');
 
     try {
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? '응답이 비어 있습니다.';
-      print('✅ Gemini 응답: $text');
+      final callable = _functions.httpsCallable(
+        'generateAI',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 60)),
+      );
+
+      final result = await callable.call<Map<dynamic, dynamic>>({
+        'prompt': prompt,
+      });
+
+      final data = Map<String, dynamic>.from(result.data);
+      final text = data['text'] as String? ?? '응답이 비어 있습니다.';
+      print('✅ Cloud Function 응답: $text');
 
       final lines =
           text
@@ -111,8 +124,26 @@ class AiWriteService {
         date: DateTime.now(),
         type: PostType.ai,
       );
+    } on FirebaseFunctionsException catch (e) {
+      print('❌ Cloud Function 에러: ${e.code} - ${e.message}');
+      // 사용자 친화적 에러 메시지
+      String message;
+      switch (e.code) {
+        case 'unauthenticated':
+          message = '로그인이 필요합니다.';
+          break;
+        case 'invalid-argument':
+          message = e.message ?? '입력값이 올바르지 않습니다.';
+          break;
+        case 'resource-exhausted':
+          message = 'API 할당량이 초과되었습니다. 잠시 후 다시 시도해주세요.';
+          break;
+        default:
+          message = e.message ?? 'AI 생성 중 오류가 발생했습니다.';
+      }
+      throw Exception(message);
     } catch (e) {
-      throw Exception('Gemini API 에러: $e');
+      throw Exception('AI 생성 중 오류가 발생했습니다: $e');
     }
   }
 }

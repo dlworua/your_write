@@ -1,8 +1,8 @@
 const functions = require("firebase-functions");
-const {GoogleGenerativeAI} = require("@google/generative-ai");
+const https = require("https");
 
-// Gemini API 초기화
-const genAI = new GoogleGenerativeAI(functions.config().gemini.key);
+// Gemini API Key
+const getApiKey = () => functions.config().gemini.key;
 
 /**
  * AI 텍스트 생성 Cloud Function
@@ -64,14 +64,50 @@ exports.generateAI = functions
       console.log("✍️ 프롬프트 길이:", prompt.length);
 
       try {
-        // ===== 4. Gemini API 호출 =====
-        const model = genAI.getGenerativeModel({
-          model: "gemini-2.0-flash-exp", // 무료 모델!
+        // ===== 4. Gemini API 호출 (REST API 직접 호출) =====
+        const apiKey = getApiKey();
+        const modelName = "gemini-2.0-flash"; // Flutter와 동일한 모델
+        const url = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`;
+
+        const requestBody = JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt,
+            }],
+          }],
         });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const response = await new Promise((resolve, reject) => {
+          const req = https.request(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Content-Length": Buffer.byteLength(requestBody),
+            },
+          }, (res) => {
+            let data = "";
+            res.on("data", (chunk) => {
+              data += chunk;
+            });
+            res.on("end", () => {
+              if (res.statusCode === 200) {
+                resolve(JSON.parse(data));
+              } else {
+                reject(new Error(`API 에러: ${res.statusCode} - ${data}`));
+              }
+            });
+          });
+
+          req.on("error", (error) => {
+            reject(error);
+          });
+
+          req.write(requestBody);
+          req.end();
+        });
+
+        const text = response.candidates?.[0]?.content?.parts?.[0]?.text ||
+          "응답을 생성할 수 없습니다.";
 
         console.log("✅ AI 생성 성공, 길이:", text.length);
 
@@ -88,9 +124,15 @@ exports.generateAI = functions
         // 사용자 친화적 에러 메시지
         let errorMessage = "AI 생성 중 오류가 발생했습니다.";
 
-        if (error.message && error.message.includes("quota")) {
+        if (error.message && error.message.includes("429")) {
           errorMessage = "API 할당량이 초과되었습니다. " +
             "잠시 후 다시 시도해주세요.";
+        } else if (error.message && error.message.includes("quota")) {
+          errorMessage = "API 할당량이 초과되었습니다. " +
+            "잠시 후 다시 시도해주세요.";
+        } else if (error.message && error.message.includes("RESOURCE_EXHAUSTED")) {
+          errorMessage = "API 할당량이 초과되었습니다. " +
+            "1-2분 후 다시 시도해주세요.";
         } else if (error.message && error.message.includes("invalid")) {
           errorMessage = "유효하지 않은 요청입니다.";
         } else if (error.message && error.message.includes("timeout")) {

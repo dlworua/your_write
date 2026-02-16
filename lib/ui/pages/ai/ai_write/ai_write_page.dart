@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_write/data/models/write_model.dart';
+import 'package:your_write/ui/pages/ai/ai_write/ai_write_service.dart';
 import 'package:your_write/ui/pages/ai/ai_write/ai_write_viewmodel.dart';
 import 'package:your_write/ui/pages/ai/ai_write/saved_ai_writes_provider.dart';
 
@@ -19,6 +20,15 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
   late final TextEditingController contentController;
   late final TextEditingController promptController;
 
+  // 로딩 메시지 (Cold Start 체감 개선)
+  final List<String> _loadingMessages = [
+    'AI가 생각을 시작하고 있어요...',
+    '아이디어를 정리하는 중...',
+    '글을 써 내려가는 중...',
+    '마무리 손질 중...',
+  ];
+  int _loadingMessageIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +37,18 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
     authorController = TextEditingController();
     contentController = TextEditingController();
     promptController = TextEditingController();
+    // Cold Start 보완: 페이지 진입 시 Cloud Function 미리 웜업
+    AiWriteService().warmUp();
+    // 로딩 메시지 주기적 변경 타이머
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 3));
+      if (!mounted) return false;
+      setState(() {
+        _loadingMessageIndex =
+            (_loadingMessageIndex + 1) % _loadingMessages.length;
+      });
+      return true;
+    });
   }
 
   @override
@@ -167,7 +189,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'AI가 열심히 작업 중...',
+                        _loadingMessages[_loadingMessageIndex],
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontSize: 16,
