@@ -266,23 +266,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
           ),
         ),
         actions: [
-          // 테스트 버튼 (개발용 - 배포 시 제거)
-          Container(
-            margin: const EdgeInsets.only(right: 5),
-            child: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.bug_report, size: 20),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/test-cloud-function');
-              },
-            ),
-          ),
           Container(
             margin: const EdgeInsets.only(right: 10),
             child: IconButton(

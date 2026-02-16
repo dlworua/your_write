@@ -278,8 +278,7 @@ class _AiWritePageState extends ConsumerState<AiWritePage> {
 
                       _buildButton(
                         text: '출간 하기',
-                        onPressed: () async {
-                          await ref.read(savedAiWritesProvider.notifier);
+                        onPressed: () {
                           submitPost();
                         },
                         isPrimary: true,
