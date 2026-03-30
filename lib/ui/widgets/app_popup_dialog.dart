@@ -52,6 +52,38 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
     final textColor = isDarkMode ? const Color(0xFFE5D5B8) : const Color(0xFF6B4E3D);
     final iconColor = isDarkMode ? const Color(0xFFD4AF37) : const Color(0xFFD4AF37);
 
+    // 화면 크기에 따른 반응형 크기 계산
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final orientation = MediaQuery.of(context).orientation;
+
+    // 기기 타입 판단
+    final isTablet = screenWidth > 600;
+    final isLandscape = orientation == Orientation.landscape;
+
+    // 반응형 너비 계산
+    double dialogWidth;
+    if (isTablet) {
+      // 태블릿: 고정 너비 (읽기 좋은 크기)
+      dialogWidth = 500.0;
+    } else if (isLandscape) {
+      // 모바일 가로모드: 화면의 60%
+      dialogWidth = screenWidth * 0.6;
+    } else {
+      // 모바일 세로모드: 화면의 85%
+      dialogWidth = screenWidth * 0.85;
+    }
+
+    // 반응형 높이 계산
+    double dialogHeight;
+    if (isLandscape) {
+      // 가로모드: 화면의 80% (더 많이 활용)
+      dialogHeight = screenHeight * 0.8;
+    } else {
+      // 세로모드: 화면의 65%
+      dialogHeight = screenHeight * 0.65;
+    }
+
     return Dialog(
       backgroundColor: backgroundColor,
       shape: RoundedRectangleBorder(
@@ -59,8 +91,8 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
       ),
       child: Container(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.65,
-          maxWidth: MediaQuery.of(context).size.width * 0.85,
+          maxHeight: dialogHeight,
+          maxWidth: dialogWidth,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
