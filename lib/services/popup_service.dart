@@ -77,4 +77,34 @@ class PopupService {
 
     return popupsToShow;
   }
+
+  /// 팝업 조회수 증가
+  static Future<void> incrementViewCount(String popupId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('app_popups')
+          .doc(popupId)
+          .update({
+        'viewCount': FieldValue.increment(1),
+        'lastViewedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      // 통계 업데이트 실패 시 무시 (사용자 경험에 영향 없음)
+    }
+  }
+
+  /// 팝업 클릭수 증가
+  static Future<void> incrementClickCount(String popupId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('app_popups')
+          .doc(popupId)
+          .update({
+        'clickCount': FieldValue.increment(1),
+        'lastClickedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      // 통계 업데이트 실패 시 무시
+    }
+  }
 }

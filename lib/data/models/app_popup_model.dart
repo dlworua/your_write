@@ -14,6 +14,10 @@ class AppPopupModel {
   final DateTime startDate; // 노출 시작일
   final DateTime endDate; // 노출 종료일
   final int priority; // 우선순위 (높을수록 먼저 표시)
+  final int viewCount; // 조회수
+  final int clickCount; // 클릭수
+  final DateTime? lastViewedAt; // 마지막 조회 시각
+  final DateTime? lastClickedAt; // 마지막 클릭 시각
 
   AppPopupModel({
     required this.id,
@@ -24,6 +28,10 @@ class AppPopupModel {
     required this.startDate,
     required this.endDate,
     required this.priority,
+    this.viewCount = 0,
+    this.clickCount = 0,
+    this.lastViewedAt,
+    this.lastClickedAt,
   });
 
   factory AppPopupModel.fromFirestore(DocumentSnapshot doc) {
@@ -45,6 +53,10 @@ class AppPopupModel {
       startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       endDate: (data['endDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       priority: data['priority'] as int? ?? 0,
+      viewCount: data['viewCount'] as int? ?? 0,
+      clickCount: data['clickCount'] as int? ?? 0,
+      lastViewedAt: (data['lastViewedAt'] as Timestamp?)?.toDate(),
+      lastClickedAt: (data['lastClickedAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -56,10 +68,20 @@ class AppPopupModel {
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
       'priority': priority,
+      'viewCount': viewCount,
+      'clickCount': clickCount,
     };
 
     if (actionUrl != null) {
       map['actionUrl'] = actionUrl!;
+    }
+
+    if (lastViewedAt != null) {
+      map['lastViewedAt'] = Timestamp.fromDate(lastViewedAt!);
+    }
+
+    if (lastClickedAt != null) {
+      map['lastClickedAt'] = Timestamp.fromDate(lastClickedAt!);
     }
 
     return map;

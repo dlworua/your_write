@@ -26,6 +26,11 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
   void initState() {
     super.initState();
     _pageController = PageController();
+
+    // 첫 번째 팝업 조회수 증가
+    if (widget.popups.isNotEmpty) {
+      PopupService.incrementViewCount(widget.popups[0].id);
+    }
   }
 
   @override
@@ -169,6 +174,8 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                       setState(() {
                         _currentPage = index;
                       });
+                      // 페이지 변경 시 조회수 증가
+                      PopupService.incrementViewCount(widget.popups[index].id);
                     },
                     itemBuilder: (context, index) {
                       final popup = widget.popups[index];
@@ -398,6 +405,9 @@ class _PopupContentWidgetState extends State<_PopupContentWidget> {
     if (actionUrl == null || actionUrl.isEmpty) return;
 
     try {
+      // 클릭수 증가
+      await PopupService.incrementClickCount(widget.popup.id);
+
       final uri = Uri.parse(actionUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);

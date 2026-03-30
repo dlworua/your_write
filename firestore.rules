@@ -147,12 +147,19 @@ service cloud.firestore {
     }
 
     // ===== app_popups 컬렉션 =====
-    // 앱 시작 팝업 관리용 (관리자가 Firestore Console에서 직접 생성/수정)
+    // 앱 시작 팝업 관리용
     match /app_popups/{popupId} {
       // 로그인한 모든 사용자가 읽기 가능
       allow read: if isAuthenticated();
-      // 쓰기는 차단 (관리자가 Console에서만 관리)
-      allow write: if false;
+
+      // 통계 필드만 업데이트 가능 (조회수, 클릭수)
+      allow update: if isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          ['viewCount', 'clickCount', 'lastViewedAt', 'lastClickedAt']
+        );
+
+      // 생성 및 전체 수정/삭제는 차단 (관리자가 Console에서만 관리)
+      allow create, delete: if false;
     }
 
     // 그 외 모든 문서는 기본 차단
