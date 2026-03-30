@@ -56,6 +56,83 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return query.docs.first.id == user?.uid;
   }
 
+  /// 글 컬렉션에서 닉네임 일괄 업데이트
+  Future<void> _updateNicknameInPosts(
+      String uid, String oldNickname, String newNickname) async {
+    final db = FirebaseFirestore.instance;
+    final collections = {
+      'home_posts': 'author',
+      'ai_writes': 'nickname',
+      'random_writes': 'nickname',
+    };
+
+    for (final entry in collections.entries) {
+      final snapshot = await db
+          .collection(entry.key)
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (snapshot.docs.isEmpty) continue;
+      final batch = db.batch();
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {entry.value: newNickname});
+      }
+      await batch.commit();
+    }
+  }
+
+  /// 좋아요 서브컬렉션에서 닉네임 일괄 업데이트
+  Future<void> _updateNicknameInLikes(
+      String uid, String oldNickname, String newNickname) async {
+    final db = FirebaseFirestore.instance;
+
+    // 모든 게시글 컬렉션을 순회하며 해당 유저의 좋아요를 찾아서 업데이트
+    final collections = ['home_posts', 'ai_writes', 'random_writes'];
+
+    for (final collectionName in collections) {
+      final postsSnapshot = await db.collection(collectionName).get();
+
+      for (final postDoc in postsSnapshot.docs) {
+        // 각 게시글의 likes 서브컬렉션에서 현재 유저의 좋아요 찾기
+        final likeDoc = postDoc.reference.collection('likes').doc(uid);
+        final likeSnapshot = await likeDoc.get();
+
+        if (likeSnapshot.exists) {
+          await likeDoc.update({'nickname': newNickname});
+        }
+      }
+    }
+  }
+
+  /// 댓글 서브컬렉션에서 닉네임 일괄 업데이트
+  Future<void> _updateNicknameInComments(
+      String uid, String oldNickname, String newNickname) async {
+    final db = FirebaseFirestore.instance;
+
+    // 모든 게시글 컬렉션을 순회하며 댓글 업데이트
+    final collections = ['home_posts', 'ai_writes', 'random_writes'];
+
+    for (final collectionName in collections) {
+      final postsSnapshot = await db.collection(collectionName).get();
+
+      for (final postDoc in postsSnapshot.docs) {
+        // 각 게시글의 comments 서브컬렉션에서 현재 유저의 댓글 찾기
+        final commentsSnapshot = await postDoc.reference
+            .collection('comments')
+            .where('uid', isEqualTo: uid)
+            .get();
+
+        if (commentsSnapshot.docs.isEmpty) continue;
+
+        final batch = db.batch();
+        for (final commentDoc in commentsSnapshot.docs) {
+          batch.update(commentDoc.reference, {'author': newNickname});
+        }
+        await batch.commit();
+      }
+    }
+  }
+
   Future<void> _saveProfile() async {
     final nickname = _nicknameController.text.trim();
     if (nickname.isEmpty) return;
@@ -91,10 +168,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        // 1. users 컬렉션 닉네임 업데이트
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .update({'nickname': nickname});
+
+        // 2. 기존 글 닉네임 일괄 업데이트
+        await _updateNicknameInPosts(user.uid, _originalNickname, nickname);
+
+        // 3. 기존 좋아요 닉네임 일괄 업데이트
+        try {
+          await _updateNicknameInLikes(user.uid, _originalNickname, nickname);
+        } catch (e) {
+          print('좋아요 업데이트 실패: $e');
+        }
+
+        // 4. 기존 댓글 닉네임 일괄 업데이트
+        try {
+          await _updateNicknameInComments(user.uid, _originalNickname, nickname);
+        } catch (e) {
+          print('댓글 업데이트 실패: $e');
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

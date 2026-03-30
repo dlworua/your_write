@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
+import 'package:your_write/ui/widgets/liked_users_dialog.dart';
 
 class AiPostBottom extends ConsumerWidget {
   final String postId;
@@ -118,7 +119,8 @@ class AiPostBottom extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildTapButton(
+              _buildLikeButton(
+                context: context,
                 icon:
                     state.isLiked
                         ? Icons.favorite
@@ -126,7 +128,18 @@ class AiPostBottom extends ConsumerWidget {
                 count: state.likeCount.toString(),
                 color: const Color(0xFFD2691E),
                 splashColor: const Color(0xFFFFE4E1),
-                onTap: viewModel.toggleLike,
+                onIconTap: viewModel.toggleLike,
+                onCountTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => LikedUsersDialog(
+                      params: CommentParams(
+                        postId: postId,
+                        boardType: 'ai_writes',
+                      ),
+                    ),
+                  );
+                },
               ),
               _buildTapButton(
                 icon: Icons.chat_bubble_outline_rounded,
@@ -155,6 +168,58 @@ class AiPostBottom extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLikeButton({
+    required BuildContext context,
+    required IconData icon,
+    required String count,
+    required Color color,
+    required Color splashColor,
+    required VoidCallback onIconTap,
+    required VoidCallback onCountTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        child: Row(
+          children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              splashColor: splashColor.withOpacity(0.3),
+              highlightColor: splashColor.withOpacity(0.2),
+              onTap: onIconTap,
+              child: Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(icon, size: 20, color: color),
+              ),
+            ),
+            if (count.isNotEmpty) ...[
+              SizedBox(width: 6),
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                splashColor: splashColor.withOpacity(0.3),
+                highlightColor: splashColor.withOpacity(0.2),
+                onTap: onCountTap,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Text(
+                    count,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF5D4037),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
