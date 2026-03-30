@@ -46,8 +46,14 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDarkMode ? const Color(0xFF2C2416) : const Color(0xFFFFFDF4);
+    final headerColor = isDarkMode ? const Color(0xFF3D3020) : const Color(0xFFF5EFE7);
+    final textColor = isDarkMode ? const Color(0xFFE5D5B8) : const Color(0xFF6B4E3D);
+    final iconColor = isDarkMode ? const Color(0xFFD4AF37) : const Color(0xFFD4AF37);
+
     return Dialog(
-      backgroundColor: const Color(0xFFFFFDF4),
+      backgroundColor: backgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.r),
       ),
@@ -63,7 +69,7 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
             Container(
               padding: EdgeInsets.fromLTRB(16.w, 12.h, 8.w, 8.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5EFE7),
+                color: headerColor,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.r),
                   topRight: Radius.circular(20.r),
@@ -74,12 +80,12 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                   Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD4AF37).withOpacity(0.1),
+                      color: iconColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Icon(
                       Icons.campaign_rounded,
-                      color: const Color(0xFFD4AF37),
+                      color: iconColor,
                       size: 16.sp,
                     ),
                   ),
@@ -89,7 +95,7 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF6B4E3D),
+                      color: textColor,
                     ),
                   ),
                   const Spacer(),
@@ -100,7 +106,7 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                       style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF8B6F47),
+                        color: textColor.withOpacity(0.7),
                       ),
                     ),
                   SizedBox(width: 8.w),
@@ -109,7 +115,7 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                     icon: Icon(
                       Icons.close,
                       size: 18.sp,
-                      color: const Color(0xFF8B6F47),
+                      color: textColor.withOpacity(0.7),
                     ),
                     padding: EdgeInsets.all(6.w),
                     constraints: const BoxConstraints(),
@@ -206,7 +212,7 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5EFE7),
+                color: headerColor,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20.r),
                   bottomRight: Radius.circular(20.r),
@@ -227,8 +233,8 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                           height: 6.h,
                           decoration: BoxDecoration(
                             color: _currentPage == index
-                                ? const Color(0xFFD4AF37)
-                                : const Color(0xFFD4AF37).withOpacity(0.3),
+                                ? iconColor
+                                : iconColor.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(3.r),
                           ),
                         ),
@@ -244,9 +250,9 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                         child: OutlinedButton(
                           onPressed: _onDontShowToday,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF8B6F47),
+                            foregroundColor: textColor,
                             side: BorderSide(
-                              color: const Color(0xFFD4AF37).withOpacity(0.4),
+                              color: iconColor.withOpacity(0.4),
                               width: 1.5.w,
                             ),
                             shape: RoundedRectangleBorder(
@@ -268,8 +274,8 @@ class _AppPopupDialogState extends State<AppPopupDialog> {
                         child: ElevatedButton(
                           onPressed: _onClose,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD4AF37),
-                            foregroundColor: Colors.white,
+                            backgroundColor: iconColor,
+                            foregroundColor: isDarkMode ? Colors.black : Colors.white,
                             elevation: 0,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
@@ -346,7 +352,7 @@ class _PopupContentWidgetState extends State<_PopupContentWidget> {
             }
           },
           onWebResourceError: (WebResourceError error) {
-            print('[PopupContent] WebView 오류: ${error.description}');
+            // WebView 로드 실패 시 로딩 상태 유지
           },
         ),
       )

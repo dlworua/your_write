@@ -8,31 +8,20 @@ class PopupService {
   /// Firestore에서 현재 표시 가능한 팝업 가져오기
   static Future<List<AppPopupModel>> fetchActivePopups() async {
     try {
-      print('[PopupService] 팝업 가져오기 시작...');
       final snapshot = await FirebaseFirestore.instance
           .collection('app_popups')
           .where('isActive', isEqualTo: true)
           .orderBy('priority', descending: true)
           .get();
 
-      print('[PopupService] Firestore에서 ${snapshot.docs.length}개 문서 가져옴');
-
       final popups = snapshot.docs
-          .map((doc) {
-            print('[PopupService] 문서 ID: ${doc.id}, 데이터: ${doc.data()}');
-            return AppPopupModel.fromFirestore(doc);
-          })
-          .where((popup) {
-            final shouldShow = popup.shouldShow;
-            print('[PopupService] ${popup.id} shouldShow: $shouldShow (${popup.startDate} ~ ${popup.endDate})');
-            return shouldShow;
-          })
+          .map((doc) => AppPopupModel.fromFirestore(doc))
+          .where((popup) => popup.shouldShow)
           .toList();
 
-      print('[PopupService] 최종 표시할 팝업: ${popups.length}개');
       return popups;
     } catch (e) {
-      print('[PopupService] 팝업 가져오기 실패: $e');
+      // 에러 발생 시 빈 리스트 반환 (앱 실행은 계속됨)
       return [];
     }
   }
@@ -57,7 +46,7 @@ class PopupService {
 
       return !isSameDay;
     } catch (e) {
-      print('[PopupService] 팝업 표시 여부 확인 실패: $e');
+      // 확인 실패 시 기본적으로 표시
       return true;
     }
   }
@@ -70,7 +59,7 @@ class PopupService {
       final now = DateTime.now();
       await prefs.setString(key, now.toIso8601String());
     } catch (e) {
-      print('[PopupService] 오늘 하루 보지 않기 설정 실패: $e');
+      // 설정 실패 시 무시 (사용자 경험에 큰 영향 없음)
     }
   }
 

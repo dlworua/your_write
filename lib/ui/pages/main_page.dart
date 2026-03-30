@@ -36,22 +36,9 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _showStartupPopups() async {
     try {
-      print('[MainPage] 팝업 가져오기 시작...');
       final popups = await PopupService.getPopupsToShow();
 
-      print('[MainPage] 가져온 팝업 개수: ${popups.length}');
-
-      if (popups.isEmpty) {
-        print('[MainPage] 표시할 팝업 없음');
-        return;
-      }
-
-      if (!mounted) {
-        print('[MainPage] Widget이 mounted 상태가 아님');
-        return;
-      }
-
-      print('[MainPage] 팝업 다이얼로그 표시 시작 (${popups.length}개)');
+      if (popups.isEmpty || !mounted) return;
 
       // 모든 팝업을 하나의 다이얼로그에서 슬라이드로 표시
       await showDialog(
@@ -59,11 +46,8 @@ class _MainPageState extends State<MainPage> {
         barrierDismissible: false,
         builder: (context) => AppPopupDialog(popups: popups),
       );
-
-      print('[MainPage] 팝업 다이얼로그 닫힘');
     } catch (e) {
-      print('[MainPage] 팝업 표시 실패: $e');
-      print('[MainPage] 에러 스택트레이스: ${StackTrace.current}');
+      // 팝업 표시 실패 시 무시 (앱 실행은 계속됨)
     }
   }
 
