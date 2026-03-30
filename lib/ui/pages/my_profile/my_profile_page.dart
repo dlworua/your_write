@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:your_write/services/admin_service.dart';
+import 'package:your_write/ui/pages/admin/popup_admin_page.dart';
 import 'package:your_write/ui/pages/my_profile/widgets/tap_filter.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/post_grid.dart';
@@ -17,6 +19,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   List<Map<String, dynamic>> _myPosts = [];
   bool _loading = true;
   String? _error;
+  bool _isAdmin = false;
 
   int _selectedFilterIndex = 0; // 필터 상태
 
@@ -24,6 +27,16 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void initState() {
     super.initState();
     _loadUserAndPosts();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final isAdmin = await AdminService.isAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
   }
 
   Future<void> _loadUserAndPosts() async {
@@ -266,6 +279,29 @@ class _MyProfilePageState extends State<MyProfilePage> {
           ),
         ),
         actions: [
+          // 관리자 버튼 (관리자만 표시)
+          if (_isAdmin)
+            Container(
+              margin: const EdgeInsets.only(right: 4),
+              child: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4AF37).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.admin_panel_settings, size: 20),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PopupAdminPage(),
+                    ),
+                  );
+                },
+              ),
+            ),
           Container(
             margin: const EdgeInsets.only(right: 10),
             child: IconButton(
