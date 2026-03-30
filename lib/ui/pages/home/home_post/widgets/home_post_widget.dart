@@ -1,10 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_write/data/models/home_post_model.dart';
 import 'package:your_write/ui/pages/home/home_detail/detail_page.dart';
+import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
 import 'package:your_write/ui/pages/home/home_post/widgets/home_post_bottom.dart';
 import 'package:your_write/ui/pages/home/home_post/widgets/home_post_middle.dart';
 import 'package:your_write/ui/pages/home/home_post/widgets/home_post_top.dart';
+import 'package:your_write/ui/pages/home/home_write/home_write_page.dart';
 
-class HomePostWidget extends StatelessWidget {
+class HomePostWidget extends ConsumerWidget {
   final String postId;
   final String nickname;
   final String title;
@@ -26,8 +31,64 @@ class HomePostWidget extends StatelessWidget {
     this.authorUid = '',
   });
 
+  void _navigateToEdit(BuildContext context) {
+    final editPost = HomePostModel(
+      id: postId,
+      title: title,
+      content: content,
+      keyword: keywords.join(', '),
+      author: nickname,
+      date: date,
+      uid: authorUid,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HomeWritePage(editPost: editPost),
+      ),
+    );
+  }
+
+  void _showDeleteConfirm(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFFFFFDF4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '글 삭제',
+          style: TextStyle(color: Color(0xFF6B4E3D), fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          '이 글을 삭제하시겠습니까?',
+          style: TextStyle(color: Color(0xFF5D4E42)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소', style: TextStyle(color: Color(0xFF8B6F47))),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref.read(homePostListProvider.notifier).deletePost(postId);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFE8D5C4).withOpacity(0.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('삭제', style: TextStyle(color: Color(0xFFB44A2A), fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final isAuthor = authorUid.isNotEmpty && currentUid == authorUid;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
@@ -57,22 +118,27 @@ class HomePostWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Column(
           children: [
-            HomePostTop(nickname: nickname, postId: postId),
+            HomePostTop(
+              nickname: nickname,
+              postId: postId,
+              isAuthor: isAuthor,
+              onEdit: () => _navigateToEdit(context),
+              onDelete: () => _showDeleteConfirm(context, ref),
+            ),
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (_) => HomeDetailPage(
-                          postId: postId,
-                          title: title,
-                          content: content,
-                          author: nickname,
-                          keyword: keywords.isNotEmpty ? keywords.first : '',
-                          date: date,
-                          authorUid: authorUid,
-                        ),
+                    builder: (_) => HomeDetailPage(
+                      postId: postId,
+                      title: title,
+                      content: content,
+                      author: nickname,
+                      keyword: keywords.isNotEmpty ? keywords.first : '',
+                      date: date,
+                      authorUid: authorUid,
+                    ),
                   ),
                 );
               },

@@ -20,6 +20,7 @@ class RandomWriteService {
         'content': write.content,
         'date': write.date,
         'type': write.type.name,
+        'uid': write.uid,
       });
       print('✅ 랜덤 글 Firestore 저장 성공');
       return docRef.id;

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:your_write/data/models/home_post_model.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
 import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
+import 'package:your_write/ui/pages/home/home_write/home_write_page.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
@@ -72,85 +73,48 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
     FocusScope.of(context).requestFocus(_focusNode);
   }
 
-  void _showEditDialog() {
-    final titleCtrl = TextEditingController(text: _title);
-    final contentCtrl = TextEditingController(text: _content);
-    final keywordCtrl = TextEditingController(text: _keyword);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('글 수정'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: '제목'),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: keywordCtrl,
-                decoration: const InputDecoration(labelText: '키워드'),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: contentCtrl,
-                decoration: const InputDecoration(labelText: '본문'),
-                maxLines: 5,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final updated = HomePostModel(
-                id: widget.postId,
-                title: titleCtrl.text.trim(),
-                content: contentCtrl.text.trim(),
-                keyword: keywordCtrl.text.trim(),
-                author: widget.author,
-                date: widget.date,
-                uid: widget.authorUid,
-              );
-              await ref
-                  .read(homePostListProvider.notifier)
-                  .updatePost(updated);
-              if (mounted) {
-                setState(() {
-                  _title = updated.title;
-                  _content = updated.content;
-                  _keyword = updated.keyword;
-                });
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('수정되었습니다')),
-                );
-              }
-            },
-            child: const Text('저장', style: TextStyle(color: Color(0xFF8B6F47))),
-          ),
-        ],
-      ),
+  Future<void> _navigateToEdit() async {
+    final editPost = HomePostModel(
+      id: widget.postId,
+      title: _title,
+      content: _content,
+      keyword: _keyword,
+      author: widget.author,
+      date: widget.date,
+      uid: widget.authorUid,
     );
+    final result = await Navigator.push<HomePostModel>(
+      context,
+      MaterialPageRoute(builder: (_) => HomeWritePage(editPost: editPost)),
+    );
+    // 수정 완료 후 Detail 페이지 내 상태 반영
+    if (result != null && mounted) {
+      setState(() {
+        _title = result.title;
+        _content = result.content;
+        _keyword = result.keyword;
+      });
+    }
   }
 
   void _showDeleteConfirm() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('글 삭제'),
-        content: const Text('이 글을 삭제하시겠습니까?'),
+        backgroundColor: const Color(0xFFFFFDF4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '글 삭제',
+          style: TextStyle(color: Color(0xFF6B4E3D), fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          '이 글을 삭제하시겠습니까?',
+          style: TextStyle(color: Color(0xFF5D4E42)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
+            child: const Text('취소', style: TextStyle(color: Color(0xFF8B6F47))),
           ),
           TextButton(
             onPressed: () async {
@@ -162,7 +126,11 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                 Navigator.pop(context);
               }
             },
-            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFE8D5C4).withOpacity(0.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('삭제', style: TextStyle(color: Color(0xFFB44A2A), fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -223,7 +191,7 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                         color: const Color(0xFF8B6F47),
                       ),
                       onSelected: (value) {
-                        if (value == 'edit') _showEditDialog();
+                        if (value == 'edit') _navigateToEdit();
                         if (value == 'delete') _showDeleteConfirm();
                       },
                       itemBuilder: (_) => const [
