@@ -9,6 +9,7 @@ class AppPopupModel {
   final String id;
   final String contentUrl; // WebView 또는 이미지 URL
   final PopupContentType contentType; // 컨텐츠 타입
+  final String? actionUrl; // 클릭 시 이동할 URL (선택사항)
   final bool isActive; // 활성화 상태
   final DateTime startDate; // 노출 시작일
   final DateTime endDate; // 노출 종료일
@@ -18,6 +19,7 @@ class AppPopupModel {
     required this.id,
     required this.contentUrl,
     required this.contentType,
+    this.actionUrl,
     required this.isActive,
     required this.startDate,
     required this.endDate,
@@ -38,6 +40,7 @@ class AppPopupModel {
       id: doc.id,
       contentUrl: data['contentUrl'] as String? ?? '',
       contentType: type,
+      actionUrl: data['actionUrl'] as String?,
       isActive: data['isActive'] as bool? ?? false,
       startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       endDate: (data['endDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -46,7 +49,7 @@ class AppPopupModel {
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    final map = {
       'contentUrl': contentUrl,
       'contentType': contentType == PopupContentType.image ? 'image' : 'webview',
       'isActive': isActive,
@@ -54,6 +57,12 @@ class AppPopupModel {
       'endDate': Timestamp.fromDate(endDate),
       'priority': priority,
     };
+
+    if (actionUrl != null) {
+      map['actionUrl'] = actionUrl!;
+    }
+
+    return map;
   }
 
   /// 현재 시점에 표시 가능한 팝업인지 확인

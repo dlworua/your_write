@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:your_write/data/models/app_popup_model.dart';
 import 'package:your_write/services/popup_service.dart';
 
@@ -391,52 +393,64 @@ class _PopupContentWidgetState extends State<_PopupContentWidget> {
       ..loadRequest(Uri.parse(widget.popup.contentUrl));
   }
 
+  Future<void> _handleImageTap() async {
+    final actionUrl = widget.popup.actionUrl;
+    if (actionUrl == null || actionUrl.isEmpty) return;
+
+    try {
+      final uri = Uri.parse(actionUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      // URL 열기 실패 시 무시
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.popup.contentType == PopupContentType.image) {
-      // 이미지 타입
+      // 이미지 타입 (캐싱 적용)
+      final imageWidget = CachedNetworkImage(
+        imageUrl: widget.popup.contentUrl,
+        fit: BoxFit.contain,
+        placeholder: (context, url) => Center(
+          child: CircularProgressIndicator(
+            color: const Color(0xFFD4AF37),
+            strokeWidth: 2.5,
+          ),
+        ),
+        errorWidget: (context, url, error) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48.sp,
+                color: const Color(0xFF8B6F47).withOpacity(0.5),
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                '이미지를 불러올 수 없습니다',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: const Color(0xFF8B6F47),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
       return Container(
         color: Colors.white,
         child: Center(
-          child: Image.network(
-            widget.popup.contentUrl,
-            fit: BoxFit.contain,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  color: const Color(0xFFD4AF37),
-                  strokeWidth: 2.5,
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 48.sp,
-                      color: const Color(0xFF8B6F47).withOpacity(0.5),
-                    ),
-                    SizedBox(height: 12.h),
-                    Text(
-                      '이미지를 불러올 수 없습니다',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF8B6F47),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+          child: widget.popup.actionUrl != null
+              ? GestureDetector(
+                  onTap: _handleImageTap,
+                  child: imageWidget,
+                )
+              : imageWidget,
         ),
       );
     } else {
