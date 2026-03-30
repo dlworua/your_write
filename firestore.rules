@@ -121,6 +121,40 @@ service cloud.firestore {
       }
     }
 
+    // ===== Collection Group Query 지원 =====
+    // 모든 comments 서브컬렉션에 대한 접근 허용
+    match /{path=**}/comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        (resource.data.uid == request.auth.uid ||
+         request.resource.data.author != null);  // 닉네임 업데이트 허용
+      allow delete: if isAuthenticated() &&
+        resource.data.uid == request.auth.uid;
+    }
+
+    // ===== Collection Group Query 지원 - likes =====
+    match /{path=**}/likes/{likeUid} {
+      allow read: if isAuthenticated();
+      allow create, delete: if isOwner(likeUid);
+      allow update: if isAuthenticated();  // 닉네임 업데이트 허용
+    }
+
+    // ===== Collection Group Query 지원 - saves =====
+    match /{path=**}/saves/{uid} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid);
+    }
+
+    // ===== app_popups 컬렉션 =====
+    // 앱 시작 팝업 관리용 (관리자가 Firestore Console에서 직접 생성/수정)
+    match /app_popups/{popupId} {
+      // 로그인한 모든 사용자가 읽기 가능
+      allow read: if isAuthenticated();
+      // 쓰기는 차단 (관리자가 Console에서만 관리)
+      allow write: if false;
+    }
+
     // 그 외 모든 문서는 기본 차단
     match /{document=**} {
       allow read, write: if false;
