@@ -159,18 +159,14 @@ service cloud.firestore {
       // 로그인한 모든 사용자가 읽기 가능
       allow read: if isAuthenticated();
 
-      // 통계 필드는 모든 인증 사용자가 업데이트 가능
+      // 관리자는 모든 필드 수정 가능 (생성/수정/삭제)
+      allow create, update, delete: if isAdmin();
+
+      // 일반 사용자는 통계 필드만 업데이트 가능
       allow update: if isAuthenticated() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(
           ['viewCount', 'clickCount', 'lastViewedAt', 'lastClickedAt']
         );
-
-      // isActive 필드는 관리자만 업데이트 가능
-      allow update: if isAdmin() &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isActive']);
-
-      // 생성 및 삭제는 차단 (관리자가 Console에서만 관리)
-      allow create, delete: if false;
     }
 
     // 그 외 모든 문서는 기본 차단
