@@ -4,7 +4,18 @@ import 'package:your_write/ui/widgets/report/report_popup.dart';
 class HomePostTop extends StatelessWidget {
   final String nickname;
   final String postId;
-  const HomePostTop({super.key, required this.nickname, required this.postId});
+  final bool isAuthor;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+
+  const HomePostTop({
+    super.key,
+    required this.nickname,
+    required this.postId,
+    this.isAuthor = false,
+    this.onEdit,
+    this.onDelete,
+  });
 
   void _onReportPressed(BuildContext context) {
     showDialog(
@@ -57,14 +68,31 @@ class HomePostTop extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              onPressed: () => _onReportPressed(context),
-              icon: Icon(
-                Icons.report,
-                color: Color(0xFFCD853F), // 따뜻한 브라운
-                size: 22,
+            if (isAuthor)
+              PopupMenuButton<String>(
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: Color(0xFFCD853F),
+                  size: 22,
+                ),
+                onSelected: (value) {
+                  if (value == 'edit') onEdit?.call();
+                  if (value == 'delete') onDelete?.call();
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'edit', child: Text('수정')),
+                  PopupMenuItem(value: 'delete', child: Text('삭제')),
+                ],
+              )
+            else
+              IconButton(
+                onPressed: () => _onReportPressed(context),
+                icon: const Icon(
+                  Icons.report,
+                  color: Color(0xFFCD853F),
+                  size: 22,
+                ),
               ),
-            ),
           ],
         ),
       ),

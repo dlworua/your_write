@@ -27,6 +27,7 @@ class HomePostList extends ConsumerWidget {
                   nickname: post.author,
                   keywords: [post.keyword],
                   date: post.date,
+                  authorUid: post.uid,
                   onCommentPressed: () {
                     Navigator.push(
                       context,
@@ -39,6 +40,7 @@ class HomePostList extends ConsumerWidget {
                               author: post.author,
                               keyword: post.keyword,
                               date: post.date,
+                              authorUid: post.uid,
                               scrollToCommentInput: true,
                             ),
                       ),

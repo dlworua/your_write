@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:your_write/data/models/home_post_model.dart';
 import 'package:your_write/data/viewmodel/post_interaction_viewmodel.dart';
+import 'package:your_write/ui/pages/home/home_post/home_view_model.dart';
+import 'package:your_write/ui/pages/home/home_write/home_write_page.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_input.dart';
 import 'package:your_write/ui/widgets/comment/shared_comment_list.dart';
 import 'package:your_write/ui/widgets/comment/comment_params.dart';
@@ -13,6 +17,7 @@ class HomeDetailPage extends ConsumerStatefulWidget {
   final String author;
   final String keyword;
   final DateTime date;
+  final String authorUid;
   final bool scrollToCommentInput;
 
   const HomeDetailPage({
@@ -23,6 +28,7 @@ class HomeDetailPage extends ConsumerStatefulWidget {
     required this.author,
     required this.keyword,
     required this.date,
+    this.authorUid = '',
     this.scrollToCommentInput = false,
   });
 
@@ -34,6 +40,21 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
+
+  late String _title;
+  late String _content;
+  late String _keyword;
+
+  @override
+  void initState() {
+    super.initState();
+    _title = widget.title;
+    _content = widget.content;
+    _keyword = widget.keyword;
+    if (widget.scrollToCommentInput) {
+      _scrollToCommentInput();
+    }
+  }
 
   void _scrollToCommentInput({int retryCount = 0}) {
     if (retryCount > 10) return;
@@ -52,12 +73,68 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
     FocusScope.of(context).requestFocus(_focusNode);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.scrollToCommentInput) {
-      _scrollToCommentInput();
+  Future<void> _navigateToEdit() async {
+    final editPost = HomePostModel(
+      id: widget.postId,
+      title: _title,
+      content: _content,
+      keyword: _keyword,
+      author: widget.author,
+      date: widget.date,
+      uid: widget.authorUid,
+    );
+    final result = await Navigator.push<HomePostModel>(
+      context,
+      MaterialPageRoute(builder: (_) => HomeWritePage(editPost: editPost)),
+    );
+    // 수정 완료 후 Detail 페이지 내 상태 반영
+    if (result != null && mounted) {
+      setState(() {
+        _title = result.title;
+        _content = result.content;
+        _keyword = result.keyword;
+      });
     }
+  }
+
+  void _showDeleteConfirm() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFFFFFDF4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '글 삭제',
+          style: TextStyle(color: Color(0xFF6B4E3D), fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          '이 글을 삭제하시겠습니까?',
+          style: TextStyle(color: Color(0xFF5D4E42)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소', style: TextStyle(color: Color(0xFF8B6F47))),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(homePostListProvider.notifier)
+                  .deletePost(widget.postId);
+              if (mounted) {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              }
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFE8D5C4).withOpacity(0.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('삭제', style: TextStyle(color: Color(0xFFB44A2A), fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -73,11 +150,14 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
     );
 
     final keywords =
-        widget.keyword
+        _keyword
             .split(',')
             .map((k) => k.trim())
             .where((k) => k.isNotEmpty)
             .toList();
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final isAuthor = widget.authorUid.isNotEmpty && currentUid == widget.authorUid;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -100,6 +180,26 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                     ),
                   ),
                 ),
+                if (isAuthor)
+                  Positioned(
+                    top: 85,
+                    right: 16,
+                    child: PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        size: 20.sp,
+                        color: const Color(0xFF8B6F47),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'edit') _navigateToEdit();
+                        if (value == 'delete') _showDeleteConfirm();
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'edit', child: Text('수정')),
+                        PopupMenuItem(value: 'delete', child: Text('삭제')),
+                      ],
+                    ),
+                  ),
               ],
             ),
             Expanded(
@@ -124,7 +224,7 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.title,
+                          _title,
                           style: TextStyle(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.w700,
@@ -228,7 +328,7 @@ class _HomeDetailPageState extends ConsumerState<HomeDetailPage> {
                       ],
                     ),
                     child: Text(
-                      widget.content,
+                      _content,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18.sp,

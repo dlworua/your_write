@@ -21,13 +21,14 @@ String postTypeToString(PostType type) {
 
 /// 글 모델
 class WriteModel {
-  final String id; // ✅ 추가됨
+  final String id;
   final String title;
   final String keyWord;
   final String nickname;
   final String content;
   final DateTime date;
   final PostType type;
+  final String uid; // 작성자 UID (수정/삭제 권한 확인용)
 
   WriteModel({
     required this.id,
@@ -37,6 +38,7 @@ class WriteModel {
     required this.content,
     required this.date,
     required this.type,
+    this.uid = '',
   });
 
   WriteModel copyWith({
@@ -47,6 +49,7 @@ class WriteModel {
     String? content,
     DateTime? date,
     PostType? type,
+    String? uid,
   }) {
     return WriteModel(
       id: id ?? this.id,
@@ -56,6 +59,7 @@ class WriteModel {
       content: content ?? this.content,
       date: date ?? this.date,
       type: type ?? this.type,
+      uid: uid ?? this.uid,
     );
   }
 
@@ -67,6 +71,7 @@ class WriteModel {
       'content': content,
       'date': date.toIso8601String(),
       'type': postTypeToString(type),
+      'uid': uid,
     };
   }
 
@@ -85,9 +90,10 @@ class WriteModel {
               ? (map['date'] as Timestamp).toDate()
               : DateTime.parse(map['date']),
       type: postTypeFromString(map['type']),
+      uid: map['uid'] ?? '',
     );
   }
-  // WriteModel 내부에 추가해두면 더 깔끔합니다.
+
   factory WriteModel.empty(PostType type) => WriteModel(
     id: '',
     title: '',

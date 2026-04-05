@@ -49,8 +49,9 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
   final CommentParams? params;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final String? uid = FirebaseAuth.instance.currentUser?.uid;
-  final String nickname =
-      FirebaseAuth.instance.currentUser?.displayName ?? '익명';
+  String _nickname = '';
+
+  String get nickname => _nickname;
 
   PostInteractionViewModel(this.params)
     : super(
@@ -62,8 +63,25 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
         ),
       ) {
     if (params != null && uid != null) {
+      _loadNickname();
       _init();
       _subscribeRealtime();
+    }
+  }
+
+  Future<void> _loadNickname() async {
+    if (uid == null) {
+      _nickname = '익명';
+      return;
+    }
+
+    try {
+      final userDoc = await firestore.collection('users').doc(uid).get();
+      _nickname = userDoc.data()?['nickname'] as String? ??
+                  FirebaseAuth.instance.currentUser?.displayName ??
+                  '익명';
+    } catch (e) {
+      _nickname = FirebaseAuth.instance.currentUser?.displayName ?? '익명';
     }
   }
 
@@ -154,6 +172,9 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
   Future<void> toggleLike() async {
     if (params == null || uid == null) return;
 
+    // 최신 닉네임 로드
+    await _loadNickname();
+
     final likeDoc = firestore
         .collection(params!.boardType)
         .doc(params!.postId)
@@ -165,8 +186,29 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
       await likeDoc.delete();
     } else {
       state = state.copyWith(isLiked: true, likeCount: state.likeCount + 1);
-      await likeDoc.set({'nickname': nickname});
+      await likeDoc.set({
+        'nickname': nickname,
+        'uid': uid,
+      });
     }
+  }
+
+  Future<List<Map<String, String>>> fetchLikedUsers() async {
+    if (params == null) return [];
+
+    final likesSnapshot = await firestore
+        .collection(params!.boardType)
+        .doc(params!.postId)
+        .collection('likes')
+        .get();
+
+    return likesSnapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'nickname': data['nickname'] as String? ?? '익명',
+        'uid': data['uid'] as String? ?? doc.id,
+      };
+    }).toList();
   }
 
   Future<void> toggleSave() async {
@@ -201,6 +243,9 @@ class PostInteractionViewModel extends StateNotifier<PostInteractionState> {
       print('[DEBUG] ❌ 내용이 비어있습니다.');
       return;
     }
+
+    // 최신 닉네임 로드
+    await _loadNickname();
 
     final commentRef =
         firestore

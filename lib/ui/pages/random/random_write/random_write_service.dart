@@ -20,6 +20,7 @@ class RandomWriteService {
         'content': write.content,
         'date': write.date,
         'type': write.type.name,
+        'uid': write.uid,
       });
       print('✅ 랜덤 글 Firestore 저장 성공');
       return docRef.id;
@@ -44,5 +45,17 @@ class RandomWriteService {
       print('❌ 랜덤 글 불러오기 실패: $e');
       return [];
     }
+  }
+
+  Future<void> updatePost(WriteModel post) async {
+    await _firestore.collection('random_writes').doc(post.id).update({
+      'title': post.title,
+      'keyWord': post.keyWord,
+      'content': post.content,
+    });
+  }
+
+  Future<void> deletePost(String postId) async {
+    await _firestore.collection('random_writes').doc(postId).delete();
   }
 }

@@ -1,0 +1,177 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== 공통 함수 =====
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // ===== users 컬렉션 =====
+    match /users/{userId} {
+      // 본인만 읽기/쓰기 가능
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // ===== home_posts 컬렉션 =====
+    match /home_posts/{postId} {
+      // 로그인한 사용자는 읽기 가능
+      allow read: if isAuthenticated();
+      // 로그인한 사용자는 작성 가능
+      allow create: if isAuthenticated();
+      // 본인 글만 수정/삭제 가능
+      allow update, delete: if isAuthenticated() &&
+        (resource.data.uid == request.auth.uid ||
+         resource.data.nickname == request.auth.token.name);
+
+      // 좋아요 서브컬렉션
+      match /likes/{uid} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(uid);
+      }
+
+      // 저장 서브컬렉션
+      match /saves/{uid} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(uid);
+      }
+
+      // 댓글 서브컬렉션
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() &&
+          resource.data.uid == request.auth.uid;
+      }
+
+      // 신고 서브컬렉션
+      match /reports/{reportId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if false; // 신고는 수정/삭제 불가
+      }
+    }
+
+    // ===== random_writes 컬렉션 =====
+    match /random_writes/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        resource.data.uid == request.auth.uid;
+
+      match /likes/{uid} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(uid);
+      }
+
+      match /saves/{uid} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(uid);
+      }
+
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() &&
+          resource.data.uid == request.auth.uid;
+      }
+
+      match /reports/{reportId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if false;
+      }
+    }
+
+    // ===== ai_writes 컬렉션 =====
+    match /ai_writes/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        resource.data.uid == request.auth.uid;
+
+      match /likes/{uid} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(uid);
+      }
+
+      match /saves/{uid} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(uid);
+      }
+
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() &&
+          resource.data.uid == request.auth.uid;
+      }
+
+      match /reports/{reportId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if false;
+      }
+    }
+
+    // ===== Collection Group Query 지원 =====
+    // 모든 comments 서브컬렉션에 대한 접근 허용
+    match /{path=**}/comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        (resource.data.uid == request.auth.uid ||
+         request.resource.data.author != null);  // 닉네임 업데이트 허용
+      allow delete: if isAuthenticated() &&
+        resource.data.uid == request.auth.uid;
+    }
+
+    // ===== Collection Group Query 지원 - likes =====
+    match /{path=**}/likes/{likeUid} {
+      allow read: if isAuthenticated();
+      allow create, delete: if isOwner(likeUid);
+      allow update: if isAuthenticated();  // 닉네임 업데이트 허용
+    }
+
+    // ===== Collection Group Query 지원 - saves =====
+    match /{path=**}/saves/{uid} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid);
+    }
+
+    // ===== 관리자 권한 확인 함수 =====
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
+
+    // ===== app_popups 컬렉션 =====
+    // 앱 시작 팝업 관리용
+    match /app_popups/{popupId} {
+      // 로그인한 모든 사용자가 읽기 가능
+      allow read: if isAuthenticated();
+
+      // 관리자는 모든 필드 수정 가능 (생성/수정/삭제)
+      allow create, update, delete: if isAdmin();
+
+      // 일반 사용자는 통계 필드만 업데이트 가능
+      allow update: if isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          ['viewCount', 'clickCount', 'lastViewedAt', 'lastClickedAt']
+        );
+    }
+
+    // 그 외 모든 문서는 기본 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

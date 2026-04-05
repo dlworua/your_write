@@ -51,6 +51,7 @@ class _AiPostListState extends ConsumerState<AiPostList> {
                       keywords: post.keyWord.split(','),
                       date: post.date,
                       postId: post.id,
+                      authorUid: post.uid,
                     ),
                     SizedBox(height: 30.h),
                   ],
